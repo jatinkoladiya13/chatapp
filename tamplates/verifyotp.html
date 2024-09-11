@@ -1,0 +1,105 @@
+{% include "header.html" %}
+
+        <div class="container">
+            <div class="centerotp">
+                <h3>Please check your email</h3>
+                <h5>We've sent a code to {{ email }}</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="input-field">
+                        <input type="number" name="otp1" required maxlength="1"/>
+                        <input type="number" name="otp2" required maxlength="1" disabled/>
+                        <input type="number" name="otp3" required maxlength="1" disabled/>
+                        <input type="number" name="otp4" required maxlength="1" disabled/>
+                    </div>
+                    <div class="otp-container">
+                        <span class="normal-text">Didn't get the code?</span>
+                        <span class="clickable-text">Click to resend.</span>
+                    </div>
+                    <button type="submit">Verify OTP</button>
+                </form>
+            </div>
+            
+        </div> 
+       
+    <script>
+        const inputs = document.querySelectorAll("input"),
+        button = document.querySelector("button");
+  
+        inputs.forEach((input, index1) => {   
+            input.addEventListener("keyup", (e) => {
+                const currentInput = input,
+                        nextInput = input.nextElementSibling,
+                        prevInput = input.previousElementSibling;
+        
+                if (currentInput.value.length > 1) {
+                    currentInput.value = "";
+                    return;
+                }
+        
+                if (e.key === "Backspace") {
+                    if (prevInput) {
+                        currentInput.setAttribute("disabled", true);
+                        currentInput.value = "";
+                        prevInput.focus();
+                    }
+                    currentInput.classList.remove('active-input');
+                } else {
+                    if (nextInput && currentInput.value !== "") {
+                        nextInput.removeAttribute("disabled");
+                        nextInput.focus();
+                    }
+                    currentInput.classList.add('active-input');
+                }
+        
+                if (!inputs[3].disabled && inputs[3].value !== "") {
+                    button.classList.add("active");
+                } else {
+                    button.classList.remove("active");
+                }
+            });
+        });
+
+        window.addEventListener("load", () => inputs[0].focus());
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+  
+  
+        document.addEventListener('DOMContentLoaded', ()=> {
+            const resendlink = document.querySelector('.clickable-text')
+            resendlink.addEventListener('click', (event)=>{
+                event.preventDefault();
+                const email = '{{email}}';
+
+                fetch('/resendotp/',{
+                    method:'POST',
+                    header:{
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ email: email }) 
+                }).then(response => response.json()).then(data=>{
+                    alert(data.message);
+                }) .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+   </body>
+</html>

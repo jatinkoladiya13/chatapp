@@ -1,0 +1,122 @@
+{% include "header.html" %}
+    <section>
+        <div class="form-main-div">
+           <div class="wrapper">
+               <h1 class="main-title">Sign UP</h1>    
+               &nbsp;
+               <form method="post"  enctype="multipart/form-data" >
+                   {% csrf_token %}
+                   <div class="profile-image-container">
+                        <img src="/static/images/profile.png" alt="Profile Image" id="profileImagePreview" class="profile-image">
+                        <input type="file" name="profile_image" id="profileImageInput" accept="image/*" style="display: none;">
+                    </div>
+
+                   <div class="field name">
+                       <div class="input-area">
+                           <i class="fa-solid fa-user" style="color: #000000;"></i>                        
+                           <input type="text" placeholder="Name" name="name" id="name" required="">
+                       </div>
+                   </div>
+                   <div class="field email">
+                       <div class="input-area">
+                           <i class="fa-solid fa-envelope" style="color: #000000;"></i>
+                           <input type="email" placeholder="Email Address" name="email" id="email" value="" required="">
+                       </div>
+                   </div>
+                   <div class="field confirmPassword">
+                       <div class="input-area">
+                        <i class="fa-solid fa-lock" style="color: #000000;"></i>
+                        <input type="password" placeholder="confirm Password" name="confirmPassword" id="confirmPassword" value="" required="">
+                        <i class="fa-solid fa-eye fa-sm" id="showConfrimPassword" style="color: #000000;"></i>
+                        <i class="fa-sharp fa-solid fa-eye-slash" id="hideConfrimPassword" style="color: #000000;"></i>
+                       </div>
+                   </div>
+                   <div class="field password">
+                       <div class="input-area">
+                        <i class="fa-solid fa-lock" style="color: #000000;"></i>
+                        <input type="password" placeholder="Password" name="password" id="password" value="" required="">
+                        <i class="fa-solid fa-eye fa-sm" id="showPassword" style="color: #000000;"></i>
+                        <i class="fa-sharp fa-solid fa-eye-slash" id="hidePassword" style="color: #000000;"></i>
+                       </div>
+                   </div>
+                   &nbsp;
+                   <input type="submit" value="sign up"> 
+                   &nbsp;   
+                   <div class="sign-txt">You have already account? <a href="/login" id="login">Sign in</a></div>
+               </form>    
+           </div>    
+        </div>
+      </section>
+        <script>
+            document.addEventListener("DOMContentLoaded", function(){
+                var passwordInput = document.getElementById("password");
+                var showPasswordIcon = document.getElementById("showPassword");
+                var hidePasswordIcon = document.getElementById("hidePassword");
+                
+                var confirmPasswordInput = document.getElementById("confirmPassword");
+                var showConfrimPasswordIcon = document.getElementById("showConfrimPassword");
+                var hideConfrimPasswordIcon = document.getElementById("hideConfrimPassword");
+
+                 
+                
+                confirmPasswordInput.type = "password";
+                showConfrimPasswordIcon.style.display = "none";
+                hideConfrimPasswordIcon.style.display = "block";
+
+                passwordInput.type = "password"; 
+                showPasswordIcon.style.display = "none";
+                hidePasswordIcon.style.display = "block";   
+
+
+
+                showPasswordIcon.addEventListener("click", function(){
+                   passwordInput.type = "password";
+                   showPasswordIcon.style.display  = "none";
+                   hidePasswordIcon.style.display  = "block";
+                });
+
+                hidePasswordIcon.addEventListener("click", function(){
+                    passwordInput.type = "text";
+                    showPasswordIcon.style.display = "block";
+                    hidePasswordIcon.style.display = "none";
+                });
+
+                showConfrimPasswordIcon.addEventListener("click", function(){
+                    confirmPasswordInput.type = "password";
+                    showConfrimPasswordIcon.style.display = "none";
+                    hideConfrimPasswordIcon.style.display = "block";
+                });
+
+                hideConfrimPasswordIcon.addEventListener("click", function(){
+                    confirmPasswordInput.type = "text";
+                    showConfrimPasswordIcon.style.display = "block";
+                    hideConfrimPasswordIcon.style.display = "none";
+                });
+                
+                document.getElementById('profileImagePreview').addEventListener('click', function() {
+                    document.getElementById('profileImageInput').click();
+                });
+    
+                document.getElementById('profileImageInput').addEventListener('change', function(event) {
+                    const reader = new FileReader();
+                    reader.onload = function(){
+                        const output = document.getElementById('profileImagePreview');
+                        output.src = reader.result;
+                    };
+                    reader.readAsDataURL(event.target.files[0]);
+                }); 
+
+                document.querySelector("form").addEventListener("submit", function (event) {
+                    if (passwordInput.value !== confirmPasswordInput.value) {
+                        // Password and confirm password do not match
+                        alert("Password and confirm password do not match!");
+                        event.preventDefault(); 
+                    }
+                    // Continue with the form submission if passwords match
+                });
+            });
+
+           
+        </script>
+    </body>
+</html>
