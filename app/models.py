@@ -1,9 +1,6 @@
 from django.db import models
 from django.contrib.auth.models  import  AbstractUser
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.db import r
-import asyncio 
+from django.db.models.signals import post_save 
 
 # Create your models here.
 
@@ -35,17 +32,7 @@ class Message(models.Model):
     def __str__(self) -> str:
         return f'{self.sender.username} to {self.receiver.username}: {self.content[:20]}'   
 
-class Car(models.Model):
-    car_name = models.CharField(max_length=500)
-    speed = models.IntegerField(default=50)
 
-    def __str__(self) -> str:
-        return self.car_name
 
-@receiver(post_save, sender = Car)
-async def call_car_api(sender, instance, *args, **kwargs):
-    print("Car Object Create")
-
-    print(sender, instance, kwargs)
 
 

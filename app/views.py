@@ -6,7 +6,7 @@ from app.email import send_otp_via_email
 from .untils import encrypt, decrypt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from app.models import User, Message, Car
+from app.models import User, Message
 from django.db.models import Q
 from django.utils.timezone import localtime
 from app.formate_date import format_date
@@ -16,7 +16,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 import json
-import random
+
 # Create your views here.
 
 def register(request):
@@ -144,7 +144,6 @@ def resendotp(request):
 def home(request):
     login_user  = request.user
     
-    Car.objects.create(car_name=f"Nexon-{random.randint(0, 1000)}")
 
     contact_ids = [contact['user_id'] for contact in login_user.contacts if contact['delete_status'] != True]
     
