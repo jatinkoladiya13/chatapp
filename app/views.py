@@ -173,10 +173,15 @@ def home(request):
         last_msg = ''
         if last_message:
             local_timestamp = localtime(last_message.timestamp)
-            last_msg = last_message.content
             last_msg_time = format_date(local_timestamp)
             if last_msg_time == 'Today':
                 last_msg_time = local_timestamp.strftime('%H:%M')
+            if last_message.image:    
+                last_msg = 'Photo'
+            elif last_message.video:
+                last_msg = 'Video'
+            else:
+                last_msg = last_message.content            
        
 
         user_data.append({

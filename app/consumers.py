@@ -7,6 +7,8 @@ from app.formate_date import format_date
 from django.db.models import Q
 from asgiref.sync import sync_to_async
 from django.utils.dateparse import parse_datetime
+from django.core.files.base import ContentFile
+import base64
 
 @database_sync_to_async
 def get_message_receiver_count(sender_id, receiver_id):
@@ -85,9 +87,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 check = False
                 img = sender.profile_image.url if sender.profile_image else None
 
+            send_File = []  
+            if not message:
+                send_Files = text_data_json['Send_Files']
+                for send_File in send_Files:
+                    msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content='',)
+                    if send_File['type'] == 'Photo': 
+                        img_base64 =  send_File['src'].split(',')[1]
+                        img_caption = send_File['caption']
 
-
-            msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
+                        image_content = ContentFile(base64.b64decode(img_base64), name='image.jpg')
+                        msg_instance.image = image_content
+                        msg_instance.caption=img_caption
+                        send_images.append({'url':msg_instance.image.url, 'caption':msg_instance.caption})
+                    elif send_File['type'] == 'Video': 
+                        vid_caption = send_File['caption']
+                        vid_src = send_File['src']  
+                        msg_instance.video = vid_src 
+                        msg_instance.caption = vid_caption
+                        send_images.append({'url':msg_instance.video, 'caption':msg_instance.caption})
+            else:    
+                msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
             
             if sender_id == int(receiver_id):
                 msg_instance.is_read = True
@@ -122,6 +142,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'label_time':formate_msg_time,
                 'check_contacts':check,
                 'img':img,
+                'send_File':str(send_File),
                 }
             )
 
@@ -138,6 +159,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         label_time = event['label_time']
         check_contacts = event['check_contacts']
         img = event['img']
+        send_File = event['send_File']
 
         await self.send(text_data=json.dumps({
             'message':message,
@@ -151,7 +173,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'type':type,
             'label_time':label_time,
             'check_contacts':check_contacts,
-            'img':img
+            'img':img,
+            'send_File':send_File,
         }))
 
 
@@ -178,12 +201,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'messages':[]
                 }
 
-
+          
             grouped_messages[date_key]['messages'].append({
-            'content':message.content,
-            'sender':message.sender_id,
-            'receiver': message.receiver_id,
-            'timestamp':formatted_timestamp,
+                'content':message.content,
+                'sender':message.sender_id,
+                'receiver': message.receiver_id,
+                'timestamp':formatted_timestamp,
+                'img':str(message.image),
+                'caption':message.caption,
             })
         
         response_data = list(grouped_messages.values())

@@ -26,11 +26,21 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False, blank=True, null=True)
-    deleted_by_sender = models.BooleanField(default=False)
-    deleted_by_reciver = models.BooleanField(default=False)
+   
+
+    image = models.ImageField(upload_to='message_images/', blank=True, null=True)
+    video = models.FileField(upload_to='message_videos/', blank=True, null=True)
+    caption = models.CharField(max_length=255, blank=True, null=True) 
    
     def __str__(self) -> str:
-        return f'{self.sender.username} to {self.receiver.username}: {self.content[:20]}'   
+        if self.content:
+            return f'{self.sender.username} to {self.receiver.username}: {self.content[:20]}'   
+        elif self.image:
+            return f'{self.sender.username} sent an image to {self.receiver.username}'
+        elif self.video:
+            return f'{self.sender.username} sent a video to {self.receiver.username}'
+        else:
+            return f'{self.sender.username} to {self.receiver.username}: [Media]'
 
 
 

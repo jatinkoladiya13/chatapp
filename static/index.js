@@ -27,8 +27,9 @@ const plusDropdown = document.getElementById('plus-dropdown-menu');
 const imageViewer = document.getElementById('imageViewer');
 const imagePreviewContainer = document.getElementById('imagePreviewContainer');
 const imagePreviewClose = document.getElementById('imagePreviewClose');
-const chat_box          = document.getElementById('chatBox');
+const chat_box          = document.getElementById('chatBox'); 
 const chat_box_input    = document.getElementById('chatbox_input');
+
 
 // WebSocket  initialization
 const roomName = 'chat_consumer'; 
@@ -186,10 +187,38 @@ document.addEventListener('click',function(event){
 });
 
 imagePreviewClose.addEventListener('click',()=>{
+    clearImages(); 
+});
+
+const multipleItems = document.getElementById('multiple-items');
+const dataLoader = document.getElementById('loader');
+
+function startLoading(){
+    multipleItems.style.display = "none";
+    dataLoader.style.display  = "flex";
+}
+
+function stopLoading(){
+    multipleItems.style.display = "contents";
+    dataLoader.style.display  = "none";
+}
+
+function clearImages(){
     imagePreviewContainer.style.display = 'none';
     chat_box.style.display = 'block';
     chat_box_input.style.display = 'flex';
-});
+    
+    const multipleImg = document.querySelector('.preview_bottom .send-images .multiple-image');
+    multipleImg.innerHTML = '';
+    
+    const imagePreview = document.querySelector(".image-preview");
+    imagePreview.innerHTML = '';
+
+    const check_input = document.getElementById('addmoreImg');
+    if(check_input){
+        check_input.remove();
+    }
+}
 
 function closeDrawandOpenImgView(){
     plusDropdown.style.cssText = `
@@ -203,22 +232,35 @@ function closeDrawandOpenImgView(){
     imagePreviewContainer.style.display = 'flex';
 }
 
+
+let imageIndexCounter = 0;
+
 function handlePhotoCapture(event){
     const files = event.target.files;
 
     if(files){
-        
+        startLoading();          
         closeDrawandOpenImgView();
 
         const  mutipleImg  = document.querySelector('.preview_bottom .send-images .multiple-image');
         const imagePreview = document.querySelector(".image-preview");
-        
+        const button = document.querySelector('.imgAddBtn');
+        const captionInput = document.getElementById('captinoInput');
+        const captionClose = document.getElementById('caption-close');
 
         const isFirstUpload = mutipleImg.innerHTML.trim() === '';
         if(isFirstUpload){
+            imageIndexCounter = 0;   
+            imagePreview.insertAdjacentHTML('beforeend',  `<img id="previewImage" src="" alt="Image Preview">`);
+            const fileInput  = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.id = 'addmoreImg';
+            fileInput.accept = 'image/*';
+            fileInput.multiple = true;
+            fileInput.style.display = 'none';
+            fileInput.onchange = handlePhotoCapture;
+            button.appendChild(fileInput); 
 
-            imagePreview.insertAdjacentHTML('beforeend',  `<img id="previewImage" src="" alt="Image Preview">`); 
-                 
             mutipleImg.innerHTML = '';
             const readerFirst = new FileReader()
             readerFirst.onload = function(e){
@@ -226,14 +268,23 @@ function handlePhotoCapture(event){
                 previewImage.src = e.target.result;
             };
             readerFirst.readAsDataURL(files[0]);
+
+            captionInput.value = '';
+            captionInput.setAttribute('data-index', '0');
         }
         
+        
+
 
         Array.from(files).forEach((file, index)=>{
+            
+          
+
             const readerMultiple = new FileReader();
             readerMultiple.onload = function(e){
+                imageIndexCounter++;
                 const imgTeg = `
-                    <button class="multipleImgBtn" data-index="${index}" >
+                    <button class="multipleImgBtn" data-index="${imageIndexCounter}" data-caption="">
                         <div class="first">
                             <ion-icon name="close-outline"  id="removeImg"></ion-icon>
                         </div>
@@ -243,15 +294,23 @@ function handlePhotoCapture(event){
                     </button>
                 `;
                 mutipleImg.insertAdjacentHTML('beforeend', imgTeg); 
+                if (index === files.length) {
+                    stopLoading();
+                    console.log('All images loaded');
+                }
             };  
             readerMultiple.readAsDataURL(file);
-          
+           
         });
           
         setTimeout(()=>{
             const multipleImgBtn = document.querySelectorAll('.multipleImgBtn');
-            multipleImgBtn[0].classList.add('selected');
-            console.log(isFirstUpload);
+            if(isFirstUpload){
+                multipleImgBtn[0].classList.add('selected');
+                const caption = multipleImgBtn[0].getAttribute('data-caption');
+                captionInput.value = caption || '';
+                captionInput.setAttribute('data-index', 1);
+            }
 
             multipleImgBtn.forEach(element => {
                 element.addEventListener('click',function (){
@@ -263,10 +322,15 @@ function handlePhotoCapture(event){
                    
                     this.classList.add('selected');
 
-                    
                     const imgElement = this.querySelector('img');
                     const previewImage = document.getElementById('previewImage');
                     previewImage.src = imgElement.src;
+
+                    const caption = this.getAttribute('data-caption');
+                    captionInput.value = caption || '';
+                    console.log(this.getAttribute('data-index'));
+                    captionInput.setAttribute('data-index', this.getAttribute('data-index'));
+
                 });
                 const removeImg = element.querySelector('#removeImg');
                 removeImg.addEventListener('click',function(e){
@@ -283,6 +347,10 @@ function handlePhotoCapture(event){
                         const imgElement = remainingItems[0].querySelector('img');
                         const previewImage = document.getElementById('previewImage');
                         previewImage.src = imgElement.src;
+
+                        const caption  = remainingItems[0].getAttribute('data-caption');
+                        captionInput.value = caption || '';
+                        captionInput.setAttribute('data-index',  remainingItems[0].getAttribute('data-index'));
                       }
                    }else{
                         imagePreviewContainer.style.display = 'none';
@@ -295,10 +363,37 @@ function handlePhotoCapture(event){
                 });
             });
         }, 100);
-        
+
+        commonCaption();
+
+
+        event.target.value = ''; 
     }
 }
 
+function commonCaption(){
+    captionInput.addEventListener('input', function(){
+        const selectedIndex = this.getAttribute('data-index');
+        const selectedImageButton = document.querySelector(`.multipleImgBtn[data-index="${selectedIndex}"]`);
+        if(selectedImageButton){
+            selectedImageButton.setAttribute('data-caption', this.value);   
+        }
+    });
+
+    captionClose.addEventListener('click', function(){
+        const selectedIndex = captionInput.getAttribute('data-index');
+        const selectedImageButton = document.querySelector(`.multipleImgBtn[data-index="${selectedIndex}"]`);
+
+        if(selectedImageButton){
+            captionInput.value = '';
+            selectedImageButton.setAttribute('data-caption', '');
+        }
+    });
+}
+
+let videoIndexCounter = 0;
+const captionInput = document.getElementById('captinoInput');
+const captionClose = document.getElementById('caption-close');
 async function handleVideoCapture(event){
     const files = event.target.files;
     const minimumSizeMB = 64;
@@ -311,14 +406,26 @@ async function handleVideoCapture(event){
                 return;
             }
         }
-
+        startLoading();  
         closeDrawandOpenImgView();
         const  mutipleImg  = document.querySelector('.preview_bottom .send-images .multiple-image');
         const imagePreview = document.querySelector(".image-preview");
+        const button = document.querySelector('.imgAddBtn');
         const isFirstUpload = mutipleImg.innerHTML.trim() === '';
+        
 
         if(isFirstUpload){
-            
+            videoIndexCounter = 0;
+            const fileInput  = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.id = 'addmoreImg';
+            fileInput.accept = 'video/mp4,video/3gpp,video/quicktime';
+            fileInput.multiple = true;
+            fileInput.style.display = 'none';
+            fileInput.onchange = handleVideoCapture;
+            button.appendChild(fileInput); 
+
+
             const videoTag = `
                 <video id="previewVideo" controls>
                     <source src="" type="video/mp4">
@@ -326,26 +433,30 @@ async function handleVideoCapture(event){
             `;
             
             imagePreview.insertAdjacentHTML('beforeend',  videoTag);
+
+            captionInput.value = '';
+            captionInput.setAttribute('data-index', '0');
         }
         
         console.log(files);
     
         for (let index = 0; index < files.length; index++) {
-            await processFile(files[index], index);
+            
+            await processFile(files[index], index, isFirstUpload);
+            videoIndexCounter++;
         }
-        // const filePromises = Array.from(files).map((file, index) => processFile(file, index));
-        // await Promise.all(filePromises);
+        
+        stopLoading();  
         setTimeout(()=> attachThumbnailListeners(),500);
 
        
-        
+        event.target.value = ''; 
     }
 }
 
-function processFile(file, index) {
+function processFile(file, index, isFirstUpload) {
     const  mutipleImg  = document.querySelector('.preview_bottom .send-images .multiple-image');
     return new Promise((resolve) => {
-        console.log(`check=======${index}`);
         const readerMultiple = new FileReader();
         readerMultiple.onload = function(e) {
             const videoBlob = e.target.result;
@@ -369,7 +480,7 @@ function processFile(file, index) {
 
                         if (thumbnailDataUrl) {
                             const videoTag = `
-                                <button class="multipleImgBtn" data-src="${videoBlob}" data-index="${index}">
+                                <button class="multipleImgBtn" data-src="${videoBlob}" data-index="${videoIndexCounter}" data-caption="">
                                     <div class="first">
                                         <ion-icon name="close-outline" class="removeImg" id="removeImg"></ion-icon>
                                     </div>
@@ -379,7 +490,7 @@ function processFile(file, index) {
                                 </button>
                             `;
                             mutipleImg.insertAdjacentHTML('beforeend', videoTag);
-                            if (index === 0) {
+                            if (index === 0 && isFirstUpload) {
                                 const multipleImgBtn = document.querySelector('.multipleImgBtn[data-index="0"]');    
                                 multipleImgBtn.classList.add('selected');
                                 const previewVideo = document.getElementById('previewVideo');
@@ -417,6 +528,11 @@ function attachThumbnailListeners(){
                 const previewImage = document.getElementById('previewVideo');
                 previewImage.src = videoSrc;
                 previewImage.load();
+
+                const caption = this.getAttribute('data-caption');
+                captionInput.value = caption || '';
+                captionInput.setAttribute('data-index', this.getAttribute('data-index'));
+
             });
 
             const removeImg = element.querySelector('#removeImg');
@@ -429,11 +545,17 @@ function attachThumbnailListeners(){
 
                 const remainingItems = document.querySelectorAll('.multipleImgBtn');
                 if(remainingItems.length > 0){
-                    if(isSelected){
-                    remainingItems[0].classList.add('selected');
-                    const imgElement = remainingItems[0].querySelector('img');
-                    const previewImage = document.getElementById('previewImage');
-                    previewImage.src = imgElement.src;
+                    if(isSelected){  
+                        remainingItems[0].classList.add('selected');
+                        const videoSrc = remainingItems[0].getAttribute('data-src');
+                        const previewImage = document.getElementById('previewVideo');
+                        previewImage.src = '';
+                        previewImage.src = videoSrc;
+                        previewImage.load();
+
+                        const caption = remainingItems[0].getAttribute('data-caption');
+                        captionInput.value = caption || '';
+                        captionInput.setAttribute('data-index', remainingItems[0].getAttribute('data-index'));
                     }
                 }else{
                     imagePreviewContainer.style.display = 'none';
@@ -446,10 +568,53 @@ function attachThumbnailListeners(){
             });
         });
 
-        
+        commonCaption();
 
     }
 }
+
+
+const sendFiles = document.getElementById('sendFiles');
+
+sendFiles.addEventListener('click', ()=>{
+    const  buttons  = document.querySelectorAll('.multipleImgBtn');
+    const dataArray = [];
+    buttons.forEach(element => {
+        
+        const imgElement = element.querySelector('img');
+        const imgSrc = imgElement ? imgElement.src : null;
+        const caption = element.getAttribute('data-caption');
+        const videoSrc = element.getAttribute('data-src');
+        if(videoSrc){
+            dataArray.push({
+                src: imgSrc,
+                caption: caption,
+                type:'Video',
+            });
+        }else if(imgSrc){
+           dataArray.push({
+            src: imgSrc,
+            caption: caption,
+            type: 'Photo',
+           });
+        }
+
+        // 
+        //  console.log(videoSrc);
+    });
+    console.log(dataArray);
+    chatSocket.send(JSON.stringify({
+        'action':'send_message',
+        'message': '',
+        'receiver_id': selectedUserId,
+        'Send_Files': dataArray,
+    }));
+    clearImages();
+
+    
+});
+
+
 
 // Websocket event handlers
 
@@ -472,7 +637,15 @@ chatSocket.onmessage = function(e){
     const userElements = document.querySelector(emaplath);
     if(userElements){
         const messagePElement = userElements.querySelector('.message_p p');
-        messagePElement.textContent = data.message;
+        if (data.send_img){
+            messagePElement.textContent = 'Photo';
+        }else if(data.send_video){
+            messagePElement.textContent = 'Video';
+        }else{
+            messagePElement.textContent = data.message;
+        }
+        
+            
 
         const times = userElements.querySelector('.listHead p');
         times.textContent = data.timestamp;
@@ -483,7 +656,7 @@ chatSocket.onmessage = function(e){
 // functions 
 function handleChathistory(data){
     if(data.sender_id == djangoUserId){
-        data.history.forEach(day => {
+        data.history.forEach((day, index) => {
             lastDate = day.date; 
             const dateLabel = `
                 <div class="date-label">
@@ -504,6 +677,10 @@ function handleChathistory(data){
             if(toggleCountElement){
                 toggleCountElement.remove();
             }
+            setTimeout(() => {
+                rightChatbox.scrollTop = rightChatbox.scrollHeight;
+            }, 100);
+        
         });
     }
  }     
@@ -511,26 +688,63 @@ function handleChathistory(data){
 function appendMessage(message){
     const chatboxs  = document.querySelector('.rightside .chatBox');
     if(message.sender == djangoUserId){
-        const messageElement = `
-            <div class="message my_message">
-                <p>${message.content} <span>${message.timestamp}</span></p>
-            </div>
-        `;
-        chatboxs.insertAdjacentHTML('beforeend', messageElement);
-               
-    }
-    if(selectedUserId == message.sender && djangoUserId == message.receiver){  
-        if(message.sender != message.receiver){
-            const messageElement = `
-                <div class="message frnd_message">
+       
+        let messageElement; 
+        
+        if(message.content){
+            messageElement = `
+                <div class="message my_message">
                     <p>${message.content} <span>${message.timestamp}</span></p>
                 </div>
             `;
-            chatboxs.insertAdjacentHTML('beforeend', messageElement);
+        }else{
+            console.log(message.caption);
+            messageElement = `
+                <div class="message my_message">
+                    <div class="mainImage end_background">
+                       <div class="innerImage">
+                        <img src="media/${message.img}" class="image" alt="Image">
+                       </div> 
+                        ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
+                      <span class="timestamp" style=${message.caption ? '':'background-image: linear-gradient(to top, rgba(11, 20, 26, .5), rgba(11, 20, 26, 0));'}>${message.timestamp}</span>
+                    </div> 
+                    
+                </div>`
+            ;
+        }
         
+        chatboxs.insertAdjacentHTML('beforeend', messageElement);
+          
+    }
+    if(selectedUserId == message.sender && djangoUserId == message.receiver){  
+        if(message.sender != message.receiver){
+            
+            let messageElement;
+            
+            if(message.content){
+                messageElement = `
+                    <div class="message frnd_message">
+                        <p>${message.content} <span>${message.timestamp}</span></p>
+                    </div>
+                `;
+            }else{
+                messageElement = `
+                    <div class="message frnd_message">
+                        <div class="mainImage start_background">
+                       <div class="innerImage">
+                        <img src="media/${message.img}" class="image" alt="Image">
+                       </div> 
+                        ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
+                      <span class="timestamp" style=${message.caption ? '':'background-image: linear-gradient(to top, rgba(11, 20, 26, .5), rgba(11, 20, 26, 0));'}>${message.timestamp}</span>
+                    </div> 
+                    </div>
+                `;
+            }
+            
+            chatboxs.insertAdjacentHTML('beforeend', messageElement);
+           
         }
     }
-    chatboxs.scrollTop = chatboxs.scrollHeight;
 } 
 
 function handleChatMessage(data){
@@ -553,18 +767,40 @@ function handleChatMessage(data){
             </div>
         `;
         chatBoxs.insertAdjacentHTML('beforeend', dateLabel);
-        lastDate = currentDate;  // Update the lastDate to the current date
+        lastDate = currentDate;  // Update thelastDate to the current date
     } 
     
     if(data.sender_id == djangoUserId){
-        const messageElement = `
-            <div class="message my_message">
-                <p>${data.message} <span>${data.timestamp}</span></p>
-            </div>
-        `;
-        chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-        const chatBox = document.querySelector('.rightside .chatBox');
-        chatBox.scrollTop = chatBox.scrollHeight;
+        
+        if(data.message){
+            const messageElement = `
+                <div class="message my_message">
+                    <p>${data.message} <span>${data.timestamp}</span></p>
+                </div>
+            `;
+            chatBoxs.insertAdjacentHTML('beforeend', messageElement);
+        }else{
+            let validJSONString = data.send_File.replace(/'/g, '"');
+            let messageArray = JSON.parse(validJSONString);
+            messageArray.forEach(images_data=>{
+             
+                const messageElement =` <div class="message my_message">
+                        <div class="mainImage end_background">
+                        <div class="innerImage">
+                            <img src="${images_data.url}" class="image" alt="Image">
+                        </div> 
+                            ${images_data.caption ? `<div class="caption">${images_data.caption}</div>` : ''}
+                        <span class="timestamp" style=${images_data.caption ? '':'background-image: linear-gradient(to top, rgba(11, 20, 26, .5), rgba(11, 20, 26, 0));'}>${data.timestamp}</span>
+                        </div> 
+                    
+                </div>`;
+
+                chatBoxs.insertAdjacentHTML('beforeend', messageElement);
+                
+            });
+        }
+    
+      
     }else{
         if(data.check_contacts == false && djangoUserId == data.receiver_id){
             
@@ -594,14 +830,38 @@ function handleChatMessage(data){
         if(selectedUserId == data.sender_id && djangoUserId == data.receiver_id){  
             
             if(data.sender_id != data.receiver_id){
-                const messageElement = `
-                    <div class="message frnd_message">
-                        <p>${data.message} <span>${data.timestamp}</span></p>
-                    </div>
-                `;
-                chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-                const chatBox = document.querySelector('.rightside .chatBox');
-                chatBox.scrollTop = chatBox.scrollHeight;
+                if(data.message != ''){
+                    const messageElement = `
+                        <div class="message frnd_message">
+                            <p>${data.message} <span>${data.timestamp}</span></p>
+                        </div>
+                    `;
+                    chatBoxs.insertAdjacentHTML('beforeend', messageElement);
+                }else{
+
+                    let validJSONString = data.send_File.replace(/'/g, '"');
+                    let messageArray = JSON.parse(validJSONString);
+                    messageArray.forEach(images_data=>{
+                    
+                        const messageElement =` <div class="message frnd_message">
+                                <div class="mainImage start_background">
+                                <div class="innerImage">
+                                    <img src="${images_data.url}" class="image" alt="Image">
+                                </div> 
+                                    ${images_data.caption ? `<div class="caption">${images_data.caption}</div>` : ''}
+                                <span class="timestamp" style=${images_data.caption ? '':'background-image: linear-gradient(to top, rgba(11, 20, 26, .5), rgba(11, 20, 26, 0));'}>${data.timestamp}</span>
+                                </div> 
+                            
+                        </div>`;
+
+                        chatBoxs.insertAdjacentHTML('beforeend', messageElement);
+                        
+                    });
+                    
+                }
+                
+                
+                chatBoxs.scrollTop = chatBoxs.scrollHeight;
                 
                 chatSocket.send(JSON.stringify({
                     'action':'send_message_toggle_true',
@@ -628,12 +888,11 @@ function handleChatMessage(data){
         }
     }
     
-        
+    setTimeout(() => {
+        chatBoxs.scrollTop = chatBoxs.scrollHeight;
+    }, 100);   
 }
-                    
-   
-
-
+    
 function commenInput(){
     const message = messageInput.value;
 
@@ -778,7 +1037,7 @@ function clickopenbox(){
     chatBlocksClick.forEach(block=>{
         block.addEventListener('click', function(){
         
-
+            clearImages();   
             document.querySelectorAll('.chatlist .block').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
 

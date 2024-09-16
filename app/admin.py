@@ -12,5 +12,5 @@ class Useradmin(UserAdmin):
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     model = Message
-    list_display = ['id', 'sender', 'receiver', 'content', 'timestamp', 'is_read']
+    list_display = ['id', 'sender', 'receiver', 'content', 'timestamp', 'is_read', 'image', 'video', 'caption']
     ordering = ['pk']
