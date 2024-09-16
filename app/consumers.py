@@ -99,13 +99,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         image_content = ContentFile(base64.b64decode(img_base64), name='image.jpg')
                         msg_instance.image = image_content
                         msg_instance.caption=img_caption
-                        send_images.append({'url':msg_instance.image.url, 'caption':msg_instance.caption})
+                        send_File.append({'url':msg_instance.image.url, 'caption':msg_instance.caption})
                     elif send_File['type'] == 'Video': 
                         vid_caption = send_File['caption']
                         vid_src = send_File['src']  
                         msg_instance.video = vid_src 
                         msg_instance.caption = vid_caption
-                        send_images.append({'url':msg_instance.video, 'caption':msg_instance.caption})
+                        send_File.append({'url':msg_instance.video, 'caption':msg_instance.caption})
             else:    
                 msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
             
