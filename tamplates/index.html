@@ -213,6 +213,7 @@
 
             <!-- Image preview and send button -->
             <div class="imag-preview-container" id="imagePreviewContainer">
+               <div  style="display: contents;" id="multiple-items">
                 <ion-icon name="close-outline"  id="imagePreviewClose"></ion-icon>
                 <div class="image-preview">
                 
@@ -230,14 +231,18 @@
                             <label for="addmoreImg">
                                 <ion-icon name="add-sharp"></ion-icon>
                             </label>
-                            <input type="file" id="addmoreImg" accept="image/*" multiple  style="display: none;" onchange="handlePhotoCapture(event)">
                         </button>
                     </div>
                     <div class="send_button">
-                        <ion-icon name="send" id=""></ion-icon>
+                        <ion-icon name="send" id="sendFiles"></ion-icon>
                     </div>
                 </div>
+
+               </div> 
+               <div class="loader" id="loader"></div>
             </div>
+
+          
             
 
             
