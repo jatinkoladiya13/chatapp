@@ -9,6 +9,7 @@ from asgiref.sync import sync_to_async
 from django.utils.dateparse import parse_datetime
 from django.core.files.base import ContentFile
 import base64
+import uuid
 
 @database_sync_to_async
 def get_message_receiver_count(sender_id, receiver_id):
@@ -87,28 +88,64 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 check = False
                 img = sender.profile_image.url if sender.profile_image else None
 
-            send_File = []  
+            send_all_File = []  
+            type_content = ''
             if not message:
                 send_Files = text_data_json['Send_Files']
                 for send_File in send_Files:
-                    msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content='',)
-                    if send_File['type'] == 'Photo': 
-                        img_base64 =  send_File['src'].split(',')[1]
-                        img_caption = send_File['caption']
+                    file_type = send_File['type']
+                    file_src = send_File['src']
+                    file_caption = send_File['caption']
+                    format, vid_src = file_src.split(';base64,')
+                    ext = format.split('/')[-1]
 
-                        image_content = ContentFile(base64.b64decode(img_base64), name='image.jpg')
-                        msg_instance.image = image_content
-                        msg_instance.caption=img_caption
-                        send_File.append({'url':msg_instance.image.url, 'caption':msg_instance.caption})
-                    elif send_File['type'] == 'Video': 
-                        vid_caption = send_File['caption']
-                        vid_src = send_File['src']  
-                        msg_instance.video = vid_src 
-                        msg_instance.caption = vid_caption
-                        send_File.append({'url':msg_instance.video, 'caption':msg_instance.caption})
-            else:    
-                msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
+                    video_file_name = f"{uuid.uuid4()}.{ext}" 
+
+                    video_data = ContentFile(base64.b64decode(vid_src), name=video_file_name)
+
+                    msg_instance = await sync_to_async(Message.objects.create)(
+                        sender=sender, receiver=receiver, video=video_data, caption=file_caption, content='',)
+                    print("video_data=====================",type(video_data))  
+
+
+            # if not message:
+            #     send_Files = text_data_json['Send_Files']
+               
+            #     for send_File in send_Files:
+
+            #         file_type = send_File['type']
+            #         file_src = send_File['src']
+            #         file_caption = send_File['caption']
+                   
+            #         if file_type == 'Photo':
+            #             type_content = 'Photo' 
+            #             img_base64 =  file_src.split(',')[1]
+                        
+
+            #             image_content = ContentFile(base64.b64decode(img_base64), name='image.jpg')
+            #             msg_instance = await database_sync_to_async(Message.objects.create)(
+            #                 sender=sender, receiver=receiver, image = image_content, caption=file_caption, content='',)
+            #             send_all_File.append({'url':msg_instance.image.url, 'caption':msg_instance.caption})
+
+            #         elif file_type == 'Video': 
+            #             type_content = 'Video'
+                    
+                        # format, vid_src = file_src.split(';base64,')
+                        # ext = format.split('/')[-1]
+
+                        # video_file_name = f"{uuid.uuid4()}.{ext}" 
+
+                        # video_data = ContentFile(base64.b64decode(vid_src), name=video_file_name)
+
+                        # msg_instance = await sync_to_async(Message.objects.create)(
+                        #     sender=sender, receiver=receiver, video=video_data, caption=file_caption, content='',)
+            #             send_all_File.append({'url':msg_instance.video.url, 'caption':msg_instance.caption, 'video_src':file_src})
+            # else:    
+            #     msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
             
+            msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
+           
+
             if sender_id == int(receiver_id):
                 msg_instance.is_read = True
                 await database_sync_to_async(msg_instance.save)()
@@ -142,7 +179,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'label_time':formate_msg_time,
                 'check_contacts':check,
                 'img':img,
-                'send_File':str(send_File),
+                'send_File':json.dumps(send_all_File),
+                'type_content':type_content
                 }
             )
 
@@ -160,6 +198,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         check_contacts = event['check_contacts']
         img = event['img']
         send_File = event['send_File']
+        type_content = event['type_content'] 
 
         await self.send(text_data=json.dumps({
             'message':message,
@@ -175,6 +214,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'check_contacts':check_contacts,
             'img':img,
             'send_File':send_File,
+            'type_content':type_content,
         }))
 
 
@@ -201,13 +241,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'messages':[]
                 }
 
-          
+            video_url = str(message.video.url) if message.video and message.video.name else None
             grouped_messages[date_key]['messages'].append({
                 'content':message.content,
                 'sender':message.sender_id,
                 'receiver': message.receiver_id,
                 'timestamp':formatted_timestamp,
                 'img':str(message.image),
+                'video':video_url,
                 'caption':message.caption,
             })
         
