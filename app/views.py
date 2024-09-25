@@ -16,7 +16,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 import json
-
+import uuid
 # Create your views here.
 
 def register(request):
@@ -305,4 +305,28 @@ def  delete_contact(request):
                 user.contacts = updated_user_contacts
                 user.save()
                 return JsonResponse({'status':'200', 'message':  "Contact removed successfully..!"}, status=200)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def upload_videos(request):
+    if request.method == 'POST':
+        files = request.FILES.getlist('videos')
+        receiver_usr = request.POST.get('receiver_usr')
+        sender_id = request.user.id
+
+        receiver_msg = User.objects.get(id=receiver_usr)
+        sender_msg = User.objects.get(id=sender_id)
+        
+        send_all_File = []
+        for index, file in enumerate(files):
+            caption = request.POST.get(f'captions_{index}', '')
+            
+            new_filename = f"{uuid.uuid4()}.mp4"
+            file.name = new_filename
+            msg_instance = Message.objects.create(
+                        sender=sender_msg, receiver=receiver_msg, video=file, caption=caption, content='',)
+            send_all_File.append({'id':msg_instance.id, 'type': 'Video'})
+         
+        return JsonResponse({'status':'200', 'message':  send_all_File}, status=200)
+    
     return JsonResponse({'error': 'Invalid request'}, status=400)
