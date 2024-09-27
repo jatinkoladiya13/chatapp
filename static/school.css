@@ -85,6 +85,7 @@ h1{
 
 .user-info img{
     width: 60px;
+    height: 60px;
     border-radius: 50%;
     margin-right: 15px; 
 }
@@ -474,7 +475,7 @@ form .pass-txt {
  }
 
 .cover{
-    position: relative;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -793,6 +794,7 @@ form .pass-txt {
     display: flex;
     justify-content: center;
     max-width: 336px;
+    max-height: 360px;
 }  
 
 .innerImage img {
@@ -1618,12 +1620,13 @@ form .pass-txt {
     width: 100%;
     height: 100%;
     position: absolute;
-    display: flex;
+    display: none;
     /* justify-content: center; */
     align-items: center;
     box-sizing: border-box;
     /* padding-bottom: 100px; */
     flex-direction: column;
+    z-index: 200;
 }
 
 .file_view_top{
@@ -1656,14 +1659,31 @@ form .pass-txt {
     height: 30px;
     font: inherit;
     font-size: 100%;
+    cursor: pointer;
 }
 
 .file_view_center{
     position: relative;
-    background-color: #0056b3;
+    background-color: rgba(17, 27, 33, .98);
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.file_view_center .file{
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.file_view_center .file img{
+    height: 510px;
+}
+
+.file_view_center .file video{
+    height: 510px;
 }

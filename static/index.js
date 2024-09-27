@@ -661,6 +661,41 @@ function send_images(){
 }
 
 
+// file view close icon
+const fileViewClose = document.getElementById('file_view_close');
+const fileView = document.getElementById('file_view');
+const fileDiv = document.querySelector('.file');
+
+fileViewClose.addEventListener('click',()=>{
+   fileView.style.display = 'none';
+   fileDiv.innerHTML = ''; 
+});
+
+// file view in message
+function playVideo(url, checkings){
+    fileView.style.display = 'flex';
+    console.log("this is working but");
+    fileDiv.innerHTML = '';
+    console.log(typeof checkings);
+    if(checkings == 'true'){
+        console.log('Check is true:', checkings); 
+        const imgTag = document.createElement('img');
+        imgTag.src = url; 
+        imgTag.alt = 'File Image';
+    
+        fileDiv.appendChild(imgTag);
+    }else{
+        console.log('Check is false:', checkings);
+        const videoTag = document.createElement('video');
+        videoTag.src = url; 
+        videoTag.controls = true; 
+        fileDiv.appendChild(videoTag);
+    }
+    
+    
+
+}
+
 // Websocket event handlers
 
 chatSocket.onmessage = function(e){
@@ -752,7 +787,7 @@ function appendMessage(message){
             messageElement = `
                 <div class="message my_message">
                     <div class="mainImage end_background">
-                        <div class="first_view">
+                        <div class="first_view" onclick="playVideo('media/${message.img}', '${true}');">
                             <div class="innerImage">
                                 <img src="media/${message.img}" class="image" alt="Image">
                             </div> 
@@ -772,8 +807,8 @@ function appendMessage(message){
             messageElement =`
             <div class="message my_message">
                 <div class="mainImage end_background">
-                    <div class="first_view">
-                        <div class="playButton" id="playButton" onclick="playVideo()">
+                    <div class="first_view" onclick="playVideo('${message.video}', '${false}')">
+                        <div class="playButton" id="playButton" >
                             <!-- Play Icon -->
                             <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
                         </div>
@@ -815,7 +850,7 @@ function appendMessage(message){
                 messageElement = `
                     <div class="message frnd_message">
                         <div class="mainImage start_background">
-                            <div class="first_view">
+                            <div class="first_view" onclick="playVideo('media/${message.img}', '${true}')">
                                 <div class="innerImage">
                                     <img src="media/${message.img}" class="image" alt="Image">
                                 </div> 
@@ -836,8 +871,8 @@ function appendMessage(message){
                 messageElement =`
                 <div class="message frnd_message">
                     <div class="mainImage start_background">
-                        <div class="first_view">
-                            <div class="playButton" id="playButton" onclick="playVideo()">
+                        <div class="first_view" onclick="playVideo('${message.video}', '${false}')">
+                            <div class="playButton" id="playButton">
                                 <!-- Play Icon -->
                                 <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
                             </div>
@@ -910,7 +945,7 @@ function handleChatMessage(data){
                 const messageElement = `
                     <div class="message my_message">
                         <div class="mainImage end_background">
-                            <div class="first_view">
+                            <div class="first_view" onclick="playVideo('${images_data.url}', '${true}')">
                                 <div class="innerImage">
                                     <img src="${images_data.url}" class="image" alt="Image">
                                 </div> 
@@ -937,8 +972,8 @@ function handleChatMessage(data){
                 const messageElement =`
                 <div class="message my_message">
                     <div class="mainImage end_background">
-                        <div class="first_view">
-                            <div class="playButton" id="playButton" onclick="playVideo()">
+                        <div class="first_view" onclick="playVideo('${video_data.url}', '${false}')">
+                            <div class="playButton" id="playButton" >
                                 <!-- Play Icon -->
                                 <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
                             </div>
@@ -1011,7 +1046,7 @@ function handleChatMessage(data){
                         const messageElement = `
                             <div class="message frnd_message">
                                 <div class="mainImage start_background">
-                                    <div class="first_view">
+                                    <div class="first_view" onclick="playVideo('${images_data.url}', '${true}')">
                                         <div class="innerImage">
                                             <img src="${images_data.url}" class="image" alt="Image">
                                         </div> 
@@ -1040,7 +1075,7 @@ function handleChatMessage(data){
                         <div class="message frnd_message">
                             <div class="mainImage start_background">
                                 <div class="first_view">
-                                    <div class="playButton" id="playButton" onclick="playVideo()">
+                                    <div class="playButton" id="playButton" onclick="playVideo('${video_data.url}', '${false}')">
                                         <!-- Play Icon -->
                                         <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
                                     </div>
