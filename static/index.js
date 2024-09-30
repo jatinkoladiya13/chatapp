@@ -599,38 +599,48 @@ sendFiles.addEventListener('click', async ()=>{
     
 });
 
-function send_videos(){
-    const formData = new FormData();
-    videoBlobs.forEach((video, index)=>{
-        formData.append('videos', video.file);
+async function send_videos(){
+   
+    videoBlobs.forEach(async (video, index)  => {
+        const formData = new FormData();
+        formData.append('video', video.file);
 
         const videoBtn = document.querySelector(`.multipleImgBtn[data-index="${video.index}"]`);
         const caption = videoBtn ? videoBtn.getAttribute('data-caption') : '';
-        console.log(caption);
-        formData.append(`captions_${index}`, caption); 
-    });
-    formData.append('receiver_usr',selectedUserId);
+        formData.append(`captions`, caption); 
 
-    fetch('/upload-video/', {
-        method: 'POST',
-        header:{
-            'Content-Type':'application/json',
-            'X-CSRFToken':getCookie('csrftoken')
-        },
-        body: formData,
-    }).then(response => response.json()).then(data=>{
-        console.log(typeof data.message);
-        console.log('Status:',data.message); 
-        chatSocket.send(JSON.stringify({
-            'action': 'send_message',
-            'message': '',
-            'receiver_id': selectedUserId,
-            'Send_Files': data.message,
-        }));  
-        videoBlobs = [];
-    }).catch(error => {
-        console.error('Error:',error);
+        formData.append('receiver_usr',selectedUserId);
+        
+        try{
+            const response = await fetch('/upload-video/', {
+                method: 'POST',
+                header:{
+                    'Content-Type':'application/json',
+                    'X-CSRFToken':getCookie('csrftoken')
+                },
+                body: formData,
+            });
+            
+            const data = await  response.json();
+            console.log('Status:', data.message);
+    
+    
+            chatSocket.send(JSON.stringify({
+                'action': 'send_message',
+                'message': '',
+                'receiver_id': selectedUserId,
+                'Send_Data': data.message,
+            })); 
+    
+            videoBlobs = [];
+        }catch(error){
+            console.error("Error:",error);
+        }
+       
     });
+   
+
+   
 }
 
 function send_images(){
@@ -659,7 +669,6 @@ function send_images(){
         'Send_Files': dataArray,
     }));
 }
-
 
 // file view close icon
 const fileViewClose = document.getElementById('file_view_close');
@@ -724,9 +733,6 @@ chatSocket.onmessage = function(e){
         }else{
             messagePElement.textContent = data.message;
         }
-        
-            
-
         const times = userElements.querySelector('.listHead p');
         times.textContent = data.timestamp;
     }
@@ -964,41 +970,37 @@ function handleChatMessage(data){
             });
         }else if(data.type_content == 'Video'){
             
-            let messageArray = JSON.parse(data.send_File);
-            console.log(messageArray);
-            messageArray.forEach(video_data=>{
-                const uniqueId = `video_${video_data.url.substring(video_data.url.lastIndexOf('/') + 1)}`;
+            const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
 
-                const messageElement =`
-                <div class="message my_message">
-                    <div class="mainImage end_background">
-                        <div class="first_view" onclick="playVideo('${video_data.url}', '${false}')">
-                            <div class="playButton" id="playButton" >
-                                <!-- Play Icon -->
-                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-                            </div>
-                            <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                                <source id="MyDuration_${uniqueId}" src="${video_data.url}" type="video/mp4">
-                            </video>  
-                            <div class="media-loader">
-                                <div class="loader"></div>
-                            </div>
-    
-                            <div class="videoBottom space-between">
-                                <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                                ${video_data.caption ?'':`<span class="vide_timestamp">${data.timestamp}</span>`}
-                            </div> 
-    
+            const messageElement =`
+            <div class="message my_message">
+                <div class="mainImage end_background">
+                    <div class="first_view" onclick="playVideo('${data.url}', '${false}')">
+                        <div class="playButton" id="playButton" >
+                            <!-- Play Icon -->
+                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
                         </div>
-                        ${video_data.caption ? `<div class="caption">${video_data.caption}</div>` : ''}
-                        ${video_data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
-                         
-                    </div> 
-                    
-                </div>`;
-                chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-                chatBoxs.scrollTop = chatBoxs.scrollHeight;
-            });
+                        <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
+                            <source id="MyDuration_${uniqueId}" src="${data.url}" type="video/mp4">
+                        </video>  
+                        <div class="media-loader">
+                            <div class="loader"></div>
+                        </div>
+
+                        <div class="videoBottom space-between">
+                            <span id="videoDuration_${uniqueId}" class="video-duration"></span>
+                            ${data.caption ?'':`<span class="vide_timestamp">${data.timestamp}</span>`}
+                        </div> 
+
+                    </div>
+                    ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
+                    ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
+                     
+                </div> 
+                
+            </div>`;
+            chatBoxs.insertAdjacentHTML('beforeend', messageElement);
+            chatBoxs.scrollTop = chatBoxs.scrollHeight;
 
         }else{
             const messageElement = `
@@ -1065,22 +1067,18 @@ function handleChatMessage(data){
                     });
                 }else if(data.type_content == 'Video'){
                     
-                    let messageArray = JSON.parse(data.send_File);
-                    console.log(messageArray);
-                    messageArray.forEach(video_data=>{
-                    
-                    const uniqueId = `video_${video_data.url.substring(video_data.url.lastIndexOf('/') + 1)}`;
+                    const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
 
                     const messageElement =`
                         <div class="message frnd_message">
                             <div class="mainImage start_background">
                                 <div class="first_view">
-                                    <div class="playButton" id="playButton" onclick="playVideo('${video_data.url}', '${false}')">
+                                    <div class="playButton" id="playButton" onclick="playVideo('${data.url}', '${false}')">
                                         <!-- Play Icon -->
                                         <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
                                     </div>
                                     <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                                        <source id="MyDuration_${uniqueId}" src="${video_data.url}" type="video/mp4">
+                                        <source id="MyDuration_${uniqueId}" src="${data.url}" type="video/mp4">
                                     </video>  
                                     <div class="media-loader">
                                         <div class="loader"></div>
@@ -1088,20 +1086,18 @@ function handleChatMessage(data){
             
                                     <div class="videoBottom flex-end">
                                         <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                                        ${video_data.caption ?'':`<span class="vide_timestamp">${data.timestamp}</span>`}
+                                        ${data.caption ?'':`<span class="vide_timestamp">${data.timestamp}</span>`}
                                     </div> 
             
                                 </div>
-                                ${video_data.caption ? `<div class="caption">${video_data.caption}</div>` : ''}
-                                ${video_data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
+                                ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
+                                ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
                                 
                             </div> 
                             
                         </div>`;
                     chatBoxs.insertAdjacentHTML('beforeend', messageElement);
                     chatBoxs.scrollTop = chatBoxs.scrollHeight;
-                  
-                    });
                 }else{
                     const messageElement = `
                         <div class="message frnd_message">

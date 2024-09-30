@@ -31,28 +31,35 @@
                     
                 {% endif %}
             </div>
+           
+            <!--Profile dropdown-->
             <div class="sub-menu-wrap">
-                <div class="sub-menu">
-                    <div class="user-info">
+                <div class="user-info">
+                    <div class="user-info-img">
                         {% if user.profile_image %}
                             <img src="{{ user.profile_image.url }}" class="cover">
                         {% else %}
                             <img src="/static/images/profile.png" class="cover">
                         {% endif %}
+                    </div>
+                    <div class="user-info-details">
                         <h2>{{ user.username }}</h2>
                     </div>
-                    <hr>
-                    <a href="#" class="sub-menu-link">
-                        <p>Profile</p>
-                        <span>></span>
-                    </a>
-                    <a href="/signout" class="sub-menu-link">
-                        <p>Log Out</p>
-                        <span>></span>
-                    </a>
-                </div>
+                    
+                </div> 
+                <hr>
+
+                <a href="#" class="sub-menu-link">
+                    <p>Profile</p>
+                    <span>></span>    
+                </a> 
+                <a href="/signout" class="sub-menu-link">
+                    <p>Log Out</p>
+                    <span>></span>    
+                </a>
 
             </div>
+
             <ul class="nav_icons">
                 <li><ion-icon name="scan-circle-outline"></ion-icon></li>
                 <li><ion-icon name="duplicate-outline" id="createfriend"></ion-icon></li>
@@ -60,6 +67,8 @@
             </ul> 
 
         </div>
+          
+       
         <!-- search -->
          <div class="search_chat">
             <div>

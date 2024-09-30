@@ -89,35 +89,37 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 img = sender.profile_image.url if sender.profile_image else None
 
 
-            send_all_File = []  
+             
             type_content = ''
+            url = ''
+            caption = ''
 
             if not message:
-                send_Files = text_data_json['Send_Files']
+                send_data = text_data_json['Send_Data']
                
-                for send_File in send_Files:
+                data_id = send_data['id']
 
-                    file_type = send_File['type']
-                   
+                file_type = send_data['type']
+                
+                
+                
+                if file_type == 'Photo':
+                    # type_content = 'Photo' 
+                    # file_src = send_File['src']
+                    # file_caption = send_File['caption']
+                    # img_base64 =  file_src.split(',')[1]
                     
-                   
-                    if file_type == 'Photo':
-                        type_content = 'Photo' 
-                        file_src = send_File['src']
-                        file_caption = send_File['caption']
-                        img_base64 =  file_src.split(',')[1]
-                        
+                    print("send=====================images")
+                    # image_content = ContentFile(base64.b64decode(img_base64), name='image.jpg')
+                    # msg_instance = await database_sync_to_async(Message.objects.create)(
+                    #     sender=sender, receiver=receiver, image = image_content, caption=file_caption, content='',)
+                    # send_all_File.append({'url':msg_instance.image.url, 'caption':msg_instance.caption})
 
-                        image_content = ContentFile(base64.b64decode(img_base64), name='image.jpg')
-                        msg_instance = await database_sync_to_async(Message.objects.create)(
-                            sender=sender, receiver=receiver, image = image_content, caption=file_caption, content='',)
-                        send_all_File.append({'url':msg_instance.image.url, 'caption':msg_instance.caption})
-
-                    elif file_type == 'Video': 
-                        type_content = 'Video'
-                        id =  send_File['id']
-                        msg_instance = await database_sync_to_async(Message.objects.get)(id=id)
-                        send_all_File.append({'url':msg_instance.video.url, 'caption':msg_instance.caption,})
+                elif file_type == 'Video': 
+                    type_content = 'Video'
+                    msg_instance = await database_sync_to_async(Message.objects.get)(id=data_id)
+                    url     = msg_instance.video.url
+                    caption = msg_instance.caption
             else:    
                 msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
             
@@ -156,7 +158,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'label_time':formate_msg_time,
                 'check_contacts':check,
                 'img':img,
-                'send_File':json.dumps(send_all_File),
+                'url':url,
+                'caption':caption,
                 'type_content':type_content
                 }
             )
@@ -174,7 +177,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         label_time = event['label_time']
         check_contacts = event['check_contacts']
         img = event['img']
-        send_File = event['send_File']
+        url = event['url']
+        caption = event['caption']
         type_content = event['type_content'] 
 
         await self.send(text_data=json.dumps({
@@ -190,7 +194,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'label_time':label_time,
             'check_contacts':check_contacts,
             'img':img,
-            'send_File':send_File,
+            'url':url,
+            'caption':caption,
             'type_content':type_content,
         }))
 
