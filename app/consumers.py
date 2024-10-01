@@ -95,25 +95,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
             caption = ''
 
             if not message:
+                
                 send_data = text_data_json['Send_Data']
                
                 data_id = send_data['id']
-
                 file_type = send_data['type']
-                
-                
-                
+
                 if file_type == 'Photo':
-                    # type_content = 'Photo' 
-                    # file_src = send_File['src']
-                    # file_caption = send_File['caption']
-                    # img_base64 =  file_src.split(',')[1]
-                    
-                    print("send=====================images")
-                    # image_content = ContentFile(base64.b64decode(img_base64), name='image.jpg')
-                    # msg_instance = await database_sync_to_async(Message.objects.create)(
-                    #     sender=sender, receiver=receiver, image = image_content, caption=file_caption, content='',)
-                    # send_all_File.append({'url':msg_instance.image.url, 'caption':msg_instance.caption})
+                    type_content = 'Photo' 
+                    msg_instance = await database_sync_to_async(Message.objects.get)(id=data_id)
+                    url     = msg_instance.image.url
+                    caption = msg_instance.caption
 
                 elif file_type == 'Video': 
                     type_content = 'Video'
