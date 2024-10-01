@@ -88,63 +88,42 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 check = False
                 img = sender.profile_image.url if sender.profile_image else None
 
-            send_all_File = []  
+
+             
             type_content = ''
+            url = ''
+            caption = ''
+
             if not message:
-                send_Files = text_data_json['Send_Files']
-                for send_File in send_Files:
-                    file_type = send_File['type']
-                    file_src = send_File['src']
-                    file_caption = send_File['caption']
-                    format, vid_src = file_src.split(';base64,')
-                    ext = format.split('/')[-1]
-
-                    video_file_name = f"{uuid.uuid4()}.{ext}" 
-
-                    video_data = ContentFile(base64.b64decode(vid_src), name=video_file_name)
-
-                    msg_instance = await sync_to_async(Message.objects.create)(
-                        sender=sender, receiver=receiver, video=video_data, caption=file_caption, content='',)
-                    print("video_data=====================",type(video_data))  
-
-
-            # if not message:
-            #     send_Files = text_data_json['Send_Files']
+                send_data = text_data_json['Send_Data']
                
-            #     for send_File in send_Files:
+                data_id = send_data['id']
 
-            #         file_type = send_File['type']
-            #         file_src = send_File['src']
-            #         file_caption = send_File['caption']
-                   
-            #         if file_type == 'Photo':
-            #             type_content = 'Photo' 
-            #             img_base64 =  file_src.split(',')[1]
-                        
-
-            #             image_content = ContentFile(base64.b64decode(img_base64), name='image.jpg')
-            #             msg_instance = await database_sync_to_async(Message.objects.create)(
-            #                 sender=sender, receiver=receiver, image = image_content, caption=file_caption, content='',)
-            #             send_all_File.append({'url':msg_instance.image.url, 'caption':msg_instance.caption})
-
-            #         elif file_type == 'Video': 
-            #             type_content = 'Video'
+                file_type = send_data['type']
+                
+                
+                
+                if file_type == 'Photo':
+                    # type_content = 'Photo' 
+                    # file_src = send_File['src']
+                    # file_caption = send_File['caption']
+                    # img_base64 =  file_src.split(',')[1]
                     
-                        # format, vid_src = file_src.split(';base64,')
-                        # ext = format.split('/')[-1]
+                    print("send=====================images")
+                    # image_content = ContentFile(base64.b64decode(img_base64), name='image.jpg')
+                    # msg_instance = await database_sync_to_async(Message.objects.create)(
+                    #     sender=sender, receiver=receiver, image = image_content, caption=file_caption, content='',)
+                    # send_all_File.append({'url':msg_instance.image.url, 'caption':msg_instance.caption})
 
-                        # video_file_name = f"{uuid.uuid4()}.{ext}" 
-
-                        # video_data = ContentFile(base64.b64decode(vid_src), name=video_file_name)
-
-                        # msg_instance = await sync_to_async(Message.objects.create)(
-                        #     sender=sender, receiver=receiver, video=video_data, caption=file_caption, content='',)
-            #             send_all_File.append({'url':msg_instance.video.url, 'caption':msg_instance.caption, 'video_src':file_src})
-            # else:    
-            #     msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
+                elif file_type == 'Video': 
+                    type_content = 'Video'
+                    msg_instance = await database_sync_to_async(Message.objects.get)(id=data_id)
+                    url     = msg_instance.video.url
+                    caption = msg_instance.caption
+            else:    
+                msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
             
-            msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
-           
+                      
 
             if sender_id == int(receiver_id):
                 msg_instance.is_read = True
@@ -179,7 +158,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'label_time':formate_msg_time,
                 'check_contacts':check,
                 'img':img,
-                'send_File':json.dumps(send_all_File),
+                'url':url,
+                'caption':caption,
                 'type_content':type_content
                 }
             )
@@ -197,7 +177,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         label_time = event['label_time']
         check_contacts = event['check_contacts']
         img = event['img']
-        send_File = event['send_File']
+        url = event['url']
+        caption = event['caption']
         type_content = event['type_content'] 
 
         await self.send(text_data=json.dumps({
@@ -213,7 +194,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'label_time':label_time,
             'check_contacts':check_contacts,
             'img':img,
-            'send_File':send_File,
+            'url':url,
+            'caption':caption,
             'type_content':type_content,
         }))
 

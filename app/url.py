@@ -16,7 +16,7 @@ urlpatterns = [
        path('resendotp/', views.resendotp, name='resendotp'),
        path('create_contacts/',views.create_contacts),
        path('get_contacts/', views.get_contacts),
-       path('delete_contact/',views.delete_contact),
+       path('upload-video/',views.upload_videos),
 ]
 
 if settings.DEBUG:
