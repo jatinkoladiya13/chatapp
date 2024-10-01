@@ -154,6 +154,9 @@ def home(request):
     for contact_user in contact_users:
         message_reciver_count = Message.objects.filter(sender_id=contact_user.id,receiver_id=login_user.id, is_read=False).count()
         
+        if contact_user.id == login_user.id:
+            message_reciver_count = 0
+        
         deletetion_time_str = login_user.deleted_contacts
         check =     login_user.deleted_contacts.get(contact_user.id)
         if check:
@@ -310,21 +313,29 @@ def  delete_contact(request):
 @csrf_exempt
 def upload_videos(request):
     if request.method == 'POST':
-        file = request.FILES.get('video')
+        video = request.FILES.get('video')
+        image = request.FILES.get('image')
         receiver_usr = request.POST.get('receiver_usr')
         caption = request.POST.get('captions')
         sender_id = request.user.id
 
         receiver_msg = User.objects.get(id=receiver_usr)
         sender_msg = User.objects.get(id=sender_id)
-        
     
-    
-        new_filename = f"{uuid.uuid4()}.mp4"
-        file.name = new_filename
-        msg_instance = Message.objects.create(
-                    sender=sender_msg, receiver=receiver_msg, video=file, caption=caption, content='',)
-        send_data = {'id':msg_instance.id, 'type': 'Video',}
+        send_data = {}
+        if image:
+            new_filename = f"{uuid.uuid4()}.jpg"
+            image.name = new_filename
+            msg_instance = Message.objects.create(
+                        sender=sender_msg, receiver=receiver_msg, image=image, caption=caption, content='',)
+            send_data = {'id':msg_instance.id, 'type': 'Photo',}
+
+        elif video:   
+            new_filename = f"{uuid.uuid4()}.mp4" 
+            video.name = new_filename
+            msg_instance = Message.objects.create(
+                        sender=sender_msg, receiver=receiver_msg, video=video, caption=caption, content='',)
+            send_data = {'id':msg_instance.id, 'type': 'Video',}
          
         return JsonResponse({'status':'200', 'message': send_data}, status=200)
     
