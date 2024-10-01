@@ -708,7 +708,7 @@ form .pass-txt {
 .message_p p{
     color: #8696a0;
     display: -webkit-box;
-    -webkit-line-clamp: 1;
+    height: 1.2em;
     font-size: 0.9em;
     -webkit-box-orient: vertical;
     overflow: hidden;
