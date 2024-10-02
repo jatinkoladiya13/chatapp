@@ -207,6 +207,10 @@ def create_contacts(request):
         user  = User.objects.get(email=contact_email)
         if user :
             create_by_user = User.objects.get(id=login_user_id)
+
+            if not isinstance(create_by_user.contacts, list):
+                create_by_user.contacts = []
+
             for contact in create_by_user.contacts:
                 if contact['user_id'] == user.id:
                     contact['delete_status'] = False
@@ -214,6 +218,7 @@ def create_contacts(request):
                 if contact['user_id'] in create_by_user.deleted_contacts:
                     del create_by_user.deleted_contacts[contact['user_id']]
             else:
+                print(type(user.contacts), user.contacts)
                 create_by_user.contacts.append({
                     'user_id':user.id,
                     'delete_status':False,})
