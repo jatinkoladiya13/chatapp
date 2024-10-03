@@ -724,33 +724,48 @@ chatSocket.onmessage = function(e){
             handleChathistory(data);
         }else if(data.type == 'chat_message'){
             handleChatMessage(data);
+        }else if(data.type  == 'user_status' && selectedUserId == data.user_id){
+            
+            is_online = data.is_online
+            
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = is_online ? "Online" : "Offline";   
         }
 
-    let emaplath = `.chatlist .block[data-user-id="${selectedUserId}"]` 
-    if(djangoUserId == data.sender_id){
-        emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
-    }else if(djangoUserId == data.receiver_id){
-        emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
-    }
-    const userElements = document.querySelector(emaplath);
-    if(userElements){
-        const messagePElement = userElements.querySelector('.message_p p');
-        if (data.type_content == 'Photo'){
-            messagePElement.textContent = 'Photo';
-        }else if(data.type_content == 'Video'){
-            messagePElement.textContent = 'Video';
-        }else{
-            messagePElement.textContent = data.message;
-        }
-        const times = userElements.querySelector('.listHead p');
-        times.textContent = data.timestamp;
-    }
+        
+        if(data.type != 'user_status'){
+            let emaplath = `.chatlist .block[data-user-id="${selectedUserId}"]` 
+            if(djangoUserId == data.sender_id){
+                emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
+            }else if(djangoUserId == data.receiver_id){
+                emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
+            }
+            const userElements = document.querySelector(emaplath);
+            if(userElements){
+                const messagePElement = userElements.querySelector('.message_p p');
+                if (data.type_content == 'Photo'){
+                    messagePElement.textContent = 'Photo';
+                }else if(data.type_content == 'Video'){
+                    messagePElement.textContent = 'Video';
+                }else{
+                    messagePElement.textContent = data.message;
+                }
+                const times = userElements.querySelector('.listHead p');
+                times.textContent = data.timestamp;
+            }
+                }
        
 }
 
 // functions 
 function handleChathistory(data){
+
+    const statusText = document.getElementById('statusText');
+    is_online = data.status
+    statusText.textContent = is_online ? "Online" : "Offline"; 
+
     if(data.sender_id == djangoUserId){
+
         data.history.forEach((day, index) => {
             lastDate = day.date; 
             const dateLabel = `
@@ -1310,7 +1325,7 @@ function clickopenbox(){
             const lastMessageTime = this.querySelector('.time').textContent;
 
             document.querySelector('.rightside .userimg img').src = profileImage;
-            document.querySelector('.rightside h4').innerHTML = `${userName}<br><span>online</span>`;
+            document.querySelector('.rightside h4').innerHTML = `${userName}<br><span id="statusText">online</span>`;
         });
     });
    

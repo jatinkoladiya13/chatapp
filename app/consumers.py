@@ -41,22 +41,58 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name =  f'chat_{self.room_name}'
-    
+        id = self.scope['user'].id
+        await self.update_user_status(True, id)
+        
+       
         # join group 
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
-
+        
+        await self.broadcast_user_status(id, True)
 
         await self.accept()
 
     async def disconnect(self, code):
-        print("this is colsing")
+        id = self.scope['user'].id
+        await self.update_user_status(False, id)
+        
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
+
+        await self.broadcast_user_status(id, False)
+
+    @database_sync_to_async
+    def update_user_status(self, is_online, id):
+        user = User.objects.get(id=id)
+        user.is_online = is_online
+        user.save()  
+
+    async def broadcast_user_status(self, user_id, is_online):
+        print("this is working", self.room_group_name)
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'user_status',
+                'user_id': user_id,
+                'is_online': is_online,
+            }
+        ) 
+
+    async def user_status(self, event):
+        user_id = event['user_id']
+        is_online = event['is_online']
+        print(f"User status received: User ID {user_id} is {'online' if is_online else 'offline'}")   
+        await self.send(text_data=json.dumps({
+            'type': 'user_status',
+            'user_id': user_id,
+            'is_online': is_online,
+        }))    
+
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -173,6 +209,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         caption = event['caption']
         type_content = event['type_content'] 
 
+
         await self.send(text_data=json.dumps({
             'message':message,
             'sender':sender,
@@ -194,7 +231,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def send_chat_history(self, sender_id, receiver_id):
 
-        sender = await sync_to_async(User.objects.get)(id=sender_id)
+        sender  = await sync_to_async(User.objects.get)(id=sender_id)
+        reciver = await sync_to_async(User.objects.get)(id=receiver_id)
+
 
         deletetion_time_str = sender.deleted_contacts.get(receiver_id)
 
@@ -232,5 +271,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'type': 'chat_history',
             'history': response_data,
             'sender_id':sender_id,
+            'status':reciver.is_online,
         }))
 
