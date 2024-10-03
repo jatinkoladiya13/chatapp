@@ -438,12 +438,84 @@ form .pass-txt {
     
 }
 
+.chat_header{
+    order: 0;
+    position: relative;
+    width: 64px;
+    background: #202c33;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    box-sizing: border-box;
+    flex-direction: column;
+    flex-shrink: 1;
+    flex-basis: auto;
+    flex-wrap: nowrap;
+    flex-grow: 0;
+}
+
+.chat_header .chat_header_top{
+    flex-grow: 1;
+    min-height: 0;
+    min-width: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    align-self: auto;
+    flex-direction: column;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.chat_header .chat_header_top i{
+    max-width: 40px;
+    max-height: 40px;
+    font-size: 21px;
+    margin-left: 0;
+    position: relative;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .1);
+    transition: background-color .3s ease;
+    padding: 9px;
+    margin-top: 10px;
+}
+
+.chat_header .chat_header_bottom{
+    min-width: 0;
+    min-height: 0;
+    margin-bottom: 10px;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    align-self: auto;
+}
+
+.chat_header .chat_header_bottom .chat_header_userimg{
+    position: relative;
+    max-width: 40px;
+    max-height: 40px;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+
+
 .chat-container .leftside{
    position: relative;
    flex: 30%;
    background: #111B21;
    border-right: 1px solid rgba(0, 0, 0, 0.2);
       
+}
+
+.leftside .leftside_first{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    z-index: 1;
 }
 
 .chat-container .rightside{
@@ -486,8 +558,8 @@ form .pass-txt {
 
 .userimg{
     position: relative;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     overflow: hidden;
     border-radius: 50%;
     cursor: pointer;
@@ -1106,8 +1178,12 @@ form .pass-txt {
 
 .leftside-drawer.open {
     transform: translateX(0);
-    left: 0; /* Slide in */
+    left: 0;
     background-color: #111B21;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 1;
 }
 
 .drawer-header {
@@ -1158,6 +1234,8 @@ form .pass-txt {
     height: calc(100% - 110px);
     overflow-y: auto;
     background: #111B21;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
 }
 
 .drwer-chatlist .drawer-block{

@@ -17,122 +17,173 @@
 </head>
 <body class="chat_body">
    <div class="chat-container">
-       <div class="leftside">
-        <!-- chat header -->
-        <div class="chat-header">
-            <div class="userimg">
-                {% if user.is_authenticated %}
-                    {% if user.profile_image %}
-                        <img src="{{ user.profile_image.url }}" class="cover">
-                    {% else %}
-                        <img src="/static/images/profile.png" class="cover">
-                    {% endif %}
-                    
-                    
-                {% endif %}
-            </div>
-           
-            <!--Profile dropdown-->
-            <div class="sub-menu-wrap">
-                <div class="user-info">
-                    <div class="user-info-img">
-                        {% if user.profile_image %}
-                            <img src="{{ user.profile_image.url }}" class="cover">
-                        {% else %}
-                            <img src="/static/images/profile.png" class="cover">
-                        {% endif %}
-                    </div>
-                    <div class="user-info-details">
-                        <h2>{{ user.username }}</h2>
-                    </div>
-                    
-                </div> 
-                <hr>
-
-                <a href="#" class="sub-menu-link">
-                    <p>Profile</p>
-                    <span>></span>    
-                </a> 
-                <a href="/signout" class="sub-menu-link">
-                    <p>Log Out</p>
-                    <span>></span>    
-                </a>
-
-            </div>
-
-            <ul class="nav_icons">
-                <li><ion-icon name="scan-circle-outline"></ion-icon></li>
-                <li><ion-icon name="duplicate-outline" id="createfriend"></ion-icon></li>
-                <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
-            </ul> 
-
-        </div>
-          
        
-        <!-- search -->
-         <div class="search_chat">
-            <div>
-                <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                <input type="text" id="search-input" placeholder="Search or start new chat">
-                <ion-icon name="close-outline" class="search-close" id="search-close"></ion-icon>
-                
+       <div class="chat_header">
+
+            <div class="chat_header_top">
+                <i class="fa-brands fa-facebook-messenger" style="color: #aebac1;"></i>
+                <i class="fa-solid fa-circle-radiation" style="color: #aebac1;"></i>
             </div>
-         </div>
-        <!-- chat list -->
-         <div class="chatlist" id="chatlist">
-             {% for user in  user_data %}
-                {{ user_data|json_script:"user-data" }}
-                <div class="block" data-user-id="{{user.id}}">
-                    <div class="imgbox">
-                        {% if user.profile_image %}
-                        <img src=" {{user.profile_image}}" class="cover">
-                        {% else %}
-                        <img src='/static/images/profile.png' class="cover">
-                        {% endif %}
-                       
-                    </div>     
-                    <div class="details">
-                        <div class="listHead">
-                            <h4>{{user.username}}</h4>
-                            <p class="time">{{user.last_msg_time}}</p>
-                        </div>
-                        <div class="message_p">
-                            {% if user.last_msg != '' %}
-                                <p>{{user.last_msg}}</p>
+            <div class="chat_header_bottom">
+                <div class="chat_header_userimg">
+                    <img src="/static/images/profile.png" class="cover">
+                </div>
+            </div>
+
+       </div> 
+
+       <div class="leftside">
+            <div class="leftside_first">
+
+                <!-- chat header -->
+                <div class="chat-header">
+                    <div class="userimg">
+                        {% if user.is_authenticated %}
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}" class="cover">
                             {% else %}
-                                <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
+                                <img src="/static/images/profile.png" class="cover">
+                            {% endif %}
+                        
+                        
+                        {% endif %}
+                    </div>
+                
+                    <!--Profile dropdown-->
+                    <div class="sub-menu-wrap">
+                        <div class="user-info">
+                            <div class="user-info-img">
+                                {% if user.profile_image %}
+                                    <img src="{{ user.profile_image.url }}" class="cover">
+                                {% else %}
+                                    <img src="/static/images/profile.png" class="cover">
+                                {% endif %}
+                            </div>
+                            <div class="user-info-details">
+                                <h2>{{ user.username }}</h2>
+                            </div>
+                        
+                        </div>
+                        <hr>
+
+
+                        <a href="#" class="sub-menu-link">
+                            <p>Profile</p>
+                            <span>></span>    
+                        </a>
+                        <a href="/signout" class="sub-menu-link">
+                            <p>Log Out</p>
+                            <span>></span>    
+                        </a>
+
+
+                    </div>
+
+
+                    <ul class="nav_icons">
+                        <li><ion-icon name="scan-circle-outline"></ion-icon></li>
+                        <li><ion-icon name="duplicate-outline" id="createfriend"></ion-icon></li>
+                        <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
+                    </ul>
+
+
+                </div>
+
+                <!-- search -->
+                <div class="search_chat">
+                    <div>
+                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                        <input type="text" id="search-input" placeholder="Search or start new chat">
+                        <ion-icon name="close-outline" class="search-close" id="search-close"></ion-icon>
+                    
+                    </div>
+                </div>
+
+                <!-- chat list -->
+                <div class="chatlist" id="chatlist">
+                    {% for user in  user_data %}
+                    {{ user_data|json_script:"user-data" }}
+                    <div class="block" data-user-id="{{user.id}}">
+                        <div class="imgbox">
+                            {% if user.profile_image %}
+                            <img src=" {{user.profile_image}}" class="cover">
+                            {% else %}
+                            <img src='/static/images/profile.png' class="cover">
                             {% endif %}
                             
-                            {% if user.toggle_count > 0 %}
-                                <b class="toggle-count">{{user.toggle_count}}</b>
-                            {% endif %}
-                           
-                        </div>
-                    </div>                         
+                        </div>    
+                        <div class="details">
+                            <div class="listHead">
+                                <h4>{{user.username}}</h4>
+                                <p class="time">{{user.last_msg_time}}</p>
+                            </div>
+                            <div class="message_p">
+                                {% if user.last_msg != '' %}
+                                    <p>{{user.last_msg}}</p>
+                                {% else %}
+                                    <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
+                                {% endif %}
+                                
+                                {% if user.toggle_count > 0 %}
+                                    <b class="toggle-count">{{user.toggle_count}}</b>
+                                {% endif %}
+                                
+                            </div>
+                        </div>                        
+                    </div>
+                    
+                    {% endfor %}
                 </div>
+
+
+            </div>
+
+             <!-- New Drawer for contacts/Settings -->
+            <div class="leftside-drawer" id="leftsideDrawer">
                 
-             {% endfor %}
-         </div> 
+                <div class="drawer-header">
+                    <ion-icon name="arrow-back-outline" id="drawer-close"></ion-icon>
+                    <h1>Receive User</h1>
+                </div>
+
+                <div class="search_chat">
+                    <div>
+                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                        <input type="text" id="drawer-search-input" placeholder="Search or start new chat">
+                        <ion-icon name="close-outline" class="search-close" id="drawer-search-close"></ion-icon>
+                    </div>
+                </div>
+
+                <div class="drwer-chatlist" id="drwer-chatlist">
+               
+                </div>
+
+                <button id="addUserBtn" class="add-user-btn">+</button>
+
+
+            </div>
+
+            <!-- New Drawer for create new contact -->
+            <div class="leftside-drawer" id="adduserDrawer">
+                <div class="drawer-header">
+                    <ion-icon name="arrow-back-outline" id="adduser-drawer-close"></ion-icon>
+                    <h1>Add User</h1>
+                </div>
+
+                <div class="addUserRe">
+                    <div class="search_div">
+                        <h6>Add receive message user...!</h6>
+                        <input type="email" id="drawer-email-input" placeholder="Email Id">
+                    </div>
+                </div>
+
+                <button type="submit" class="save-btn" id="save-btn">Save</button>
+    
+            </div>  
+       
        </div>
 
-        <!-- New Drawer for Profile/Settings -->
-        <div class="leftside-drawer" id="leftsideDrawer">
-            <div class="drawer-header">
-                <ion-icon name="arrow-back-outline" id="drawer-close"></ion-icon>
-                <h1>Receive User</h1>
-            </div>
-            <div class="search_chat">
-                <div>
-                    <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                    <input type="text" id="drawer-search-input" placeholder="Search or start new chat">
-                    <ion-icon name="close-outline" class="search-close" id="drawer-search-close"></ion-icon>
-                </div>
-            </div>
-            <div class="drwer-chatlist" id="drwer-chatlist">
-               
-            </div> 
-            <button id="addUserBtn" class="add-user-btn">+</button>
-        </div>
+       
          
         <!-- Delete Confirmation Dialog -->
         <div class="dialog-overlay" id="deleteDialog">
@@ -146,23 +197,7 @@
             </div>
         </div>
 
-        <div class="leftside-drawer" id="adduserDrawer">
-            <div class="drawer-header">
-                <ion-icon name="arrow-back-outline" id="adduser-drawer-close"></ion-icon>
-                <h1>Add User</h1>
-            </div>
-            
-            <div class="addUserRe">
-                <div class="search_div">
-                    <h6>Add receive message user...!</h6>
-                    <input type="email" id="drawer-email-input" placeholder="Email Id">
-                </div>
-            </div>
-
-            <button type="submit" class="save-btn" id="save-btn">Save</button>
-            
-
-        </div> 
+        
 
 
        <div class="intro-right">
@@ -171,6 +206,7 @@
             </div>
             
        </div>
+
        <div class="rightside">
            <div class="chat-header">
                 <div class="imgText">
