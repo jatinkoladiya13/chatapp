@@ -21,12 +21,27 @@
        <div class="chat_header">
 
             <div class="chat_header_top">
-                <i class="fa-brands fa-facebook-messenger" style="color: #aebac1;"></i>
-                <i class="fa-solid fa-circle-radiation" style="color: #aebac1;"></i>
+
+                <div class="chat_header_top_icon selected" onclick="toggleDrawer('chat_drawer_open', this)">
+                    <i class="fa-brands fa-facebook-messenger" style="color: #aebac1;"></i>
+                </div>
+
+                <div class="chat_header_top_icon"  onclick="toggleDrawer('status_story', this)">
+                    <i class="fa-solid fa-circle-radiation" style="color: #aebac1;"></i>
+                </div>
+                        
             </div>
             <div class="chat_header_bottom">
-                <div class="chat_header_userimg">
-                    <img src="/static/images/profile.png" class="cover">
+                <div class="chat_header_userimg"  onclick="toggleDrawer('user_profile', this)">
+                    {% if user.is_authenticated %}
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}">
+                            {% else %}
+                                <img src="/static/images/profile.png">
+                            {% endif %}
+                        
+                        
+                        {% endif %}
                 </div>
             </div>
 
@@ -37,17 +52,8 @@
 
                 <!-- chat header -->
                 <div class="chat-header">
-                    <div class="userimg">
-                        {% if user.is_authenticated %}
-                            {% if user.profile_image %}
-                                <img src="{{ user.profile_image.url }}" class="cover">
-                            {% else %}
-                                <img src="/static/images/profile.png" class="cover">
-                            {% endif %}
-                        
-                        
-                        {% endif %}
-                    </div>
+                    
+                    <h1>Chats</h1>
                 
                     <!--Profile dropdown-->
                     <div class="sub-menu-wrap">
@@ -180,6 +186,47 @@
                 <button type="submit" class="save-btn" id="save-btn">Save</button>
     
             </div>  
+
+
+            <!-- New Drawer for Status -->
+            <div class="leftside-drawer" id="status_story">
+                <div class="drawer-header">
+                    <h1>Status</h1>
+                </div>
+    
+            </div> 
+            
+            <!-- New Drawer for Profile -->
+            <div class="leftside-drawer" id="user_profile">
+                
+                <div class="drawer-header">
+                    <h1>Profile</h1>
+                </div>
+
+                <div class="userimg_drawer">
+                    <div class="overlay">
+                        <ion-icon name="camera"></ion-icon>
+                        <p>CHANGE</p>
+                        <p>PROFILE PHOTO</p>
+                    </div>
+                    {% if user.is_authenticated %}
+                        {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" class="cover">
+                        {% else %}
+                            <img src="/static/images/profile.png" class="cover">
+                        {% endif %}
+                        
+                        
+                    {% endif %}
+                </div>
+
+                <div class="name-field">
+                    <span id="name-display">Your Name</span>
+                    <input type="text" id="name-input" value="Your Name" class="hidden" />
+                    <i class="fa-solid fa-pen" style="color:#8696a0"></i>
+                </div>
+
+            </div> 
        
        </div>
 

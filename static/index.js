@@ -190,6 +190,31 @@ imagePreviewClose.addEventListener('click',()=>{
     clearImages(); 
 });
 
+// side header click functionality 
+
+function closeAllDrawers(){
+    document.querySelectorAll('.leftside-drawer').forEach(icon => {
+        icon.classList.remove('open');
+    });
+    document.querySelectorAll('.chat_header_top_icon, .chat_header_userimg').forEach(icon => {
+        icon.classList.remove('selected');
+    });
+
+}
+
+function toggleDrawer(drawerId, button){
+    
+    
+    closeAllDrawers();
+    const drawer =  document.getElementById(drawerId);
+    if(drawer){
+        drawer.classList.add('open');
+    }
+
+    button.classList.add('selected');
+}
+
+
 const multipleItems = document.getElementById('multiple-items');
 const dataLoader = document.getElementById('loader');
 
