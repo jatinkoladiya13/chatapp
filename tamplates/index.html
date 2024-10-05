@@ -204,28 +204,48 @@
                 </div>
 
                 <div class="userimg_drawer">
-                    <div class="overlay">
+                    <div class="overlay" alt="Profile Image" id="overlay" onclick="document.getElementById('file-input').click();">
                         <ion-icon name="camera"></ion-icon>
                         <p>CHANGE</p>
                         <p>PROFILE PHOTO</p>
                     </div>
                     {% if user.is_authenticated %}
                         {% if user.profile_image %}
-                            <img src="{{ user.profile_image.url }}" class="cover">
+                            <img id="drawer_profile_img" src="{{ user.profile_image.url }}" class="cover">
                         {% else %}
-                            <img src="/static/images/profile.png" class="cover">
+                            <img id="drawer_profile_img" src="/static/images/profile.png" class="cover">
                         {% endif %}
                         
                         
                     {% endif %}
+                    <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="profikeImgTakenByDevice(event)">
                 </div>
+                 
+                <div class="hintText">Your name</div> 
 
                 <div class="name-field">
-                    <span id="name-display">Your Name</span>
-                    <input type="text" id="name-input" value="Your Name" class="hidden" />
-                    <i class="fa-solid fa-pen" style="color:#8696a0"></i>
+                    <span id="name-display">{{ user.username }}</span>
+                    <input type="text" id="name-input" value={{ user.username }} class="hidden" />
+                    <i class="fa-solid fa-pen" id="edit-icon-name" style="color:#8696a0; cursor: pointer;"></i>
+                    <i class="fa-solid fa-check" id="check-icon-name"  style="color: #8696a0; cursor: pointer; position: absolute; right: 30px;"></i>
                 </div>
 
+                <div class="name-field-discription">
+                    <p>This is not your username or PIN. This name will be visible to your Chatapp contacts.</p>
+                </div>
+                
+                <div class="hintText">Your email</div> 
+
+                <div class="name-field">
+                    <span id="email-display">{{ user.email }}</span>
+                    <input type="text" id="email-input" value={{ user.email }} class="hidden" />
+                    <i class="fa-solid fa-pen" id="edit-icon-email" style="color:#8696a0; cursor: pointer;"></i>
+                    <i class="fa-solid fa-check" id="check-icon-email"  style="color: #8696a0; cursor: pointer; position: absolute; right: 30px;"></i>
+                </div>
+
+                <div class="logout-container">
+                    <button id="logout-button" class="logout-button">Logout</button>
+                </div>
             </div> 
        
        </div>

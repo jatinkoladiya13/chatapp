@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;
 
 }
 
@@ -623,7 +623,7 @@ form .pass-txt {
     overflow: hidden;
     border-radius: 50%;
     cursor: pointer;
-    margin-left: 27%;
+    margin: auto;
 }
 
 .userimg_drawer:hover  .overlay{
@@ -733,6 +733,8 @@ form .pass-txt {
 
 .addUserRe .search_div{
     width: 100%;
+    margin-top: 50px;
+    margin-bottom: 10px;
 }
 
 .addUserRe .search_div h6{
@@ -1260,6 +1262,9 @@ form .pass-txt {
     width: 100%;
     position: absolute;
     z-index: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
 }
 
 .drawer-header {
@@ -1385,7 +1390,7 @@ form .pass-txt {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    margin: 30px auto 0;
+    margin: 50px auto 50px;
     display: block;
 }
 
@@ -1863,6 +1868,14 @@ form .pass-txt {
     height: 510px;
 }
 
+.hintText{
+    position: relative; 
+    font-size: .875rem;
+    font-weight: normal;
+    color: #008069;
+    line-height: 1.2;
+    margin: 30px 30px 10px 30px;
+}
 .name-field {
     display: flex;
     align-items: center;
@@ -1872,12 +1885,39 @@ form .pass-txt {
 
 .name-field span {
     font-size: 18px;
-    font-weight: bold;
     color: #D1D7DB;
 }
 
 .hidden {
-    display: none;
+    width: 100%;
+    background: #111B21;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    color: #D1D7DB;
+    outline: none;
+    padding: 4px 0;
+    box-sizing: border-box;
+    border-bottom: 2px solid #8696a0;
+}
+
+.hidden:focus {
+    border-bottom: 2px solid #4CAF50; 
+   
+}
+
+.name-field-discription{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 30px 30px 10px 30px;
+}
+
+.name-field-discription p{
+    font-size: 0.875rem;
+    line-height: 1.4286;
+    color: #aebac1;
+    font-weight: normal;
 }
 
 button {
@@ -1892,4 +1932,25 @@ button {
 
 button:hover {
     background-color: #45a049;
+}
+
+.logout-container {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 30px;
+}
+
+.logout-button {
+    padding: 10px 30px; 
+    font-size: 16px; 
+    color: white; 
+    background-color: #00AA84; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+    background-color: #45a049; 
 }

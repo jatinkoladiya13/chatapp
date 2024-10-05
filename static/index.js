@@ -214,6 +214,53 @@ function toggleDrawer(drawerId, button){
     button.classList.add('selected');
 }
 
+// profile edit name and email funtionality
+function setupEditableField(displayId, inputId, editIconId, checkIconId){
+    const displayElement = document.getElementById(displayId);
+    const inputElement = document.getElementById(inputId);
+    const editIconElement = document.getElementById(editIconId);
+    const checkIconElement = document.getElementById(checkIconId);
+    
+    inputElement.style.display = 'none';
+    checkIconElement.style.display = 'none';
+    editIconElement.addEventListener('click',function(){
+        inputElement.style.display = '';
+        checkIconElement.style.display = '';
+
+        editIconElement.style.display = 'none';
+        displayElement.style.display = 'none';
+        inputElement.focus();
+        inputElement.setSelectionRange(inputElement.value.length, inputElement.value.length);
+    });
+
+    checkIconElement.addEventListener('click', function(){
+        inputElement.style.display = 'none';
+        checkIconElement.style.display = 'none';
+        editIconElement.style.display = '';
+        displayElement.style.display = '';
+        displayElement.textContent = inputElement.value;
+    });
+}
+
+setupEditableField("name-display", "name-input", "edit-icon-name", "check-icon-name");
+setupEditableField("email-display", "email-input", "edit-icon-email", "check-icon-email");
+
+// drawer profile image taken by device
+function profikeImgTakenByDevice(event){
+    const file = event.target.files[0]; 
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+        const profileImage = document.getElementById('drawer_profile_img');
+        profileImage.src = e.target.result;
+    };
+
+    if(file){
+        reader.readAsDataURL(file);
+    }
+}
+
+
 
 const multipleItems = document.getElementById('multiple-items');
 const dataLoader = document.getElementById('loader');
