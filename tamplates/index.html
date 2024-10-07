@@ -204,11 +204,13 @@
                 </div>
 
                 <div class="userimg_drawer">
+                    <div class="profile_loader" id="profile_loader"></div> 
                     <div class="overlay" alt="Profile Image" id="overlay" onclick="document.getElementById('file-input').click();">
                         <ion-icon name="camera"></ion-icon>
                         <p>CHANGE</p>
                         <p>PROFILE PHOTO</p>
                     </div>
+                    
                     {% if user.is_authenticated %}
                         {% if user.profile_image %}
                             <img id="drawer_profile_img" src="{{ user.profile_image.url }}" class="cover">
@@ -226,8 +228,9 @@
                 <div class="name-field">
                     <span id="name-display">{{ user.username }}</span>
                     <input type="text" id="name-input" value={{ user.username }} class="hidden" />
-                    <i class="fa-solid fa-pen" id="edit-icon-name" style="color:#8696a0; cursor: pointer;"></i>
-                    <i class="fa-solid fa-check" id="check-icon-name"  style="color: #8696a0; cursor: pointer; position: absolute; right: 30px;"></i>
+                    <i class="fa-solid fa-arrow-rotate-right" style="color: #4CAF50;"></i>
+                    {% comment %} <i class="fa-solid fa-pen" id="edit-icon-name" style="color:#8696a0; cursor: pointer;"></i>
+                    <i class="fa-solid fa-check" id="check-icon-name"  style="color: #8696a0; cursor: pointer; position: absolute; right: 30px;"></i> {% endcomment %}
                 </div>
 
                 <div class="name-field-discription">
@@ -239,6 +242,7 @@
                 <div class="name-field">
                     <span id="email-display">{{ user.email }}</span>
                     <input type="text" id="email-input" value={{ user.email }} class="hidden" />
+                    <i class="fa-solid fa-arrow-rotate-right" style="color: #4CAF50;"></i>
                     <i class="fa-solid fa-pen" id="edit-icon-email" style="color:#8696a0; cursor: pointer;"></i>
                     <i class="fa-solid fa-check" id="check-icon-email"  style="color: #8696a0; cursor: pointer; position: absolute; right: 30px;"></i>
                 </div>

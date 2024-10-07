@@ -1954,3 +1954,20 @@ button:hover {
 .logout-button:hover {
     background-color: #45a049; 
 }
+
+.profile_loader{
+    border: 4px solid #25D366;
+    border-top: 4px solid rgba(0, 168, 132, 0.2);
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+}
+

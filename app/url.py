@@ -17,6 +17,7 @@ urlpatterns = [
        path('create_contacts/',views.create_contacts),
        path('get_contacts/', views.get_contacts),
        path('upload-video/',views.upload_videos),
+       path('edit_profile/', views.edit_profile),
 ]
 
 if settings.DEBUG:

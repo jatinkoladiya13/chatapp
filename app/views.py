@@ -345,3 +345,28 @@ def upload_videos(request):
         return JsonResponse({'status':'200', 'message': send_data}, status=200)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def edit_profile(request):
+
+    if request.method == 'POST':
+        id  = request.user.id
+    
+        image = request.FILES.get('profile_image')
+        name = request.POST.get('name-input')
+        email = request.POST.get('email-input')
+        
+        user = User.objects.get(id=id)
+        
+        if image:
+            user.profile_image = image
+        elif name:
+            user.username = name
+        elif email:
+            user.email = email
+
+        user.save()
+        
+        return JsonResponse({'status':'200', 'message': 'this is ok'}, status=200)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)

@@ -239,6 +239,7 @@ function setupEditableField(displayId, inputId, editIconId, checkIconId){
         editIconElement.style.display = '';
         displayElement.style.display = '';
         displayElement.textContent = inputElement.value;
+        editProfileUrl(inputId, inputElement.value);
     });
 }
 
@@ -247,16 +248,47 @@ setupEditableField("email-display", "email-input", "edit-icon-email", "check-ico
 
 // drawer profile image taken by device
 function profikeImgTakenByDevice(event){
+
     const file = event.target.files[0]; 
     const reader = new FileReader();
 
     reader.onload = function(e){
         const profileImage = document.getElementById('drawer_profile_img');
         profileImage.src = e.target.result;
+        editProfileUrl('profile_image', file);
     };
 
     if(file){
         reader.readAsDataURL(file);
+    }
+}
+
+//  drawer edit profile url 
+
+function createFormData(field, value) {
+    const formData = new FormData();
+    formData.append(field, value);
+    return formData;
+}
+
+async function editProfileUrl(field, value){
+    try{
+        const formData = createFormData(field, value);
+        const response = await fetch('/edit_profile/', {
+            method: 'POST',
+            header:{
+                'Content-Type':'application/json',
+                'X-CSRFToken':getCookie('csrftoken')
+            },
+            body: formData,
+        });
+        
+        const data = await  response.json();
+        console.log('Status:', data);
+
+
+    }catch(error){
+        console.error("Error:",error);
     }
 }
 
