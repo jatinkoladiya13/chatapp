@@ -1242,27 +1242,24 @@ form .pass-txt {
 
 
 .leftside-drawer {
-    position: absolute; /* Position it within the same container */
-    top: 0;
-    left: -100%;
-    width: 30%; /* Match the width of the leftside */
+    position: fixed; 
+    top: -100%;
+    left: 0;
+    width: 100%;
     height: 100%;
-    background: #fff; /* Same background as leftside */
+    background: #111B21;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease; /* Smooth sliding effect */
-    transform: translateX(-100%); /* Initially hidden */
-    z-index: 1000;
+    transition: transform 0.3s ease; 
+    transform: translateX(-100%);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
 }
 
 .leftside-drawer.open {
-    transform: translateX(0);
-    left: 0;
-    background-color: #111B21;
-    height: 100%;
-    width: 100%;
     position: absolute;
-    z-index: 1;
-    overflow-y: auto;
+    transform: translateX(0);
+    top: 0;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
 }
@@ -1288,11 +1285,18 @@ form .pass-txt {
 }
 
 .drawer-header h1{
-    line-height: 32px;
     color: #e9edef;
-    max-height: 24px;
     font-size: 1.375rem;
     font-weight: bold;
+    font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;color: #e9edef;
+}
+
+.scrollable-content{
+    height: calc(100% - 110px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    position: relative;
+    flex: 1;
 }
 
 .drawer-content {
@@ -1961,7 +1965,7 @@ button:hover {
     border-radius: 50%;
     animation: spin 1.2s linear infinite;
     z-index: 2;
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     position: absolute;
@@ -1971,3 +1975,47 @@ button:hover {
     width: 100%;
 }
 
+.drawer-header_nav_icons{
+    display: flex;
+    margin-bottom: 0;
+}
+
+.status-drawer-header {
+    position: relative;
+    width: 100%;
+    height: 60px;
+    background: #111B21;
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.status-drawer-header ion-icon{
+    display: flex;
+    list-style: none;
+    cursor: pointer;
+    color: #aebac1;
+    font-size: 24px;
+
+}
+
+.status-drawer-header h1{
+    color: #e9edef;
+    font-size: 1.375rem;
+    font-weight: bold;
+    font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;color: #e9edef;
+}
+
+.drawer-header_nav_icons li{
+    display: flex;
+    list-style: none;
+    cursor: pointer;
+    color: #aebac1;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    margin-right: 10px;
+    background: rgba(255, 255, 255, .1);
+    border-radius: 50%;
+}

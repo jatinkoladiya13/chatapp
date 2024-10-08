@@ -215,14 +215,18 @@ function toggleDrawer(drawerId, button){
 }
 
 // profile edit name and email funtionality
-function setupEditableField(displayId, inputId, editIconId, checkIconId){
+function setupEditableField(displayId, inputId, editIconId, checkIconId, loaderId){
     const displayElement = document.getElementById(displayId);
     const inputElement = document.getElementById(inputId);
     const editIconElement = document.getElementById(editIconId);
     const checkIconElement = document.getElementById(checkIconId);
+    const loader = document.getElementById(loaderId);
     
     inputElement.style.display = 'none';
     checkIconElement.style.display = 'none';
+    loader.style.display = 'none';
+    inputElement.value = displayElement.textContent;
+
     editIconElement.addEventListener('click',function(){
         inputElement.style.display = '';
         checkIconElement.style.display = '';
@@ -233,29 +237,46 @@ function setupEditableField(displayId, inputId, editIconId, checkIconId){
         inputElement.setSelectionRange(inputElement.value.length, inputElement.value.length);
     });
 
-    checkIconElement.addEventListener('click', function(){
-        inputElement.style.display = 'none';
+    checkIconElement.addEventListener('click', async function(){
+        loader.style.display = '';
         checkIconElement.style.display = 'none';
-        editIconElement.style.display = '';
-        displayElement.style.display = '';
-        displayElement.textContent = inputElement.value;
-        editProfileUrl(inputId, inputElement.value);
+        const success = await editProfileUrl(inputId, inputElement.value);
+        if(success){
+            inputElement.style.display = 'none';
+            editIconElement.style.display = '';
+            displayElement.style.display = '';
+            loader.style.display = 'none';
+            displayElement.textContent = inputElement.value;
+        }else{
+            loader.style.display = 'none';
+            inputElement.style.display = 'none';
+            checkIconElement.style.display = 'none';
+            editIconElement.style.display = '';
+            displayElement.style.display = '';
+            loader.style.display = 'none';
+        }
     });
 }
 
-setupEditableField("name-display", "name-input", "edit-icon-name", "check-icon-name");
-setupEditableField("email-display", "email-input", "edit-icon-email", "check-icon-email");
+setupEditableField("name-display", "name-input", "edit-icon-name", "check-icon-name", "edit-icon-name-loader" );
+setupEditableField("email-display", "email-input", "edit-icon-email", "check-icon-email", "edit-icon-email-loader");
 
 // drawer profile image taken by device
-function profikeImgTakenByDevice(event){
+const profile_loader = document.getElementById('profile_loader');
+function profikeImgTakenByDevice(event) {
+    
+    profile_loader.style.display = 'flex';
 
     const file = event.target.files[0]; 
     const reader = new FileReader();
 
-    reader.onload = function(e){
+    reader.onload = async function(e) {
         const profileImage = document.getElementById('drawer_profile_img');
         profileImage.src = e.target.result;
-        editProfileUrl('profile_image', file);
+        const success = await editProfileUrl('profile_image', file);
+        if(success){
+            profile_loader.style.display = 'none';
+        }
     };
 
     if(file){
@@ -282,16 +303,28 @@ async function editProfileUrl(field, value){
             },
             body: formData,
         });
-        
-        const data = await  response.json();
-        console.log('Status:', data);
-
+         
+        if(response.ok){
+            const data = await response.json();
+            console.log('Status:', data);
+            return true; 
+        }else{
+            console.error("Failed to update profile. Status:", response.status);
+            return false;
+        }
+       
 
     }catch(error){
         console.error("Error:",error);
+        return false;
     }
 }
 
+// logout profile
+const logout_button = document.getElementById('logout-button');
+logout_button.addEventListener('click', function(){
+    window.location.href = '/signout/';
+});
 
 
 const multipleItems = document.getElementById('multiple-items');
