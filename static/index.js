@@ -327,6 +327,25 @@ logout_button.addEventListener('click', function(){
 });
 
 
+// Status  and story
+function updateProgress(progressPercentage) {
+    const circle = document.getElementById('progress-circle');
+    const radius = circle.r.baseVal.value;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (progressPercentage / 100) * circumference;
+    
+    circle.style.strokeDashoffset = offset;
+}
+let progress = 10;
+const interval = setInterval(() => {
+    progress += 10;
+    updateProgress(progress);
+    if (progress >= 100) {
+        clearInterval(interval);
+    }
+}, 1000);
+
+
 const multipleItems = document.getElementById('multiple-items');
 const dataLoader = document.getElementById('loader');
 
