@@ -190,6 +190,230 @@ imagePreviewClose.addEventListener('click',()=>{
     clearImages(); 
 });
 
+// side header click functionality 
+
+function closeAllDrawers(){
+    document.querySelectorAll('.leftside-drawer').forEach(icon => {
+        icon.classList.remove('open');
+    });
+    document.querySelectorAll('.chat_header_top_icon, .chat_header_userimg').forEach(icon => {
+        icon.classList.remove('selected');
+    });
+
+}
+
+function toggleDrawer(drawerId, button){
+    
+    
+    closeAllDrawers();
+    const drawer =  document.getElementById(drawerId);
+    if(drawer){
+        drawer.classList.add('open');
+    }
+
+    button.classList.add('selected');
+}
+
+// profile edit name and email funtionality
+function setupEditableField(displayId, inputId, editIconId, checkIconId, loaderId){
+    const displayElement = document.getElementById(displayId);
+    const inputElement = document.getElementById(inputId);
+    const editIconElement = document.getElementById(editIconId);
+    const checkIconElement = document.getElementById(checkIconId);
+    const loader = document.getElementById(loaderId);
+    
+    inputElement.style.display = 'none';
+    checkIconElement.style.display = 'none';
+    loader.style.display = 'none';
+    inputElement.value = displayElement.textContent;
+
+    editIconElement.addEventListener('click',function(){
+        inputElement.style.display = '';
+        checkIconElement.style.display = '';
+
+        editIconElement.style.display = 'none';
+        displayElement.style.display = 'none';
+        inputElement.focus();
+        inputElement.setSelectionRange(inputElement.value.length, inputElement.value.length);
+    });
+
+    checkIconElement.addEventListener('click', async function(){
+        loader.style.display = '';
+        checkIconElement.style.display = 'none';
+        const success = await editProfileUrl(inputId, inputElement.value);
+        if(success){
+            inputElement.style.display = 'none';
+            editIconElement.style.display = '';
+            displayElement.style.display = '';
+            loader.style.display = 'none';
+            displayElement.textContent = inputElement.value;
+        }else{
+            loader.style.display = 'none';
+            inputElement.style.display = 'none';
+            checkIconElement.style.display = 'none';
+            editIconElement.style.display = '';
+            displayElement.style.display = '';
+            loader.style.display = 'none';
+        }
+    });
+}
+
+setupEditableField("name-display", "name-input", "edit-icon-name", "check-icon-name", "edit-icon-name-loader" );
+setupEditableField("email-display", "email-input", "edit-icon-email", "check-icon-email", "edit-icon-email-loader");
+
+// drawer profile image taken by device
+const profile_loader = document.getElementById('profile_loader');
+function profikeImgTakenByDevice(event) {
+    
+    profile_loader.style.display = 'flex';
+
+    const file = event.target.files[0]; 
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        const profileImage = document.getElementById('drawer_profile_img');
+        profileImage.src = e.target.result;
+        const success = await editProfileUrl('profile_image', file);
+        if(success){
+            profile_loader.style.display = 'none';
+        }
+    };
+
+    if(file){
+        reader.readAsDataURL(file);
+    }
+}
+
+//  drawer edit profile url 
+
+function createFormData(field, value) {
+    const formData = new FormData();
+    formData.append(field, value);
+    return formData;
+}
+
+async function editProfileUrl(field, value){
+    try{
+        const formData = createFormData(field, value);
+        const response = await fetch('/edit_profile/', {
+            method: 'POST',
+            header:{
+                'Content-Type':'application/json',
+                'X-CSRFToken':getCookie('csrftoken')
+            },
+            body: formData,
+        });
+         
+        if(response.ok){
+            const data = await response.json();
+            console.log('Status:', data);
+            return true; 
+        }else{
+            console.error("Failed to update profile. Status:", response.status);
+            return false;
+        }
+       
+
+    }catch(error){
+        console.error("Error:",error);
+        return false;
+    }
+}
+
+// logout profile
+const logout_button = document.getElementById('logout-button');
+logout_button.addEventListener('click', function(){
+    window.location.href = '/signout/';
+});
+
+//  click plush button for create status
+
+const topheaderAddStatus = document.getElementById('topheader-add-status');
+const topheaderProfileStatus = document.getElementById('topheader-profile-status');
+const smallDrawerStatus = document.getElementById('small-drawer-status');
+const scrollableContent = document.getElementById('scrollable-content');
+
+topheaderAddStatus.addEventListener('click', function(event){
+    topheaderAddStatus.style.background = "rgba(255, 255, 255, .1)";
+    smallDrawerStatus.style.cssText = `transform-origin: right top;
+    right: 74px;
+    top: 56.5px;
+    transform: scale(1);
+    opacity: 1;`;
+    scrollableContent.style.overflowY = "hidden";
+    event.stopPropagation();
+   
+});
+
+document.addEventListener('click', function(event) {
+    if (!topheaderAddStatus.contains(event.target)) {
+        topheaderAddStatus.style.background = ""; 
+        smallDrawerStatus.style.opacity = '0';
+        scrollableContent.style.overflowY = "auto";
+    }
+
+    if (!topheaderProfileStatus.contains(event.target)) { 
+        smallDrawerStatus.style.opacity = '0';
+        scrollableContent.style.overflowY = "auto";
+    }
+});
+topheaderProfileStatus.addEventListener('click', function(event){
+    smallDrawerStatus.style.cssText = `transform-origin: right top;
+    left: 44px;
+    top: 103.5px;
+    transform: scale(1);
+    opacity: 1;`;
+    scrollableContent.style.overflowY = "hidden";
+    event.stopPropagation();
+});
+
+
+
+// Status  and story
+const Unviewed = document.getElementById("Unviewed");
+const viewed = document.getElementById("Viewed");
+
+const radius = 50;
+const circumference = 2 * Math.PI * radius;
+
+const totalDash = 7;
+const unviewed_status = 7;
+const viewed_status = totalDash - unviewed_status;
+
+const divideLength  = circumference / totalDash;
+const dashLength = divideLength - 10;
+
+console.log(`dashofLenght===${dashLength}`);
+
+const totalOfUnviewedDashs = divideLength * unviewed_status;
+
+const viewedDashSet =  387.69908169872417 - totalOfUnviewedDashs;
+
+console.log(`second circle stroke-dashoffset=========${viewedDashSet}`);
+
+const unviewed_last_gap_minus = circumference - totalOfUnviewedDashs;
+const unviewed_last_gap = unviewed_last_gap_minus + 10;
+
+console.log(`first circle Last Gap=========${unviewed_last_gap}`);
+
+if(totalDash != 1){
+    Unviewed.setAttribute('stroke-dasharray',`${dashLength} 10 `.repeat(unviewed_status - 1 ) + `${dashLength} ${unviewed_last_gap}`);
+}
+Unviewed.setAttribute('stroke-dashoffset',  387.69908169872417);
+
+if(viewed_status > 0){
+
+    const totalOfUviewedDashs = divideLength * viewed_status;
+    const viewed_last_gap = unviewed_status == viewed_status ? unviewed_last_gap  : circumference - totalOfUviewedDashs + 10;
+    console.log(`second circle  Last Gap=====${circumference}===${divideLength}====${circumference - divideLength + 10}`);
+
+    viewed.setAttribute('stroke-dasharray', `${dashLength} 10 `.repeat(viewed_status - 1 ) + `${dashLength} ${viewed_last_gap}`);
+    viewed.setAttribute('stroke-dashoffset',  viewedDashSet);
+}else {
+    viewed.style.display = "none";   
+}
+
+
 const multipleItems = document.getElementById('multiple-items');
 const dataLoader = document.getElementById('loader');
 
@@ -290,7 +514,7 @@ function handlePhotoCapture(event){
                             <ion-icon name="close-outline"  id="removeImg"></ion-icon>
                         </div>
                         <div class="second">
-                            <img alt="Preview" src=${e.target.result}>
+                            <img alt="Preview" class="cover" src=${e.target.result}>
                         </div>
                     </button>
                 `;
@@ -724,33 +948,48 @@ chatSocket.onmessage = function(e){
             handleChathistory(data);
         }else if(data.type == 'chat_message'){
             handleChatMessage(data);
+        }else if(data.type  == 'user_status' && selectedUserId == data.user_id){
+            
+            is_online = data.is_online
+            
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = is_online ? "Online" : "Offline";   
         }
 
-    let emaplath = `.chatlist .block[data-user-id="${selectedUserId}"]` 
-    if(djangoUserId == data.sender_id){
-        emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
-    }else if(djangoUserId == data.receiver_id){
-        emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
-    }
-    const userElements = document.querySelector(emaplath);
-    if(userElements){
-        const messagePElement = userElements.querySelector('.message_p p');
-        if (data.type_content == 'Photo'){
-            messagePElement.textContent = 'Photo';
-        }else if(data.type_content == 'Video'){
-            messagePElement.textContent = 'Video';
-        }else{
-            messagePElement.textContent = data.message;
-        }
-        const times = userElements.querySelector('.listHead p');
-        times.textContent = data.timestamp;
-    }
+        
+        if(data.type != 'user_status'){
+            let emaplath = `.chatlist .block[data-user-id="${selectedUserId}"]` 
+            if(djangoUserId == data.sender_id){
+                emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
+            }else if(djangoUserId == data.receiver_id){
+                emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
+            }
+            const userElements = document.querySelector(emaplath);
+            if(userElements){
+                const messagePElement = userElements.querySelector('.message_p p');
+                if (data.type_content == 'Photo'){
+                    messagePElement.textContent = 'Photo';
+                }else if(data.type_content == 'Video'){
+                    messagePElement.textContent = 'Video';
+                }else{
+                    messagePElement.textContent = data.message;
+                }
+                const times = userElements.querySelector('.listHead p');
+                times.textContent = data.timestamp;
+            }
+                }
        
 }
 
 // functions 
 function handleChathistory(data){
+
+    const statusText = document.getElementById('statusText');
+    is_online = data.status
+    statusText.textContent = is_online ? "Online" : "Offline"; 
+
     if(data.sender_id == djangoUserId){
+
         data.history.forEach((day, index) => {
             lastDate = day.date; 
             const dateLabel = `
@@ -1310,7 +1549,7 @@ function clickopenbox(){
             const lastMessageTime = this.querySelector('.time').textContent;
 
             document.querySelector('.rightside .userimg img').src = profileImage;
-            document.querySelector('.rightside h4').innerHTML = `${userName}<br><span>online</span>`;
+            document.querySelector('.rightside h4').innerHTML = `${userName}<br><span id="statusText">online</span>`;
         });
     });
    

@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models  import  AbstractUser
-from django.db.models.signals import post_save 
 
 # Create your models here.
 
@@ -10,6 +9,7 @@ class User(AbstractUser):
     profile_image = models.ImageField(upload_to='product_images/',  blank=True, null=True) 
     contacts = models.JSONField(default=list, blank=True) 
     deleted_contacts = models.JSONField(default=dict, blank=True)
+    is_online = models.BooleanField(default=False)
 
     first_name = None
     last_name = None
@@ -19,6 +19,8 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         return f'{self.username}'
+
+
     
 class Message(models.Model):
     sender   = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)

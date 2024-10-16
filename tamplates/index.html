@@ -17,123 +17,326 @@
 </head>
 <body class="chat_body">
    <div class="chat-container">
-       <div class="leftside">
-        <!-- chat header -->
-        <div class="chat-header">
-            <div class="userimg">
-                {% if user.is_authenticated %}
-                    {% if user.profile_image %}
-                        <img src="{{ user.profile_image.url }}" class="cover">
-                    {% else %}
-                        <img src="/static/images/profile.png" class="cover">
-                    {% endif %}
-                    
-                    
-                {% endif %}
-            </div>
-           
-            <!--Profile dropdown-->
-            <div class="sub-menu-wrap">
-                <div class="user-info">
-                    <div class="user-info-img">
-                        {% if user.profile_image %}
-                            <img src="{{ user.profile_image.url }}" class="cover">
-                        {% else %}
-                            <img src="/static/images/profile.png" class="cover">
-                        {% endif %}
-                    </div>
-                    <div class="user-info-details">
-                        <h2>{{ user.username }}</h2>
-                    </div>
-                    
-                </div> 
-                <hr>
-
-                <a href="#" class="sub-menu-link">
-                    <p>Profile</p>
-                    <span>></span>    
-                </a> 
-                <a href="/signout" class="sub-menu-link">
-                    <p>Log Out</p>
-                    <span>></span>    
-                </a>
-
-            </div>
-
-            <ul class="nav_icons">
-                <li><ion-icon name="scan-circle-outline"></ion-icon></li>
-                <li><ion-icon name="duplicate-outline" id="createfriend"></ion-icon></li>
-                <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
-            </ul> 
-
-        </div>
-          
        
-        <!-- search -->
-         <div class="search_chat">
-            <div>
-                <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                <input type="text" id="search-input" placeholder="Search or start new chat">
-                <ion-icon name="close-outline" class="search-close" id="search-close"></ion-icon>
-                
+       <div class="chat_header">
+
+            <div class="chat_header_top">
+
+                <div class="chat_header_top_icon selected" onclick="toggleDrawer('chat_drawer_open', this)">
+                    <i class="fa-brands fa-facebook-messenger" style="color: #aebac1;"></i>
+                </div>
+
+                <div class="chat_header_top_icon"  onclick="toggleDrawer('status_story', this)">
+                    <i class="fa-solid fa-circle-radiation" style="color: #aebac1;"></i>
+                </div>
+                        
             </div>
-         </div>
-        <!-- chat list -->
-         <div class="chatlist" id="chatlist">
-             {% for user in  user_data %}
-                {{ user_data|json_script:"user-data" }}
-                <div class="block" data-user-id="{{user.id}}">
-                    <div class="imgbox">
-                        {% if user.profile_image %}
-                        <img src=" {{user.profile_image}}" class="cover">
-                        {% else %}
-                        <img src='/static/images/profile.png' class="cover">
-                        {% endif %}
-                       
-                    </div>     
-                    <div class="details">
-                        <div class="listHead">
-                            <h4>{{user.username}}</h4>
-                            <p class="time">{{user.last_msg_time}}</p>
-                        </div>
-                        <div class="message_p">
-                            {% if user.last_msg != '' %}
-                                <p>{{user.last_msg}}</p>
+            <div class="chat_header_bottom">
+                <div class="chat_header_userimg"  onclick="toggleDrawer('user_profile', this)">
+                    {% if user.is_authenticated %}
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}">
                             {% else %}
-                                <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
+                                <img src="/static/images/profile.png">
+                            {% endif %}
+                        
+                        
+                        {% endif %}
+                </div>
+            </div>
+
+       </div> 
+
+       <div class="leftside">
+
+            <div class="leftside_first">
+
+                <!-- chat header -->
+                <div class="chat-header">
+                    
+                    <h1>Chats</h1>
+                
+
+                    <ul class="nav_icons">
+                        <li><ion-icon name="scan-circle-outline"></ion-icon></li>
+                        <li><ion-icon name="duplicate-outline" id="createfriend"></ion-icon></li>
+                        <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
+                    </ul>
+
+
+                </div>
+
+                <!-- search -->
+                <div class="search_chat">
+                    <div>
+                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                        <input type="text" id="search-input" placeholder="Search or start new chat">
+                        <ion-icon name="close-outline" class="search-close" id="search-close"></ion-icon>
+                    
+                    </div>
+                </div>
+
+                <!-- chat list -->
+                <div class="chatlist" id="chatlist">
+                    {% for user in  user_data %}
+                    {{ user_data|json_script:"user-data" }}
+                    <div class="block" data-user-id="{{user.id}}">
+                        <div class="imgbox">
+                            {% if user.profile_image %}
+                            <img src=" {{user.profile_image}}" class="cover">
+                            {% else %}
+                            <img src='/static/images/profile.png' class="cover">
                             {% endif %}
                             
-                            {% if user.toggle_count > 0 %}
-                                <b class="toggle-count">{{user.toggle_count}}</b>
+                        </div>    
+                        <div class="details">
+                            <div class="listHead">
+                                <h4>{{user.username}}</h4>
+                                <p class="time">{{user.last_msg_time}}</p>
+                            </div>
+                            <div class="message_p">
+                                {% if user.last_msg != '' %}
+                                    <p>{{user.last_msg}}</p>
+                                {% else %}
+                                    <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
+                                {% endif %}
+                                
+                                {% if user.toggle_count > 0 %}
+                                    <b class="toggle-count">{{user.toggle_count}}</b>
+                                {% endif %}
+                                
+                            </div>
+                        </div>                        
+                    </div>
+                    
+                    {% endfor %}
+                </div>
+
+
+            </div>
+
+            <!-- New Drawer for contacts/Settings -->
+            <div class="leftside-drawer" id="leftsideDrawer">
+                
+                <div class="drawer-header">
+                    <ion-icon name="arrow-back-outline" id="drawer-close"></ion-icon>
+                    <h1>Receive User</h1>
+                </div>
+
+                <div class="search_chat">
+                    <div>
+                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                        <input type="text" id="drawer-search-input" placeholder="Search or start new chat">
+                        <ion-icon name="close-outline" class="search-close" id="drawer-search-close"></ion-icon>
+                    </div>
+                </div>
+
+                <div class="drwer-chatlist" id="drwer-chatlist">
+               
+                </div>
+
+                <button id="addUserBtn" class="add-user-btn">+</button>
+
+            </div>
+
+            <!-- New Drawer for create new contact -->
+            <div class="leftside-drawer" id="adduserDrawer">
+
+                <div class="drawer-header">
+                    <ion-icon name="arrow-back-outline" id="adduser-drawer-close"></ion-icon>
+                    <h1>Add User</h1>
+                </div>
+
+                <div class="scrollable-content">
+                    <div class="addUserRe">
+                        <div class="search_div">
+                            <h6>Add receive message user...!</h6>
+                            <input type="email" id="drawer-email-input" placeholder="Email Id">
+                        </div>
+                    </div>
+    
+                    <button type="submit" class="save-btn" id="save-btn">Save</button>
+    
+                </div>
+
+               
+            </div>
+
+
+              <!-- New Drawer for Status -->
+            <div class="leftside-drawer" id="status_story">
+                
+                <div class="status-drawer-header">
+                    <h1>Status</h1>
+                    <ul class="drawer-header_nav_icons">
+                        <li id="topheader-add-status"><ion-icon name="add-outline"></ion-icon></li>
+                        <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
+                    </ul>
+                </div>
+
+                <div class="small-drawer-status" id="small-drawer-status">
+                    <ul style="margin-bottom: 0;">
+                        <li style="opacity: 1;">
+                            <div class="small-drawer-status-box">
+                                    <div class="small-drawer-status-icon">
+                                        <svg viewBox="0 0 20 20" height="20" width="20" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>media-multiple</title><path fill-rule="evenodd" clip-rule="evenodd" d="M20 14V2C20 0.9 19.1 0 18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14ZM9.4 10.53L11.03 12.71L13.61 9.49C13.81 9.24 14.19 9.24 14.39 9.49L17.35 13.19C17.61 13.52 17.38 14 16.96 14H7C6.59 14 6.35 13.53 6.6 13.2L8.6 10.53C8.8 10.27 9.2 10.27 9.4 10.53ZM0 18V5C0 4.45 0.45 4 1 4C1.55 4 2 4.45 2 5V17C2 17.55 2.45 18 3 18H15C15.55 18 16 18.45 16 19C16 19.55 15.55 20 15 20H2C0.9 20 0 19.1 0 18Z" fill="currentColor"></path></svg>
+                                    </div>
+                                    <div class="small-drawer-status-content">Photos</div>
+                            </div>
+                        </li>
+                        <li  style="opacity: 1;">
+                            <div class="small-drawer-status-box">
+                                    <div class="small-drawer-status-icon">
+                                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>video-call</title><path d="M3.27096 7.31042C3 7.82381 3 8.49587 3 9.84V14.16C3 15.5041 3 16.1762 3.27096 16.6896C3.5093 17.1412 3.88961 17.5083 4.35738 17.7384C4.88916 18 5.58531 18 6.9776 18H13.1097C14.502 18 15.1982 18 15.7299 17.7384C16.1977 17.5083 16.578 17.1412 16.8164 16.6896C17.0873 16.1762 17.0873 15.5041 17.0873 14.16V9.84C17.0873 8.49587 17.0873 7.82381 16.8164 7.31042C16.578 6.85883 16.1977 6.49168 15.7299 6.26158C15.1982 6 14.502 6 13.1097 6H6.9776C5.58531 6 4.88916 6 4.35738 6.26158C3.88961 6.49168 3.5093 6.85883 3.27096 7.31042Z" fill="currentColor"></path><path d="M18.7308 9.60844C18.5601 9.75994 18.4629 9.97355 18.4629 10.1974V13.8026C18.4629 14.0264 18.5601 14.2401 18.7308 14.3916L20.9567 16.3669C21.4879 16.8384 22.3462 16.4746 22.3462 15.778V8.22203C22.3462 7.52542 21.4879 7.16163 20.9567 7.63306L18.7308 9.60844Z" fill="currentColor"></path></svg>
+                                    </div>
+                                    <div class="small-drawer-status-content">videos</div>
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+
+                <div class="scrollable-content" id="scrollable-content">
+                     <div class="status-box" id="topheader-profile-status" style="border-bottom: 10px solid #0C1317;">
+                        <div class="status-imgbox">
+                            <div class="status-image-box">
+                                <img src="/media/product_images/ai-generated-8845454_1280_sS142qw.jpg" >
+                            </div>
+                            <div class="add-icon-top">
+                               +
+                            </div>
+                        </div>
+                        <div class="status-details">
+                            <span class="status-details-top">My Status</span>
+                            <span class="status-details-bottom">Click to add status update</span>
+                        </div>
+                     </div>
+
+                     <div class="status-titleBox" >
+                        <div class="status-title">Recent</div>   
+                     </div>
+
+                     <div class="status-boxs">
+                        <div class="status-boxs-image">
+                            <svg  width="48" height="48" viewBox="0 0 104 104">
+                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
+                                stroke-dasharray="" stroke-width="4" style="stroke: #008069;" id="Unviewed" ></circle>
+                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" 
+                                stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" id="Viewed"></circle> 
+                                
+                               
+                            </svg>
+                            <div class="status-boxs-img-second">
+                                <div class="status-boxs-final-imag" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
+                            </div>
+                        </div>
+                        <div class="status-show-details">
+                            <span class="status-details-top">Jatin koladiya</span>
+                            <span class="status-details-bottom">Todat at 13:59</span>
+                        </div>
+
+                     </div>
+
+                     <div class="status-titleBox" >
+                        <div class="status-title">VIEWED</div>   
+                     </div>
+
+                     <div class="status-boxs">
+                        <div class="status-boxs-image">
+                            <svg  width="48" height="48" viewBox="0 0 104 104">
+                               <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" 
+                                stroke-width="4" style="stroke: #bbbec4;"></circle> 
+                                
+                               
+                            </svg>
+                            <div class="status-boxs-img-second">
+                                <div class="status-boxs-final-imag" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
+                            </div>
+                        </div>
+                        <div class="status-show-details">
+                            <span class="status-details-top">Jatin koladiya</span>
+                            <span class="status-details-bottom">Todat at 13:59</span>
+                        </div>
+
+                     </div>
+                </div>
+
+               
+
+            </div>
+
+            <!-- New Drawer for Profile -->
+            <div class="leftside-drawer" id="user_profile">
+                <div class="drawer-header">
+                    <h1>Profile</h1>
+                </div>
+
+                <div class="scrollable-content">
+
+                    <div class="userimg_drawer">
+                        <div class="profile_loader" id="profile_loader"></div>
+                        <div class="overlay" alt="Profile Image" id="overlay" onclick="document.getElementById('file-input').click();">
+                            <ion-icon name="camera"></ion-icon>
+                            <p>CHANGE</p>
+                            <p>PROFILE PHOTO</p>
+                        </div>
+                       
+                        {% if user.is_authenticated %}
+                            {% if user.profile_image %}
+                                <img id="drawer_profile_img" src="{{ user.profile_image.url }}" class="cover">
+                            {% else %}
+                                <img id="drawer_profile_img" src="/static/images/profile.png" class="cover">
                             {% endif %}
                            
-                        </div>
-                    </div>                         
+                           
+                        {% endif %}
+                        <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="profikeImgTakenByDevice(event)">
+                    </div>
+
+                    <div class="hintText">Your name</div>
+   
+                    <div class="name-field">
+                        <span id="name-display">{{ user.username }}</span>
+                        <input type="text" id="name-input" value={{ user.username }} class="hidden" />
+                        <i class="fa-solid fa-arrow-rotate-right"  id="edit-icon-name-loader" style="color: #4CAF50; position: absolute; right: 30px; animation: spin 1.2s linear infinite;"></i>
+                        <i class="fa-solid fa-pen" id="edit-icon-name" style="color:#8696a0; cursor: pointer;"></i>
+                        <i class="fa-solid fa-check" id="check-icon-name"  style="color: #8696a0; cursor: pointer; position: absolute; right: 30px;"></i>
+                    </div>
+   
+                    <div class="name-field-discription">
+                        <p>This is not your username or PIN. This name will be visible to your Chatapp contacts.</p>
+                    </div>
+                   
+                    <div class="hintText">Your email</div>
+   
+                    <div class="name-field">
+                        <span id="email-display">{{ user.email }}</span>
+                        <input type="text" id="email-input" value={{ user.email }} class="hidden" />
+                        <i class="fa-solid fa-arrow-rotate-right" id="edit-icon-email-loader" style="color: #4CAF50; position: absolute; right: 30px; animation: spin 1.2s linear infinite;"></i>
+                        <i class="fa-solid fa-pen" id="edit-icon-email" style="color:#8696a0; cursor: pointer;"></i>
+                        <i class="fa-solid fa-check" id="check-icon-email"  style="color: #8696a0; cursor: pointer; position: absolute; right: 30px;"></i>
+                    </div>
+   
+                    <div class="logout-container">
+                        <button id="logout-button" class="logout-button">Logout</button>
+                    </div>
+
+
                 </div>
-                
-             {% endfor %}
-         </div> 
+
+            </div>
+            
+       </div>
+         
+
+       <!--Status imag preview container-->
+       <div class="imag-preview-container" style="height:100%">
+        <div  style="display: contents;" >
+            <ion-icon name="close-outline"></ion-icon>
+        </div>
        </div>
 
-        <!-- New Drawer for Profile/Settings -->
-        <div class="leftside-drawer" id="leftsideDrawer">
-            <div class="drawer-header">
-                <ion-icon name="arrow-back-outline" id="drawer-close"></ion-icon>
-                <h1>Receive User</h1>
-            </div>
-            <div class="search_chat">
-                <div>
-                    <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                    <input type="text" id="drawer-search-input" placeholder="Search or start new chat">
-                    <ion-icon name="close-outline" class="search-close" id="drawer-search-close"></ion-icon>
-                </div>
-            </div>
-            <div class="drwer-chatlist" id="drwer-chatlist">
-               
-            </div> 
-            <button id="addUserBtn" class="add-user-btn">+</button>
-        </div>
-         
+
         <!-- Delete Confirmation Dialog -->
         <div class="dialog-overlay" id="deleteDialog">
             <div class="dialog-content">
@@ -146,38 +349,22 @@
             </div>
         </div>
 
-        <div class="leftside-drawer" id="adduserDrawer">
-            <div class="drawer-header">
-                <ion-icon name="arrow-back-outline" id="adduser-drawer-close"></ion-icon>
-                <h1>Add User</h1>
-            </div>
-            
-            <div class="addUserRe">
-                <div class="search_div">
-                    <h6>Add receive message user...!</h6>
-                    <input type="email" id="drawer-email-input" placeholder="Email Id">
-                </div>
-            </div>
-
-            <button type="submit" class="save-btn" id="save-btn">Save</button>
-            
-
-        </div> 
-
-
+        
+       <!-- This is right side intro part --> 
        <div class="intro-right">
             <div class="intro-img">
                 <img src="/static/images/Group Chat-cuate.svg" alt="">
             </div>
             
        </div>
+
        <div class="rightside">
            <div class="chat-header">
                 <div class="imgText">
                     <div class="userimg">
                         <img src="/static/images/profile.png" class="cover">
                     </div> 
-                    <h4>jatin koladiya<br><span>online</span></h4>
+                    <h4>jatin koladiya<br><span id="statusText">online</span></h4>
                 </div>
                 <ul class="nav_icons">
                     <li><ion-icon name="search-outline"></ion-icon></li> 

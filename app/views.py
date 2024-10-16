@@ -207,6 +207,10 @@ def create_contacts(request):
         user  = User.objects.get(email=contact_email)
         if user :
             create_by_user = User.objects.get(id=login_user_id)
+
+            if not isinstance(create_by_user.contacts, list):
+                create_by_user.contacts = []
+
             for contact in create_by_user.contacts:
                 if contact['user_id'] == user.id:
                     contact['delete_status'] = False
@@ -214,6 +218,7 @@ def create_contacts(request):
                 if contact['user_id'] in create_by_user.deleted_contacts:
                     del create_by_user.deleted_contacts[contact['user_id']]
             else:
+                print(type(user.contacts), user.contacts)
                 create_by_user.contacts.append({
                     'user_id':user.id,
                     'delete_status':False,})
@@ -338,5 +343,30 @@ def upload_videos(request):
             send_data = {'id':msg_instance.id, 'type': 'Video',}
          
         return JsonResponse({'status':'200', 'message': send_data}, status=200)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def edit_profile(request):
+
+    if request.method == 'POST':
+        id  = request.user.id
+    
+        image = request.FILES.get('profile_image')
+        name = request.POST.get('name-input')
+        email = request.POST.get('email-input')
+        
+        user = User.objects.get(id=id)
+        
+        if image:
+            user.profile_image = image
+        elif name:
+            user.username = name
+        elif email:
+            user.email = email
+
+        user.save()
+        
+        return JsonResponse({'status':'200', 'message': 'this is ok'}, status=200)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)

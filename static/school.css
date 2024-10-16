@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;
 
 }
 
@@ -11,7 +11,6 @@
 h1{
     color:#0a152f;
     font-size: 25px;
-    line-height: 0;
 }
 .flex{
     display: flex;
@@ -22,7 +21,6 @@ h1{
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     display: flex;
     padding: 15px 40px;
-    z-index: 999;
     position: sticky;
     top: 0;
     left: 0;
@@ -440,12 +438,116 @@ form .pass-txt {
     
 }
 
+.chat_header{
+    order: 0;
+    position: relative;
+    width: 64px;
+    background: #202c33;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    box-sizing: border-box;
+    flex-direction: column;
+    flex-shrink: 1;
+    flex-basis: auto;
+    flex-wrap: nowrap;
+    flex-grow: 0;
+}
+
+.chat_header .chat_header_top{
+    flex-grow: 1;
+    min-height: 0;
+    min-width: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    align-self: auto;
+    flex-direction: column;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.chat_header .chat_header_top  .chat_header_top_icon{
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+    margin-top: 10px;
+    margin-left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    width: 40px;
+    min-width: 0;
+    min-height: 0;
+    cursor: pointer; 
+}
+
+.chat_header .chat_header_top  .chat_header_top_icon.selected{
+    background:rgba(255, 255, 255, .1);
+}
+
+.chat_header .chat_header_top  .chat_header_top_icon i{
+    position: absolute;
+    font-size: 23px;
+}
+
+.chat_header .chat_header_bottom{
+    min-width: 0;
+    min-height: 0;
+    margin-bottom: 10px;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    align-self: auto;
+}
+
+.chat_header .chat_header_bottom .chat_header_userimg{
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+    margin-top: 10px;
+    margin-left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    width: 40px;
+    min-width: 0;
+    min-height: 0;
+    cursor: pointer; 
+}
+
+.chat_header .chat_header_bottom .chat_header_userimg.selected{
+    background:rgba(255, 255, 255, .1);
+}
+
+.chat_header .chat_header_bottom .chat_header_userimg img{
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+
+
+
 .chat-container .leftside{
    position: relative;
    flex: 30%;
    background: #111B21;
    border-right: 1px solid rgba(0, 0, 0, 0.2);
       
+}
+
+.leftside .leftside_first{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    z-index: 1;
 }
 
 .chat-container .rightside{
@@ -486,6 +588,12 @@ form .pass-txt {
     padding: 0 15px;
  }
 
+.chat-header h1{
+    color: #e9edef;
+    font-size: 1.375rem;
+    font-weight: bold;
+    font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;
+}
 .userimg{
     position: relative;
     width: 40px;
@@ -508,8 +616,46 @@ form .pass-txt {
     object-fit: cover;
  }
 
+ .userimg_drawer{
+    position: relative;
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 50%;
+    cursor: pointer;
+    margin: auto;
+}
 
- 
+.userimg_drawer:hover  .overlay{
+    opacity: 1; 
+}
+
+ .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Black color with 50% opacity */
+    border-radius: 50%;
+    z-index: 1;
+    opacity: 0; 
+    transition: opacity 0.3s ease; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-direction: column;
+    font-size: 12px;
+}
+
+.overlay p{
+    margin-bottom: 0;
+}
+
+.overlay ion-icon{
+   font-size: 25px;
+}
 
 .nav_icons{
     display: flex;
@@ -587,6 +733,8 @@ form .pass-txt {
 
 .addUserRe .search_div{
     width: 100%;
+    margin-top: 50px;
+    margin-bottom: 10px;
 }
 
 .addUserRe .search_div h6{
@@ -1094,22 +1242,26 @@ form .pass-txt {
 
 
 .leftside-drawer {
-    position: absolute; /* Position it within the same container */
-    top: 0;
-    left: -100%;
-    width: 30%; /* Match the width of the leftside */
+    position: fixed; 
+    top: -100%;
+    left: 0;
+    width: 100%;
     height: 100%;
-    background: #fff; /* Same background as leftside */
+    background: #111B21;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease; /* Smooth sliding effect */
-    transform: translateX(-100%); /* Initially hidden */
-    z-index: 1000;
+    transition: transform 0.3s ease; 
+    transform: translateX(-100%);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
 }
 
 .leftside-drawer.open {
+    position: absolute;
     transform: translateX(0);
-    left: 0; /* Slide in */
-    background-color: #111B21;
+    top: 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
 }
 
 .drawer-header {
@@ -1133,10 +1285,18 @@ form .pass-txt {
 }
 
 .drawer-header h1{
-    line-height: 32px;
-    font-size: inherit;
-    color: white;
-    max-height: 24px;
+    color: #e9edef;
+    font-size: 1.375rem;
+    font-weight: bold;
+    font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;color: #e9edef;
+}
+
+.scrollable-content{
+    height: calc(100% - 110px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    position: relative;
+    flex: 1;
 }
 
 .drawer-content {
@@ -1160,6 +1320,8 @@ form .pass-txt {
     height: calc(100% - 110px);
     overflow-y: auto;
     background: #111B21;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
 }
 
 .drwer-chatlist .drawer-block{
@@ -1232,7 +1394,7 @@ form .pass-txt {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    margin: 30px auto 0;
+    margin: 50px auto 50px;
     display: block;
 }
 
@@ -1708,4 +1870,380 @@ form .pass-txt {
 
 .file_view_center .file video{
     height: 510px;
+}
+
+.hintText{
+    position: relative; 
+    font-size: .875rem;
+    font-weight: normal;
+    color: #008069;
+    line-height: 1.2;
+    margin: 30px 30px 10px 30px;
+}
+.name-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 30px 10px 30px;
+}
+
+.name-field span {
+    font-size: 18px;
+    color: #D1D7DB;
+}
+
+.hidden {
+    width: 100%;
+    background: #111B21;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    color: #D1D7DB;
+    outline: none;
+    padding: 4px 0;
+    box-sizing: border-box;
+    border-bottom: 2px solid #8696a0;
+}
+
+.hidden:focus {
+    border-bottom: 2px solid #4CAF50; 
+   
+}
+
+.name-field-discription{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 30px 30px 10px 30px;
+}
+
+.name-field-discription p{
+    font-size: 0.875rem;
+    line-height: 1.4286;
+    color: #aebac1;
+    font-weight: normal;
+}
+
+/* button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+} */
+
+.logout-container {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 30px;
+}
+
+.logout-button {
+    padding: 10px 30px; 
+    font-size: 16px; 
+    color: white; 
+    background-color: #00AA84; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+    background-color: #45a049; 
+}
+
+.profile_loader{
+    border: 4px solid #25D366;
+    border-top: 4px solid rgba(0, 168, 132, 0.2);
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+    z-index: 2;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.drawer-header_nav_icons{
+    display: flex;
+    margin-bottom: 0;
+}
+
+.status-drawer-header {
+    position: relative;
+    width: 100%;
+    height: 60px;
+    background: #111B21;
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.status-drawer-header ion-icon{
+    display: flex;
+    list-style: none;
+    cursor: pointer;
+    color: #aebac1;
+    font-size: 24px;
+
+}
+
+.status-drawer-header h1{
+    color: #e9edef;
+    font-size: 1.375rem;
+    font-weight: bold;
+    font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;color: #e9edef;
+}
+
+.drawer-header_nav_icons li{
+    display: flex;
+    list-style: none;
+    cursor: pointer;
+    color: #aebac1;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+.status-box{
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0px 15px 0px 3px;
+    cursor: pointer;
+    background: #111B21;
+}
+.status-imgbox{
+    position: relative;
+    color: white;
+    height: 64px;
+    width: 68px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.status-imgbox .status-image-box{
+    height: 40px;
+    width: 40px;
+    position: relative;
+    border-radius: 50%;
+    background-color: initial;
+
+}
+
+.status-imgbox .status-image-box img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.add-icon-top {
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    padding: 0px 0px 2px 0px;
+    z-index: 100;
+    bottom: 8px;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    border-radius: 50%;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+    color: #e9edef;
+    box-shadow: none;
+    font-size: .875rem;
+    right: 8px;
+    background-color: #00a884;
+    transition-property: none;
+    transition-duration: .08s;
+    border: 3px solid #111B21;
+}
+
+.status-details{
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    height: 36px;
+    margin-right: auto;
+    padding-bottom: 48px;
+}
+.status-details-top{
+    font-size: 1rem;
+    color: #d1d7db;
+}
+
+.status-details-bottom{
+    font-size: .8125rem;
+    color: #8696a0;
+}
+
+
+.status-titleBox{
+    z-index: 1;
+    transition: none;
+    height: 72px;
+    transform: translateY(0px);
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+.status-title{
+color: #008069;
+    font-size: 16px;
+    box-sizing: border-box;
+    height: 72px;
+    padding-top: 30px;
+    padding-right: 0;
+    padding-left: 32PX;
+    text-transform: uppercase;
+}
+
+.status-boxs{
+    width: 100%;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    
+}
+
+.status-boxs-image{
+    display: flex;
+    padding-bottom: 12px;
+    height: 40px;
+    width: 40px;
+    position: relative;
+    padding-left: 13px;
+    padding-right: 15px;
+}
+
+.status-boxs-image svg{
+    overflow: hidden;
+    margin-left: -4px;
+    margin-top: -4px;
+    position: absolute;
+    display: block;
+    pointer-events: none;
+}
+.status-boxs-img-second{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.status-boxs-final-imag{
+    width: 40px;
+    height: 40px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    border-radius: 50%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: absolute;
+    background-position: center;
+}
+
+.status-show-details{
+    display: flex;
+    flex-basis: auto;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    min-width: 0;
+    padding-right: 15px;
+    border-top: 1px solid rgba(134, 150, 160, .15);
+    margin-left: 30px;
+    height: 72px;
+}
+
+.status-show-details span{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.small-drawer-status{
+    position: absolute;
+    z-index: 10000;
+    max-width: 340px;
+    padding: 9px 0;
+    overflow: visible;
+    text-align: left;
+    background-color:#233138;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px 0 rgba(11, 20, .26), 0 2px 10px 0 rgba(11, 20, .26);
+    opacity: 0;
+}
+
+.small-drawer-status ul li{
+    position: relative;
+    opacity: 0;
+    list-style-type: none;
+}
+
+.small-drawer-status ul li:hover{
+    background-color: #0C1317;
+}
+
+.small-drawer-status-box{
+    display: flex;
+    padding-bottom: 8px;
+    min-width: 0;
+    overflow-x: hidden;
+    min-height: 0;
+    padding-top: 8px;
+    max-width: 100%;
+    overflow-y: hidden;
+    color: #d1d7db;
+    white-space: nowrap;
+    flex-shrink: 1;
+    padding-right: 32px;
+    flex-wrap: nowrap;
+    flex-basis: auto;
+    padding-left: 24px;
+    box-sizing: border-box;
+    align-items: center;
+    cursor: pointer;
+    flex-direction: row;
+    align-self: auto;
+    justify-content: flex-start;
+    order: 0;
+    flex-grow: 0;
+    justify-self: auto;
+}
+
+.small-drawer-status-icon{
+    width: 24px;
+    fill: currentColor;
+}
+
+.small-drawer-status-content{
+    display: inline-block;
+    line-height: 24px;
+    margin-left: 8px;
+    font-size: .875rem;
 }
