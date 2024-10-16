@@ -1924,7 +1924,7 @@ form .pass-txt {
     font-weight: normal;
 }
 
-button {
+/* button {
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -1936,7 +1936,7 @@ button {
 
 button:hover {
     background-color: #45a049;
-}
+} */
 
 .logout-container {
     text-align: center;
@@ -2016,7 +2016,6 @@ button:hover {
     height: 40px;
     padding: 8px;
     margin-right: 10px;
-    background: rgba(255, 255, 255, .1);
     border-radius: 50%;
 }
 
@@ -2128,15 +2127,12 @@ color: #008069;
     height: 72px;
     display: flex;
     align-items: center;
-    padding: 0px 15px 0px 3px;
-    border-top: 1px solid rgba(134, 150, 160, .15);
+    
 }
 
 .status-boxs-image{
     display: flex;
     padding-bottom: 12px;
-    padding-top: 12px;
-    margin-top: 2px;
     height: 40px;
     width: 40px;
     position: relative;
@@ -2169,4 +2165,85 @@ color: #008069;
     background-size: cover;
     position: absolute;
     background-position: center;
+}
+
+.status-show-details{
+    display: flex;
+    flex-basis: auto;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    min-width: 0;
+    padding-right: 15px;
+    border-top: 1px solid rgba(134, 150, 160, .15);
+    margin-left: 30px;
+    height: 72px;
+}
+
+.status-show-details span{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.small-drawer-status{
+    position: absolute;
+    z-index: 10000;
+    max-width: 340px;
+    padding: 9px 0;
+    overflow: visible;
+    text-align: left;
+    background-color:#233138;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px 0 rgba(11, 20, .26), 0 2px 10px 0 rgba(11, 20, .26);
+    opacity: 0;
+}
+
+.small-drawer-status ul li{
+    position: relative;
+    opacity: 0;
+    list-style-type: none;
+}
+
+.small-drawer-status ul li:hover{
+    background-color: #0C1317;
+}
+
+.small-drawer-status-box{
+    display: flex;
+    padding-bottom: 8px;
+    min-width: 0;
+    overflow-x: hidden;
+    min-height: 0;
+    padding-top: 8px;
+    max-width: 100%;
+    overflow-y: hidden;
+    color: #d1d7db;
+    white-space: nowrap;
+    flex-shrink: 1;
+    padding-right: 32px;
+    flex-wrap: nowrap;
+    flex-basis: auto;
+    padding-left: 24px;
+    box-sizing: border-box;
+    align-items: center;
+    cursor: pointer;
+    flex-direction: row;
+    align-self: auto;
+    justify-content: flex-start;
+    order: 0;
+    flex-grow: 0;
+    justify-self: auto;
+}
+
+.small-drawer-status-icon{
+    width: 24px;
+    fill: currentColor;
+}
+
+.small-drawer-status-content{
+    display: inline-block;
+    line-height: 24px;
+    margin-left: 8px;
+    font-size: .875rem;
 }

@@ -326,24 +326,92 @@ logout_button.addEventListener('click', function(){
     window.location.href = '/signout/';
 });
 
+//  click plush button for create status
+
+const topheaderAddStatus = document.getElementById('topheader-add-status');
+const topheaderProfileStatus = document.getElementById('topheader-profile-status');
+const smallDrawerStatus = document.getElementById('small-drawer-status');
+const scrollableContent = document.getElementById('scrollable-content');
+
+topheaderAddStatus.addEventListener('click', function(event){
+    topheaderAddStatus.style.background = "rgba(255, 255, 255, .1)";
+    smallDrawerStatus.style.cssText = `transform-origin: right top;
+    right: 74px;
+    top: 56.5px;
+    transform: scale(1);
+    opacity: 1;`;
+    scrollableContent.style.overflowY = "hidden";
+    event.stopPropagation();
+   
+});
+
+document.addEventListener('click', function(event) {
+    if (!topheaderAddStatus.contains(event.target)) {
+        topheaderAddStatus.style.background = ""; 
+        smallDrawerStatus.style.opacity = '0';
+        scrollableContent.style.overflowY = "auto";
+    }
+
+    if (!topheaderProfileStatus.contains(event.target)) { 
+        smallDrawerStatus.style.opacity = '0';
+        scrollableContent.style.overflowY = "auto";
+    }
+});
+topheaderProfileStatus.addEventListener('click', function(event){
+    smallDrawerStatus.style.cssText = `transform-origin: right top;
+    left: 44px;
+    top: 103.5px;
+    transform: scale(1);
+    opacity: 1;`;
+    scrollableContent.style.overflowY = "hidden";
+    event.stopPropagation();
+});
+
+
 
 // Status  and story
-function updateProgress(progressPercentage) {
-    const circle = document.getElementById('progress-circle');
-    const radius = circle.r.baseVal.value;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (progressPercentage / 100) * circumference;
-    
-    circle.style.strokeDashoffset = offset;
+const Unviewed = document.getElementById("Unviewed");
+const viewed = document.getElementById("Viewed");
+
+const radius = 50;
+const circumference = 2 * Math.PI * radius;
+
+const totalDash = 7;
+const unviewed_status = 7;
+const viewed_status = totalDash - unviewed_status;
+
+const divideLength  = circumference / totalDash;
+const dashLength = divideLength - 10;
+
+console.log(`dashofLenght===${dashLength}`);
+
+const totalOfUnviewedDashs = divideLength * unviewed_status;
+
+const viewedDashSet =  387.69908169872417 - totalOfUnviewedDashs;
+
+console.log(`second circle stroke-dashoffset=========${viewedDashSet}`);
+
+const unviewed_last_gap_minus = circumference - totalOfUnviewedDashs;
+const unviewed_last_gap = unviewed_last_gap_minus + 10;
+
+console.log(`first circle Last Gap=========${unviewed_last_gap}`);
+
+if(totalDash != 1){
+    Unviewed.setAttribute('stroke-dasharray',`${dashLength} 10 `.repeat(unviewed_status - 1 ) + `${dashLength} ${unviewed_last_gap}`);
 }
-let progress = 10;
-const interval = setInterval(() => {
-    progress += 10;
-    updateProgress(progress);
-    if (progress >= 100) {
-        clearInterval(interval);
-    }
-}, 1000);
+Unviewed.setAttribute('stroke-dashoffset',  387.69908169872417);
+
+if(viewed_status > 0){
+
+    const totalOfUviewedDashs = divideLength * viewed_status;
+    const viewed_last_gap = unviewed_status == viewed_status ? unviewed_last_gap  : circumference - totalOfUviewedDashs + 10;
+    console.log(`second circle  Last Gap=====${circumference}===${divideLength}====${circumference - divideLength + 10}`);
+
+    viewed.setAttribute('stroke-dasharray', `${dashLength} 10 `.repeat(viewed_status - 1 ) + `${dashLength} ${viewed_last_gap}`);
+    viewed.setAttribute('stroke-dashoffset',  viewedDashSet);
+}else {
+    viewed.style.display = "none";   
+}
 
 
 const multipleItems = document.getElementById('multiple-items');
@@ -446,7 +514,7 @@ function handlePhotoCapture(event){
                             <ion-icon name="close-outline"  id="removeImg"></ion-icon>
                         </div>
                         <div class="second">
-                            <img alt="Preview" src=${e.target.result}>
+                            <img alt="Preview" class="cover" src=${e.target.result}>
                         </div>
                     </button>
                 `;
