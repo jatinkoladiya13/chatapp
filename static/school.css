@@ -1800,17 +1800,17 @@ form .pass-txt {
 }
 
 .file_view{
-    background-color: rgba(17, 27, 33, .98);
+    position: absolute;
     width: 100%;
     height: 100%;
-    position: absolute;
-    display: none;
-    /* justify-content: center; */
-    align-items: center;
-    box-sizing: border-box;
-    /* padding-bottom: 100px; */
+    background: #101A20;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: block;
     flex-direction: column;
-    z-index: 200;
+    align-items: center;
+    z-index: 9999;
+    display: none;
+    justify-content: center;
 }
 
 .file_view_top{
@@ -1847,13 +1847,20 @@ form .pass-txt {
 }
 
 .file_view_center{
-    position: relative;
-    background-color: rgba(17, 27, 33, .98);
-    width: 100%;
-    height: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    max-width: 575px;
+    max-height: 323px;
+    margin-top: 5%;
+    overflow-x: hidden;
+    margin-bottom: 16px;
+    overflow-y: hidden;
+    flex-direction: column;
+    flex-basis: 0px;
+    flex-grow: 1;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 .file_view_center .file{
@@ -2246,4 +2253,362 @@ color: #008069;
     line-height: 24px;
     margin-left: 8px;
     font-size: .875rem;
+}
+
+.imag-preview-containers{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #101A20;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    align-items: center;
+    z-index: 9999;
+    display: none;
+    justify-content: center;
+}
+
+.image-previews {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 575px;
+    max-height: 323px;
+    margin-top: 5%;
+    overflow-x: hidden;
+    margin-bottom: 16px;
+    overflow-y: hidden;
+    flex-direction: column;
+    flex-basis: 0px;
+    flex-grow: 1;
+    margin-right: auto;
+    margin-left: auto; 
+}
+
+.image-previews img {
+    max-width: 100%; 
+    max-height: 100%; 
+    object-fit: contain; 
+}
+
+.image-previews video {
+    max-width: 100%; 
+    max-height: 100%; 
+    object-fit: contain; 
+
+}
+
+.status-viewBox{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #101A20;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    align-items: center;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+}
+
+.status-viewBox-close{
+    top: 18px;
+    position: absolute;
+    z-index: 2;
+    right: 18px;
+    color: white;
+    border: none;
+    background: transparent;
+}
+
+.status-viewBox-arrow{
+    top: 18px;
+    position: absolute;
+    z-index: 2;
+    color: white;
+    display: flex;
+    left: 30px;
+    border: none;
+    background: transparent;
+}
+
+.status-viewBox-leftside{
+    width: 45px;
+    height: 45px;
+    margin-top: auto;
+    bottom: 0;
+    top: 0;
+    border-radius: 50%;
+    z-index: 10001;
+    background-color: #0b141a;
+    cursor: pointer;
+    opacity: .22;
+    position: absolute;
+    left: 30px;
+    margin-bottom: auto;
+
+}
+
+.status-viewBox-leftside-arrow{
+    bottom: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    left: 37px;
+    pointer-events: none;
+    color: white;
+    z-index: 10002;
+    position: absolute;
+    transform: scaleX(-1);
+}
+
+.status-viewBox-rightside{
+    width: 45px;
+    height: 45px;
+    margin-top: auto;
+    margin-bottom: auto;
+    bottom: 0;
+    top: 0;
+    border-radius: 50%;
+    z-index: 10001;
+    cursor: pointer;
+    opacity: .22;
+    background-color: #0b141a;
+    right: 30px;
+    position: absolute;
+}
+
+.status-viewBox-rightside-arrow{
+    bottom: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    right: 37px;
+    color: white;
+    z-index: 10002;
+    position: absolute;
+}
+
+.status-viewBox-center{
+    opacity: 1;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    will-change: opacity;
+    left: 0;
+    position: absolute;
+}
+
+.status-viewBox-profile-head{
+    max-width: 500px;
+    top: 45px;
+    margin-right: auto;
+    margin-left: auto;
+    right: 0;
+    z-index: 200;
+    display: flex;
+    cursor: pointer;
+    text-align: start;
+    flex-direction: row;
+    left: 0;
+    position: absolute;
+}
+
+.status-viewBox-profile-img{
+    margin-bottom: auto;
+    margin-top: auto;
+    margin-right: 12px;
+    margin-left: 2px;
+    display: inline-block;
+}
+
+.status-viewBox-profile-img-second{
+    width: 40px;
+    height: 40px;
+    position: relative;
+    border-radius: 50%;
+    background-color: initial;
+}
+
+.status-viewBox-profile-img-second img{
+    visibility: visible;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    border-radius: 50%;
+    object-fit: cover;
+    position: relative;
+    display: block;
+    opacity: 1;
+    object-position: center;
+    transition: opacity .15s ease-out;
+}
+
+.status-viewBox-profile-details{
+    max-width: 300px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.status-viewBox-profile-details-top{
+    margin-bottom: 6px;
+    margin-top: 2px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    display: flex;
+}
+
+.status-viewBox-profile-details-top span{
+    min-height: 0px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: inline-block;
+    position: relative;
+    font-size: 1rem;
+    flex-grow: 1;
+    color: white;
+}
+
+.status-viewBox-profile-details-bottom{
+    min-width: 0;
+    min-height: 0;
+    margin-bottom: 4px;
+    flex-shrink: 1;
+    flex-wrap: nowrap;
+    flex-basis: auto;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    align-self: auto;
+    font-size: .8125rem;
+    justify-content: flex-start;
+    order: 0;
+    flex-grow: 0;
+    justify-self: auto;
+    color: rgba(233, 237, 239, .76);
+}
+
+.status-viewBox-profile-details-bottom div{
+    min-height: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.status-viewBox-profile-icons{
+    cursor: default;
+    margin-right: 2px;
+    display: flex;
+    flex-grow: 3;
+    flex-direction: row-reverse;
+}
+
+.status-viewBox-profile-icons-sets{
+    min-width: 0;
+    min-height: 0;
+    flex-shrink: 1;
+    flex-wrap: nowrap;
+    flex-basis: auto;
+    display: flex;
+    flex-direction: row;
+    align-self: auto;
+    justify-content: flex-start;
+    order: 0;
+    align-items: flex-start;
+    flex-grow: 0;
+}
+
+.status-viewBox-profile-icons-sets svg{
+    color: white;
+    cursor: pointer;
+}
+
+.status-viewBox-top-blackShadow{
+    width: 100%;
+    height: 95px;
+    z-index: 100;
+    pointer-events: none;
+    position: absolute;
+    background-image: linear-gradient(rgba(11, 20, 26, .65), rgba(11, 20, 26,0));
+}
+
+.status-viewBox-top-calculation-lines{
+    width: 500px;
+    margin-top: 20px;
+    height: 7px;
+    direction: ltr;
+    margin-left: auto;
+    margin-right: auto;
+    right: 0;
+    z-index: 200;
+    display: flex;
+    left: 0;
+    position: absolute;
+}
+
+.status-viewBox-top-calculation-line{
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    top: 0;
+    margin-right: 2px;
+    display: inline-block;
+    position: relative;
+    margin-left: 2px;
+}
+
+.status-viewBox-top-calculation-line-top{
+    width: 100%;
+    height: 100%;
+    top: 0;
+    border-bottom-left-radius: 3.5px;
+    border-bottom-right-radius: 3.5px;
+    border-top-right-radius: 2.5px;
+    border-top-left-radius: 3.5px;
+    background-color: rgba(255, 255, 255, .3);
+    left: 0;
+    position: absolute;
+}
+
+.status-viewBox-top-calculation-line-bottom{
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    top: 0;
+    border-bottom-left-radius: 3.5px;
+    border-bottom-right-radius: 3.5px;
+    border-top-right-radius: 3.5px;
+    border-top-left-radius: 3.5px;
+    left: 0;
+    transform: translateZ(0);
+    position: absolute;
+}
+
+.status-viewBox-top-calculation-line-bottom-top{
+    transform: translateX(-92.8348%);
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: white;
+    position: absolute;
+}
+
+.status-viewBox-background-them{
+    width: 100%;
+    height: 100%;
+    top: 0;
+    background-repeat: no-repeat;
+    opacity: .5;
+    -webkit-filter: blur(30px);
+    filter: blur(30px);
+    background-size: cover;
+    left: 0;
+    position: absolute;
+    background-position: center;
 }

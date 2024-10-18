@@ -329,11 +329,122 @@
        </div>
          
 
-       <!--Status imag preview container-->
-       <div class="imag-preview-container" style="height:100%">
-        <div  style="display: contents;" >
-            <ion-icon name="close-outline"></ion-icon>
-        </div>
+       <!--Status imag and video geting preview container-->
+       <div class="imag-preview-containers" style="height:100%">
+            <div  style="display: contents;" >
+                <ion-icon name="close-outline" style="
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                color: #AEBAC1;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                font-size: 100%;
+                font-weight: bold;
+                font: inherit;
+                "></ion-icon>
+
+                <div class="image-previews">
+                    <img id="" src="http://127.0.0.1:8000/media/message_images/72759c2e-fb65-4533-b137-aedeed68949c.jpg" alt="Image Preview">
+                </div>
+
+                <div class="caption_input">
+                    <input type="text" placeholder="Add a caption">
+                    <ion-icon name="close-outline" class="caption-close"></ion-icon>
+                </div>
+
+                <div class="preview_bottom">
+                    <div class="send-images">
+                        <div class="multiple-image" >
+            
+                        </div>
+                        <button class="imgAddBtn">
+                            <label for="addmoreImg">
+                                <ion-icon name="add-sharp"></ion-icon>
+                            </label>
+                        </button>
+                    </div>
+                    <div class="send_button">
+                        <ion-icon name="send"></ion-icon>
+                    </div>
+                </div>
+
+
+            </div>
+       </div> 
+
+       <!--Status Viewed-->
+       <div class="status-viewBox">
+           <button class="status-viewBox-close">
+            <span aria-hidden="true" data-icon="x-viewer" class=""><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>x-viewer</title><path fill="currentColor" d="M19.8,5.8l-1.6-1.6L12,10.4L5.8,4.2L4.2,5.8l6.2,6.2l-6.2,6.2l1.6,1.6l6.2-6.2l6.2,6.2l1.6-1.6L13.6,12 L19.8,5.8z"></path></svg></span>           
+           </button>
+
+           <button class="status-viewBox-arrow">
+            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>back</title><path fill="currentColor" d="M12,4l1.4,1.4L7.8,11H20v2H7.8l5.6,5.6L12,20l-8-8L12,4z"></path></svg>
+           </button>
+
+           <div class="status-viewBox-leftside"></div>
+           <div class="status-viewBox-leftside-arrow">
+                <svg viewBox="0 0 30 30" height="30" width="30" preserveAspectRatio="xMidYMid meet" class="" x="0px" y="0px"><title>chevron</title><path fill="currentColor" d="M11,21.212L17.35,15L11,8.65l1.932-1.932L21.215,15l-8.282,8.282L11,21.212z"></path></svg>
+            </div>
+
+           <div class="status-viewBox-rightside"></div>
+           <div class="status-viewBox-rightside-arrow">
+                <svg viewBox="0 0 30 30" height="30" width="30" preserveAspectRatio="xMidYMid meet" class="" x="0px" y="0px"><title>chevron</title><path fill="currentColor" d="M11,21.212L17.35,15L11,8.65l1.932-1.932L21.215,15l-8.282,8.282L11,21.212z"></path></svg>
+            </div>
+
+            <div class="status-viewBox-center">
+                <div class="status-viewBox-profile-head">
+                    <div class="status-viewBox-profile-img">
+                        <div class="status-viewBox-profile-img-second">
+                            <img src="/media/product_images/ai-generated-8845454_1280_sS142qw.jpg">
+                        </div>
+                    </div>
+
+                    <div class="status-viewBox-profile-details">
+                        <div class="status-viewBox-profile-details-top">
+                            <span>Jatin koladiya</span>
+                        </div>
+                        <div class="status-viewBox-profile-details-bottom">
+                            <div>Yesterday at 19:34</div>
+                        </div>
+                    </div> 
+
+                    <div class="status-viewBox-profile-icons">
+                        <div class="status-viewBox-profile-icons-sets">
+                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none" ><title>status-media-controls-play</title><path d="M8 6.81976V17.1798C8 17.9698 8.87 18.4498 9.54 18.0198L17.68 12.8398C18.3 12.4498 18.3 11.5498 17.68 11.1498L9.54 5.97976C8.87 5.54976 8 6.02976 8 6.81976Z" fill="currentColor"></path></svg>
+                            <div style="width:8px;"></div>
+                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>status-media-controls-volume-on</title><path fill-rule="evenodd" clip-rule="evenodd" d="M14 4.65204V4.45204C14 3.82204 14.63 3.37204 15.21 3.60204C18.6 4.89204 21 8.16204 21 12.002C21 15.842 18.6 19.112 15.21 20.402C14.63 20.622 14 20.182 14 19.552V19.352C14 18.972 14.24 18.642 14.6 18.502C17.18 17.472 19 14.942 19 12.002C19 9.06204 17.18 6.53204 14.6 5.50204C14.25 5.36204 14 5.03204 14 4.65204ZM3 10.002V14.002C3 14.552 3.45 15.002 4 15.002H7L10.29 18.292C10.92 18.922 12 18.472 12 17.582V6.41204C12 5.52204 10.92 5.07204 10.29 5.70204L7 9.00204H4C3.45 9.00204 3 9.45204 3 10.002ZM16.5 12.002C16.5 10.232 15.48 8.71204 14 7.97204V16.022C15.48 15.292 16.5 13.772 16.5 12.002Z" fill="currentColor"></path></svg> 
+                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>menu</title><path fill="currentColor" d="M12,7c1.104,0,2-0.896,2-2c0-1.105-0.895-2-2-2c-1.104,0-2,0.894-2,2 C10,6.105,10.895,7,12,7z M12,9c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,9.895,13.104,9,12,9z M12,15 c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,15.894,13.104,15,12,15z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-viewBox-top-blackShadow"></div>
+
+                <div class="status-viewBox-top-calculation-lines">
+                    <div class="status-viewBox-top-calculation-line">
+                        <div class="status-viewBox-top-calculation-line-top">
+
+                        </div>
+
+                        <div class="status-viewBox-top-calculation-line-bottom">
+                            <div class="status-viewBox-top-calculation-line-bottom-top">
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="status-viewBox-background-them" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
+
+            </div>
+
        </div>
 
 
@@ -410,37 +521,34 @@
             <!-- Image preview and send button -->
             <div class="imag-preview-container" id="imagePreviewContainer">
                <div  style="display: contents;" id="multiple-items">
-                <ion-icon name="close-outline"  id="imagePreviewClose"></ion-icon>
-                <div class="image-preview">
+                    <ion-icon name="close-outline"  id="imagePreviewClose"></ion-icon>
+                    <div class="image-preview">
+                    
+                    </div>
+                    <div class="caption_input">
+                        <input type="text" id="captinoInput" placeholder="Add a caption">
+                        <ion-icon name="close-outline" class="caption-close"  id="caption-close"></ion-icon>
+                    </div>
+
+                    <div class="preview_bottom">
+                        <div class="send-images">
+                            <div class="multiple-image" id="multiple-image">
                 
-                </div>
-                <div class="caption_input">
-                   <input type="text" id="captinoInput" placeholder="Add a caption">
-                   <ion-icon name="close-outline" class="caption-close"  id="caption-close"></ion-icon>
-                </div>
-                <div class="preview_bottom">
-                    <div class="send-images">
-                        <div class="multiple-image" id="multiple-image">
-            
+                            </div>
+                            <button class="imgAddBtn">
+                                <label for="addmoreImg">
+                                    <ion-icon name="add-sharp"></ion-icon>
+                                </label>
+                            </button>
                         </div>
-                        <button class="imgAddBtn">
-                            <label for="addmoreImg">
-                                <ion-icon name="add-sharp"></ion-icon>
-                            </label>
-                        </button>
+                        <div class="send_button">
+                            <ion-icon name="send" id="sendFiles"></ion-icon>
+                        </div>
                     </div>
-                    <div class="send_button">
-                        <ion-icon name="send" id="sendFiles"></ion-icon>
-                    </div>
-                </div>
 
                </div> 
                <div class="loader" id="loader"></div>
             </div>
-
-          
-            
-
             
         </div> 
  
