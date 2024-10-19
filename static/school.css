@@ -563,6 +563,11 @@ form .pass-txt {
     position: relative;
     flex: 70%;
     background: #222e35;
+    height: 100%;
+    max-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 } 
 
 .intro-right .intro-img{
@@ -570,13 +575,18 @@ form .pass-txt {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
     height: calc(100vh - 40px);
-    padding: 19%;
     cursor: default;
 }
 
- 
+.intro-right .intro-img img {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: hidden;
+} 
+
 .chat-header{
     position: relative;
     width: 100%;
@@ -2611,4 +2621,96 @@ color: #008069;
     left: 0;
     position: absolute;
     background-position: center;
+
+}
+
+.status-viewBox-show-status{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.status-viewBox-show-status-first{
+    position: absolute;
+    height: calc(100vh - 40px);
+    top: 0px;
+}
+
+.status-viewBox-show-status-second{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+.status-viewBox-show-status-second img{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: block;
+    visibility: visible;
+}
+
+.status-viewBox-show-status-bottom{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 12px;
+    max-width: 920px;
+    padding-bottom: 10px;
+    width: calc(100% - 40px);
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 200;
+}
+
+.status-viewBox-show-status-bottom-under{
+    border-radius: 20px;
+    z-index: 200;
+    position: relative;
+}
+
+.status-viewBox-show-status-bottom-under2{
+    padding-bottom: 10px;
+    padding-top: 10px;
+    display: flex;
+    padding-left: 10px;
+    flex-direction: row;
+    padding-right: 10px;
+}
+
+.status-viewBox-show-status-bottom-icons{
+    width: 68px;
+    height: calc(52px - 2* 5px);
+    display: flex;
+    position: relative;
+    margin-left: 8px;
+    margin-right: 8px;
+    transition: width .3s;
+}
+
+.status-viewBox-show-status-bottom-icns{
+    bottom: calc(5px + 3px);
+    width: 26px;
+    border-radius: 2px;
+    z-index: 2;
+    display: block;
+    color: white;
+    transition: transform .3s, opacity .3s;
+    position: absolute;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+}
+
+.status-viewBox-show-status-bottom-icns svg {
+    height: 26px;
+    width: 26px;
 }

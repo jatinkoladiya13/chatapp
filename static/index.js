@@ -414,6 +414,10 @@ if(viewed_status > 0){
 }
 
 
+
+
+
+
 const multipleItems = document.getElementById('multiple-items');
 const dataLoader = document.getElementById('loader');
 
