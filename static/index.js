@@ -367,6 +367,245 @@ topheaderProfileStatus.addEventListener('click', function(event){
     event.stopPropagation();
 });
 
+// take photo and video for status and viewed 
+const imgPreviewContainers = document.getElementById('imgPreview-containers');
+const closeStausImgandVidPreview = document.getElementById('closeStausImgandVidPreview');
+
+closeStausImgandVidPreview.addEventListener('click', function(){
+    imgPreviewContainers.style.display ="none";
+});
+
+let statusFileIndexCounter = 0;
+
+function extractVideoThumbnail(videoFile){
+    return new Promise((resolve, reject) => {
+        const videoElement = document.createElement('video');
+        const canvasElement = document.createElement('canvas');
+        const context = canvasElement.getContext('2d');
+
+        const videoURL = URL.createObjectURL(videoFile);
+        videoElement.src = videoURL;
+
+        videoElement.muted = true;
+        videoElement.playsInline = true;
+        videoElement.autoplay = true;
+
+        videoElement.addEventListener('loadeddata', () => {
+            // Set canvas size to match the video's dimensions
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+
+            // Draw the current frame of the video onto the canvas
+            context.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
+
+            // Convert the canvas content to a Data URL (base64 string)
+            const thumbnailDataUrl = canvasElement.toDataURL('image/png');
+
+            // Clean up and revoke the blob URL
+            URL.revokeObjectURL(videoURL);
+
+            // Resolve the thumbnail image Data URL
+            resolve(thumbnailDataUrl);
+        });
+
+        videoElement.addEventListener('error', (e) => {
+            reject(new Error('Error loading video file for thumbnail extraction.'));
+        });
+    });
+}
+
+function isCheckLogic(result, checkIsVideo){
+    const statusTakePrviews = document.querySelector(".status-take-file-previews");
+    let file_tag = ``;
+    statusTakePrviews.innerHTML = "";
+
+    if (checkIsVideo) {
+        file_tag = `
+        <video id="statuspreviewFile" controls>
+            <source src=${result} type="video/mp4">
+        </video>`;
+    } else {
+        file_tag = `<img id="statuspreviewFile" src=${result} alt="Image Preview">`;
+    }
+    statusTakePrviews.insertAdjacentHTML('beforeend', file_tag);
+}
+
+function handlePhotoAndVideoCapture(event){
+    const files = event.target.files;
+
+    imgPreviewContainers.style.display ="flex";
+
+    const  statusMutipleFile  = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
+    const statusCaptionInput = document.getElementById("status-caption-input");
+    const statusCaptionClose = document.getElementById("status-caption-close");
+
+    const isFirstUpload = statusMutipleFile.innerHTML.trim() === '';
+
+    if(isFirstUpload){
+        statusFileIndexCounter = 0;    
+        statusCaptionInput.value="";
+        statusCaptionInput.setAttribute('data-index', '0');
+    }
+
+    const filePromises  = Array.from(files).map((file)=>{
+        return new Promise((resolve, reject)=>{
+            const readerMultiple  = new FileReader();
+            readerMultiple.onload = function(e){
+                resolve({ 
+                    result: e.target.result,
+                    file
+                });
+            }
+            readerMultiple.onerror = reject;
+            readerMultiple.readAsDataURL(file);
+        });
+    });
+
+    Promise.all(filePromises).then((fileDataArray)=>{
+        fileDataArray.forEach( ({result, file }) => {
+            const isVideo = file.type.startsWith('video/');
+            let imgTeg;
+            
+            if (isVideo) {
+                extractVideoThumbnail(file).then(thumbnailDataUrl => {
+                    imgTeg = `
+                        <button class="status_Multiple_File_Btn" data-index="${statusFileIndexCounter}" data-caption="" data-src="${result}">
+                            <div class="first">
+                                <ion-icon name="close-outline" id="st-removeFile"></ion-icon>
+                            </div>
+                            <div class="second">
+                                <img alt="Video Thumbnail" class="cover" src="${thumbnailDataUrl}">
+                            </div>
+                        </button>
+                    `;
+                    statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
+
+                    if (statusFileIndexCounter === 0 && isFirstUpload) {
+                        isCheckLogic(result, true);
+                    }
+
+                    statusFileIndexCounter++;
+                });
+            } else {
+                imgTeg = `
+                    <button class="status_Multiple_File_Btn" data-index="${statusFileIndexCounter}" data-caption="">
+                        <div class="first">
+                            <ion-icon name="close-outline" id="st-removeFile"></ion-icon>
+                        </div>
+                        <div class="second">
+                            <img alt="Preview" class="cover" src="${result}">
+                        </div>
+                    </button>
+                `;
+                statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
+
+                if (statusFileIndexCounter === 0 && isFirstUpload) {
+                    isCheckLogic(result, false);
+                } 
+
+                statusFileIndexCounter++;
+            }
+           
+             
+           
+
+        });
+    });
+
+    //  this is bottom click change privewe and remove 
+    const observer = new MutationObserver(()=>{
+        const status_Multiple_File_Btn = document.querySelectorAll('.status_Multiple_File_Btn');
+
+        if(isFirstUpload){
+            status_Multiple_File_Btn[0].classList.add('selected');
+            const caption = status_Multiple_File_Btn[0].getAttribute('data-caption');
+            statusCaptionInput.value = caption || '';
+        
+        }
+
+        const statusMutipleFile = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
+        statusMutipleFile.addEventListener('click', function(event){
+            if(event.target.closest('#st-removeFile')){
+                const button = event.target.closest('.status_Multiple_File_Btn');
+                if(button){
+                    const isSelected = button.classList.contains('selected');
+                   
+                    button.remove();
+
+                    const dataIndex = button.getAttribute('data-index');
+                    const indexToRemove = parseInt(dataIndex);
+
+                    const remainingButtons = document.querySelectorAll('.status_Multiple_File_Btn');
+                    if(remainingButtons.length > 0){
+                        if(isSelected){
+                            remainingButtons[0].classList.add('selected');
+                            const imgElement = remainingButtons[0].querySelector('img');
+                            const statuspreviewFile = document.getElementById('statuspreviewFile');
+                            statuspreviewFile.src = imgElement.src;
+    
+                            const caption  = remainingButtons[0].getAttribute('data-caption');
+                            statusCaptionInput.value = caption || '';
+                            statusCaptionInput.setAttribute('data-index',  remainingButtons[0].getAttribute('data-index'));
+                        }
+
+                    }else{
+                        imgPreviewContainers.style.display ="none";
+                    }
+
+                }
+            }else if(event.target.closest('.status_Multiple_File_Btn')){
+                const clickedButton = event.target.closest('.status_Multiple_File_Btn');
+                const status_Multiple_File_Btn = document.querySelectorAll('.status_Multiple_File_Btn');
+
+                status_Multiple_File_Btn.forEach(item => item.classList.remove('selected'));
+                clickedButton.classList.add('selected');
+
+                const imgElement = clickedButton.querySelector('img');
+                const dataSrc = clickedButton.getAttribute('data-src');
+                if(dataSrc){
+                    isCheckLogic(dataSrc, true);
+                }else{
+                    isCheckLogic(imgElement.src, false);
+                }
+                
+        
+                const caption = clickedButton.getAttribute('data-caption');
+                const statusCaptionInput = document.getElementById("status-caption-input");
+                statusCaptionInput.value = caption || '';
+                statusCaptionInput.setAttribute('data-index', clickedButton.getAttribute('data-index'));
+            }
+        });
+
+    
+
+
+        observer.disconnect();
+    });
+
+    observer.observe(statusMutipleFile, { childList: true });
+    
+    // this is caption input access
+    statusCaptionInput.addEventListener('input', function(){
+        const selectedIndex = this.getAttribute('data-index');
+        const selectedImageButton = document.querySelector(`.status_Multiple_File_Btn[data-index="${selectedIndex}"]`);
+        if(selectedImageButton){
+            selectedImageButton.setAttribute('data-caption', this.value);   
+        }
+    });
+
+    // this is caption close icon click
+    statusCaptionClose.addEventListener('click', function(){
+        
+        const selectedIndex = statusCaptionInput.getAttribute('data-index');
+        const selectedImageButton = document.querySelector(`.status_Multiple_File_Btn[data-index="${selectedIndex}"]`);
+
+        if(selectedImageButton){
+            statusCaptionInput.value = '';
+            selectedImageButton.setAttribute('data-caption', '');
+        }
+    });
+   
+}
 
 
 // Status  and story
@@ -412,8 +651,6 @@ if(viewed_status > 0){
 }else {
     viewed.style.display = "none";   
 }
-
-
 
 
 
