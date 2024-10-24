@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from app.models import User, Message
+from app.models import User, Message, Status, StatusView
 # Register your models here.
 
 @admin.register(User)
@@ -14,3 +14,16 @@ class MessageAdmin(admin.ModelAdmin):
     model = Message
     list_display = ['id', 'sender', 'receiver', 'content', 'timestamp', 'is_read', 'image', 'video', 'caption']
     ordering = ['pk']
+
+@admin.register(Status)
+class SatusAdmin(admin.ModelAdmin):
+    model = Status
+    list_display = ['id', 'user', 'image', 'video', 'caption', 'created_at', 'expires_at',]
+    ordering = ['pk']
+
+@admin.register(StatusView)
+class StatusViewAdmin(admin.ModelAdmin):
+    model = StatusView
+    list_display = ['id', 'viewer', 'viewed_at',]
+    ordering = ['pk']
+

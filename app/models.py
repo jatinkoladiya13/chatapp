@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models  import  AbstractUser
+from django.utils import timezone
+from datetime import timedelta
 
 # Create your models here.
 
@@ -45,6 +47,40 @@ class Message(models.Model):
             return f'{self.sender.username} to {self.receiver.username}: [Media]'
 
 
+class Status(models.Model):
+    user = models.ForeignKey(User, related_name='statuses', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='status_images/', blank=True, null=True)
+    video = models.FileField(upload_to='status_videos/', blank=True, null=True)
+    caption = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
 
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() +  timedelta(hours=24)
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        if self.image:
+            return f'{self.user.username} posted an image status'
+        elif self.video:
+            return f'{self.user.username} posted a video status'
+        else:
+            return f'{self.user.username} posted a media status'
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+    
+
+class StatusView(models.Model):
+    status = models.ForeignKey(Status, related_name='views', on_delete=models.CASCADE)
+    viewer = models.ForeignKey(User, related_name='viewed_statuses', on_delete=models.CASCADE)
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.viewer.username} viewed {self.status.user.username}\'s status'
+            
+                
 
 

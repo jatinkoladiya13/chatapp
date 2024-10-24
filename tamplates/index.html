@@ -212,6 +212,15 @@
                                +
                             </div>
                         </div>
+                        <div class="status-boxs-image" style="margin-right: 30px;">
+                            <svg width="48" height="48" viewBox="0 0 104 104">
+                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" stroke-dasharray="34.87989505128276 10 34.87989505128276 10 34.87989505128276 10 34.87989505128276 10 34.87989505128276 10 34.87989505128276 10 34.87989505128276 10" stroke-width="4" style="stroke: #008069;" id="Unviewed"></circle>
+                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" stroke-dasharray="50 271" stroke-width="4" style="stroke: rgb(187, 190, 196); display: none;" id="Viewed"></circle> 
+                            </svg>
+                            <div class="status-boxs-img-second">
+                                <div class="status-boxs-final-imag" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
+                            </div>
+                        </div>
                         <div class="status-details">
                             <span class="status-details-top">My Status</span>
                             <span class="status-details-bottom">Click to add status update</span>
@@ -375,7 +384,7 @@
                             <input type="file" id="add-more-pho-vid" accept="image/*,video/mp4,video/3gpp,video/quicktime" multiple="" style="display: none;" onchange="handlePhotoAndVideoCapture(event);">
                         </button>
                     </div>
-                    <div class="send_button">
+                    <div class="send_button" id="status_upload_send">
                         <ion-icon name="send"></ion-icon>
                     </div>
                 </div>

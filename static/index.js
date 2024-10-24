@@ -376,6 +376,7 @@ closeStausImgandVidPreview.addEventListener('click', function(){
 });
 
 let statusFileIndexCounter = 0;
+let fileBlobs = [];
 
 function extractVideoThumbnail(videoFile){
     return new Promise((resolve, reject) => {
@@ -442,7 +443,8 @@ function handlePhotoAndVideoCapture(event){
     const isFirstUpload = statusMutipleFile.innerHTML.trim() === '';
 
     if(isFirstUpload){
-        statusFileIndexCounter = 0;    
+        statusFileIndexCounter = 0;  
+        fileBlobs = [];  
         statusCaptionInput.value="";
         statusCaptionInput.setAttribute('data-index', '0');
     }
@@ -479,7 +481,12 @@ function handlePhotoAndVideoCapture(event){
                         </button>
                     `;
                     statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
-
+                    fileBlobs.push({
+                        file: file,
+                        index: statusFileIndexCounter,
+                        type: true,
+                    }); 
+    
                     if (statusFileIndexCounter === 0 && isFirstUpload) {
                         isCheckLogic(result, true);
                     }
@@ -498,6 +505,11 @@ function handlePhotoAndVideoCapture(event){
                     </button>
                 `;
                 statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
+                fileBlobs.push({
+                    file: file,
+                    index: statusFileIndexCounter,
+                    type:false,
+                }); 
 
                 if (statusFileIndexCounter === 0 && isFirstUpload) {
                     isCheckLogic(result, false);
@@ -534,14 +546,19 @@ function handlePhotoAndVideoCapture(event){
 
                     const dataIndex = button.getAttribute('data-index');
                     const indexToRemove = parseInt(dataIndex);
+                    fileBlobs.splice(indexToRemove, 1);
 
                     const remainingButtons = document.querySelectorAll('.status_Multiple_File_Btn');
                     if(remainingButtons.length > 0){
                         if(isSelected){
                             remainingButtons[0].classList.add('selected');
                             const imgElement = remainingButtons[0].querySelector('img');
-                            const statuspreviewFile = document.getElementById('statuspreviewFile');
-                            statuspreviewFile.src = imgElement.src;
+                            const dataOfSrc = remainingButtons[0].getAttribute('data-src');
+                            if(dataOfSrc){
+                                isCheckLogic(dataOfSrc, true);
+                            }else{
+                                isCheckLogic(imgElement.src, false);
+                            }
     
                             const caption  = remainingButtons[0].getAttribute('data-caption');
                             statusCaptionInput.value = caption || '';
@@ -607,6 +624,53 @@ function handlePhotoAndVideoCapture(event){
    
 }
 
+//  status upload send button click
+const statusUploadSend = document.getElementById('status_upload_send');
+statusUploadSend.addEventListener('click', function(event){
+    if(fileBlobs.length > 0){
+
+        fileBlobs.forEach( async (status_file, index) => {
+            const formDate = new FormData();
+    
+           
+            if(status_file.type){
+                formDate.append('video', status_file.file);
+            }else{
+                formDate.append('image', status_file.file);
+            }
+
+            const file_catption_get = document.querySelector(`.status_Multiple_File_Btn[data-index="${status_file.index}"]`);
+            const caption =  file_catption_get ? file_catption_get.getAttribute('data-caption') : '';
+            formDate.append('caption', caption);  
+
+            await statusFileSenToApi(formDate);
+
+        });
+          console.log(fileBlobs);
+    }
+});
+
+async function statusFileSenToApi(formatDate){
+    try{
+        const response = await fetch('/upload_status/',{
+            method:'POST',
+            header:{
+                'Content-Type':'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formatDate,
+        });
+        
+        if(response.ok){
+            const data = await response.json();
+            imgPreviewContainers.style.display ="none";
+        }else{
+            console.error("Failed to update profile. Status:", response.status);
+        }
+    }catch(error){
+        console.error("Error:",error);
+    }
+}
 
 // Status  and story
 const Unviewed = document.getElementById("Unviewed");

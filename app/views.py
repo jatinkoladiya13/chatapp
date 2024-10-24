@@ -6,7 +6,7 @@ from app.email import send_otp_via_email
 from .untils import encrypt, decrypt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from app.models import User, Message
+from app.models import User, Message, Status
 from django.db.models import Q
 from django.utils.timezone import localtime
 from app.formate_date import format_date
@@ -369,4 +369,33 @@ def edit_profile(request):
         
         return JsonResponse({'status':'200', 'message': 'this is ok'}, status=200)
     
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def upload_status(request):
+    if request.method == 'POST':
+        video = request.FILES.get('video')
+        image = request.FILES.get('image')
+        caption = request.POST.get('caption')
+        user_id = request.user.id
+
+        print(f"{video}===={image}===={caption}===={user_id}")
+        user = User.objects.get(id=user_id)
+        send_data = {}
+        if image:
+            new_filename = f"{uuid.uuid4()}.jpg"
+            image.name = new_filename
+            status_instance = Status.objects.create(user=user, image=image, caption=caption, )
+            send_data = {'id':status_instance.id, 'type': 'Photo',}
+
+        elif video:   
+            new_filename = f"{uuid.uuid4()}.mp4" 
+            video.name = new_filename
+            status_instance = Status.objects.create(user=user, video=video, caption=caption, )
+            send_data = {'id':status_instance.id, 'type': 'Video',}
+
+
+        return JsonResponse({'status':'200', 'message': send_data}, status=200)
+
     return JsonResponse({'error': 'Invalid request'}, status=400)
