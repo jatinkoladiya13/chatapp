@@ -339,7 +339,7 @@ topheaderAddStatus.addEventListener('click', function(event){
     right: 74px;
     top: 56.5px;
     transform: scale(1);
-    opacity: 1;`;
+    display:flex;`;
     scrollableContent.style.overflowY = "hidden";
     event.stopPropagation();
    
@@ -348,12 +348,12 @@ topheaderAddStatus.addEventListener('click', function(event){
 document.addEventListener('click', function(event) {
     if (!topheaderAddStatus.contains(event.target)) {
         topheaderAddStatus.style.background = ""; 
-        smallDrawerStatus.style.opacity = '0';
+        smallDrawerStatus.style.display = 'none';
         scrollableContent.style.overflowY = "auto";
     }
 
     if (!topheaderProfileStatus.contains(event.target)) { 
-        smallDrawerStatus.style.opacity = '0';
+        smallDrawerStatus.style.display = 'none';
         scrollableContent.style.overflowY = "auto";
     }
 });
@@ -362,7 +362,7 @@ topheaderProfileStatus.addEventListener('click', function(event){
     left: 44px;
     top: 103.5px;
     transform: scale(1);
-    opacity: 1;`;
+    display:flex;`;
     scrollableContent.style.overflowY = "hidden";
     event.stopPropagation();
 });
@@ -626,6 +626,10 @@ function handlePhotoAndVideoCapture(event){
 
 //  status upload send button click
 const statusUploadSend = document.getElementById('status_upload_send');
+const profile_Status_Second_details = document.getElementById('profile_Status_Second_details');
+const topheader_Profile_Status = document.getElementById('topheader-profile-status');
+const topheaderProfile_Status_Second = document.getElementById('topheader-profile-status-second');
+
 statusUploadSend.addEventListener('click', function(event){
     if(fileBlobs.length > 0){
 
@@ -643,14 +647,14 @@ statusUploadSend.addEventListener('click', function(event){
             const caption =  file_catption_get ? file_catption_get.getAttribute('data-caption') : '';
             formDate.append('caption', caption);  
 
-            await statusFileSenToApi(formDate);
+            await statusFileSenToApi(formDate, index);
 
         });
           console.log(fileBlobs);
     }
 });
 
-async function statusFileSenToApi(formatDate){
+async function statusFileSenToApi(formatDate, index){
     try{
         const response = await fetch('/upload_status/',{
             method:'POST',
@@ -661,8 +665,22 @@ async function statusFileSenToApi(formatDate){
             body: formatDate,
         });
         
+       
         if(response.ok){
             const data = await response.json();
+            let checking = fileBlobs.length-1;
+            if(checking === index){
+                fileBlobs=[];
+                console.log(data.message.Upload_time);
+                topheaderProfile_Status_Second.style.display = 'flex';
+                topheader_Profile_Status.style.display = 'none';
+                profile_Status_Second_details.textContent = data.message.Upload_time;
+                statusCountViewedAndUnviewed("Unviewed", "Viewed", data.message.total_count_status, data.message.unviewed_count);
+                console.log(data.message.Upload_time);
+                console.log(data.message.total_count_status);
+                console.log(data.message.unviewed_count);
+            
+            }
             imgPreviewContainers.style.display ="none";
         }else{
             console.error("Failed to update profile. Status:", response.status);
@@ -672,52 +690,150 @@ async function statusFileSenToApi(formatDate){
     }
 }
 
+
 // Status  and story
-const Unviewed = document.getElementById("Unviewed");
-const viewed = document.getElementById("Viewed");
-
-const radius = 50;
-const circumference = 2 * Math.PI * radius;
-
-const totalDash = 7;
-const unviewed_status = 7;
-const viewed_status = totalDash - unviewed_status;
-
-const divideLength  = circumference / totalDash;
-const dashLength = divideLength - 10;
-
-console.log(`dashofLenght===${dashLength}`);
-
-const totalOfUnviewedDashs = divideLength * unviewed_status;
-
-const viewedDashSet =  387.69908169872417 - totalOfUnviewedDashs;
-
-console.log(`second circle stroke-dashoffset=========${viewedDashSet}`);
-
-const unviewed_last_gap_minus = circumference - totalOfUnviewedDashs;
-const unviewed_last_gap = unviewed_last_gap_minus + 10;
-
-console.log(`first circle Last Gap=========${unviewed_last_gap}`);
-
-if(totalDash != 1){
-    Unviewed.setAttribute('stroke-dasharray',`${dashLength} 10 `.repeat(unviewed_status - 1 ) + `${dashLength} ${unviewed_last_gap}`);
+function statusCountViewedAndUnviewed(UnviewedId, ViewedId, totalStatus, totalCountOfUnviewed){
+    const Unviewed = document.getElementById(UnviewedId);
+    const viewed = document.getElementById(ViewedId);
+    
+    const radius = 50;
+    const circumference = 2 * Math.PI * radius;
+    
+    const totalDash = totalStatus;
+    const unviewed_status = totalCountOfUnviewed;
+    const viewed_status = totalDash - unviewed_status;
+    
+    const divideLength  = circumference / totalDash;
+    const dashLength = divideLength - 10;
+    
+    console.log(`dashofLenght===${dashLength}`);
+    
+    const totalOfUnviewedDashs = divideLength * unviewed_status;
+    
+    const viewedDashSet =  387.69908169872417 - totalOfUnviewedDashs;
+    
+    console.log(`second circle stroke-dashoffset=========${viewedDashSet}`);
+    
+    const unviewed_last_gap_minus = circumference - totalOfUnviewedDashs;
+    const unviewed_last_gap = unviewed_last_gap_minus + 10;
+    
+    console.log(`first circle Last Gap=========${unviewed_last_gap}`);
+    
+    if(totalDash != 1){
+        Unviewed.setAttribute('stroke-dasharray',`${dashLength} 10 `.repeat(unviewed_status - 1 ) + `${dashLength} ${unviewed_last_gap}`);
+    }
+    Unviewed.setAttribute('stroke-dashoffset',  387.69908169872417);
+    
+    if(viewed_status > 0){
+    
+        const totalOfUviewedDashs = divideLength * viewed_status;
+        const viewed_last_gap = unviewed_status == viewed_status ? unviewed_last_gap  : circumference - totalOfUviewedDashs + 10;
+        console.log(`second circle  Last Gap=====${circumference}===${divideLength}====${circumference - divideLength + 10}`);
+    
+        viewed.setAttribute('stroke-dasharray', `${dashLength} 10 `.repeat(viewed_status - 1 ) + `${dashLength} ${viewed_last_gap}`);
+        viewed.setAttribute('stroke-dashoffset',  viewedDashSet);
+    }else {
+        viewed.style.display = "none";   
+    }
 }
-Unviewed.setAttribute('stroke-dashoffset',  387.69908169872417);
 
-if(viewed_status > 0){
+// my status click show my status
+const statusViewBox = document.getElementById('status-viewBox');
+const statusBackground = document.querySelector('.status-viewBox-background-them'); 
+const statusImageDisplay = document.querySelector('.status-viewBox-show-status-second img'); 
+const statusMoveLeftside = document.getElementById('status-move-leftside');
+const statusMoveRightside = document.getElementById('status-move-rightside');
 
-    const totalOfUviewedDashs = divideLength * viewed_status;
-    const viewed_last_gap = unviewed_status == viewed_status ? unviewed_last_gap  : circumference - totalOfUviewedDashs + 10;
-    console.log(`second circle  Last Gap=====${circumference}===${divideLength}====${circumference - divideLength + 10}`);
 
-    viewed.setAttribute('stroke-dasharray', `${dashLength} 10 `.repeat(viewed_status - 1 ) + `${dashLength} ${viewed_last_gap}`);
-    viewed.setAttribute('stroke-dashoffset',  viewedDashSet);
-}else {
-    viewed.style.display = "none";   
+
+topheaderProfile_Status_Second.addEventListener('click', function(){
+    console.log("this show my all status");
+    get_status_By_api();
+    
+});
+
+function get_status_By_api(){
+    fetch('/get_My_status/',{
+        method:'GET',
+        headers:{
+            'Content-Type': 'application/json',
+        }
+    }).then(response => response.json()).then(data=>{
+        statusViewBox.style.display = "flex";   
+
+     
+        const statusViewBox_Calculation_lines = document.querySelector('.status-viewBox-top-calculation-lines');
+        statusViewBox_Calculation_lines.innerHTML = '';
+
+        data.message.forEach((element, index) => {
+            const statusLine = document.createElement('div');
+            statusLine.classList.add('status-viewBox-top-calculation-line');
+
+            
+            const lineTop = document.createElement('div');
+            lineTop.classList.add('status-viewBox-top-calculation-line-top');
+            statusLine.appendChild(lineTop);
+
+           
+            const lineBottom = document.createElement('div');
+            lineBottom.classList.add('status-viewBox-top-calculation-line-bottom');
+
+            const lineBottomTop = document.createElement('div');
+            lineBottomTop.classList.add('status-viewBox-top-calculation-line-bottom-top');
+
+            
+            lineBottomTop.textContent = element.statusText || "No status";
+
+            lineBottom.appendChild(lineBottomTop);
+            statusLine.appendChild(lineBottom);
+
+            statusViewBox_Calculation_lines.appendChild(statusLine);
+        });
+
+        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+        animateStatusLines(statusLines,  data.message,  5000);
+
+    }).catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+    
 }
 
 
+async function animateStatusLines(lines, messages, duration) {
+    
+    for (let i = 0; i < lines.length; i++) {
+        await animateLine(lines[i], messages[i].image_url, duration, i);
+         console.log(`Animation ${i+1} completed == ${i}`);
+    }
 
+}
+
+function animateLine(line, imageUrl, duration, index) {
+    return new Promise(resolve => {
+        statusBackground.style.backgroundImage = `url(${imageUrl})`;
+        statusImageDisplay.src = imageUrl;
+
+        line.style.width = '0%'; 
+        line.style.transition = `width ${duration}ms linear`;
+
+        requestAnimationFrame(()=>{
+            line.style.width = '100%';
+        });
+
+        setTimeout(() => {
+            resolve();
+        }, duration);
+    });
+}
+
+statusMoveLeftside.addEventListener('click', function(){
+    console.log("this is working............... Leftside");
+});
+
+statusMoveRightside.addEventListener('click', function(){
+    console.log("this is working............... Rightside");
+});
 
 const multipleItems = document.getElementById('multiple-items');
 const dataLoader = document.getElementById('loader');

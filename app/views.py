@@ -6,7 +6,7 @@ from app.email import send_otp_via_email
 from .untils import encrypt, decrypt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from app.models import User, Message, Status
+from app.models import User, Message, Status, StatusView
 from django.db.models import Q
 from django.utils.timezone import localtime
 from app.formate_date import format_date
@@ -14,6 +14,7 @@ from django.db.models import Q
 from app.decorator import custom_login_required
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
+from app.custom_time_filters import relative_time
 from django.utils import timezone
 import json
 import uuid
@@ -383,19 +384,46 @@ def upload_status(request):
         print(f"{video}===={image}===={caption}===={user_id}")
         user = User.objects.get(id=user_id)
         send_data = {}
+        type = ''
         if image:
             new_filename = f"{uuid.uuid4()}.jpg"
             image.name = new_filename
-            status_instance = Status.objects.create(user=user, image=image, caption=caption, )
-            send_data = {'id':status_instance.id, 'type': 'Photo',}
+            type = 'Photo'
 
         elif video:   
             new_filename = f"{uuid.uuid4()}.mp4" 
             video.name = new_filename
-            status_instance = Status.objects.create(user=user, video=video, caption=caption, )
-            send_data = {'id':status_instance.id, 'type': 'Video',}
+            type = 'Video'
 
+        status_instance = Status.objects.create(user=user, image=image, video=video, caption=caption, )   
+        
+        status_count = Status.objects.filter(user=user).count()
+        viewed_count = StatusView.objects.filter(viewer=user).count()
 
+        unviewed_count = status_count - viewed_count 
+
+        local_timestamps = localtime(status_instance.created_at)
+        send_data = {'id':status_instance.id, 'type': type, 'Upload_time': relative_time(local_timestamps), 'total_count_status':status_count, 'unviewed_count':unviewed_count}
+       
         return JsonResponse({'status':'200', 'message': send_data}, status=200)
 
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def get_My_status(request):
+    if request.method == 'GET':
+        user_id = request.user.id
+        user = User.objects.get(id=user_id)
+        
+        statuses = Status.objects.filter(user=user)
+
+        send_status = []
+
+        for status in statuses:
+            send_status.append({
+                'image_url': status.image.url if status.image else None, 
+                'video_url':status.video.url if status.video else None, 
+                'caption':status.caption,})
+
+        return JsonResponse({'status':'200', 'message': send_status}, status=200)
+        
     return JsonResponse({'error': 'Invalid request'}, status=400)
