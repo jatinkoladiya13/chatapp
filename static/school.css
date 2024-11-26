@@ -2439,6 +2439,7 @@ color: #008069;
     color: white;
     border: none;
     background: transparent;
+    cursor: pointer;
 }
 
 .status-viewBox-arrow{
@@ -2450,6 +2451,7 @@ color: #008069;
     left: 30px;
     border: none;
     background: transparent;
+    cursor: pointer;
 }
 
 .status-viewBox-leftside{
@@ -2874,4 +2876,51 @@ color: #008069;
     display: inline-block;
     margin-right: 7px;
     color: white;
+}
+
+.status-viewBox-show-mystatus-status-bottom{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0px;
+    max-width: 920px;
+    padding-bottom: 10px;
+    width: calc(100% - 40px);
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 200;
+    background: rgba(0, 0, 0, .4);
+}
+
+.status-viewBox-show-mystatus-content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    max-height: 50vh;
+    padding: 10px;
+    box-sizing: border-box;
+    color: white;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
+}
+
+.status-viewBox-show-mystatus-viewedCount{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    min-height: 0;
+    min-width: 0;
+    margin-top: 8px;
+}
+
+.status-viewBox-show-mystatus-viewedCount svg{
+    color: white;
+}
+
+.status-viewBox-show-mystatus-viewedCount div{
+    color: white;
+    margin-left: 5px;
 }

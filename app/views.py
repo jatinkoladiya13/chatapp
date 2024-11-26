@@ -397,7 +397,8 @@ def upload_status(request):
 
         status_instance = Status.objects.create(user=user, image=image, video=video, caption=caption, )   
         
-        status_count = Status.objects.filter(user=user).count()
+        statuses = Status.objects.filter(user=user)
+        status_count = statuses.count()
         viewed_count = StatusView.objects.filter(viewer=user).count()
 
         unviewed_count = status_count - viewed_count 
@@ -415,15 +416,41 @@ def get_My_status(request):
         user = User.objects.get(id=user_id)
         
         statuses = Status.objects.filter(user=user)
-
+        
+        
         send_status = []
 
         for status in statuses:
             send_status.append({
                 'image_url': status.image.url if status.image else None, 
                 'video_url':status.video.url if status.video else None, 
-                'caption':status.caption,})
+                'caption':status.caption,
+                'id':status.id,})
+            
+        status_count = statuses.count()    
+        viewed_count = StatusView.objects.filter(viewer=user).count()
+        unviewed_code = status_count - viewed_count
 
-        return JsonResponse({'status':'200', 'message': send_status}, status=200)
+
+        return JsonResponse({'status':'200', 'message': send_status, 'total_status':status_count, 'unviewed_code':unviewed_code}, status=200)
         
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def add_viewed_status(request):
+    if request.method == 'POST':
+        json_data=json.loads(request.body)
+        status_id = json_data.get('status_id')
+        viewer_id = request.user.id
+
+
+        viewer_user = User.objects.get(id=viewer_id)
+        status = Status.objects.get(id=status_id)
+
+        if StatusView.objects.filter(status=status, viewer=viewer_user).exists():
+                return JsonResponse({'status':'400', 'message': 'Already added data'}, status=200)            
+
+        StatusView.objects.create(status=status, viewer=viewer_user)
+        
+        return JsonResponse({'status':'200', 'message': 'status change successfully'}, status=200)
+    return JsonResponse({'error': 'Invalid request'}, status=400)    

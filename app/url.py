@@ -20,6 +20,7 @@ urlpatterns = [
        path('edit_profile/', views.edit_profile),
        path('upload_status/',views.upload_status),
        path('get_My_status/', views.get_My_status),
+       path('add_viewed_status/',views.add_viewed_status),
 ]
 
 if settings.DEBUG:

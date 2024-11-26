@@ -219,7 +219,7 @@
                         </div>
                     </div>
 
-                    <div class="status-box" id="topheader-profile-status-second"   style="border-bottom: 10px solid #0C1317; display:flex;">
+                    <div class="status-box" id="topheader-profile-status-second"   style="border-bottom: 10px solid #0C1317; display:none;">
                         <div class="status-boxs-image" style="margin-right: 30px;">
                             <svg width="48" height="48" viewBox="0 0 104 104">
                                 <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
@@ -245,9 +245,9 @@
                         <div class="status-boxs-image">
                             <svg  width="48" height="48" viewBox="0 0 104 104">
                                 <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
-                                stroke-dasharray="" stroke-width="4" style="stroke: #008069;" id="Unviewed" ></circle>
+                                stroke-dasharray="" stroke-width="4" style="stroke: #008069;"  ></circle>
                                 <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" 
-                                stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" id="Viewed"></circle> 
+                                stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" ></circle> 
                                 
                                
                             </svg>
@@ -406,11 +406,12 @@
 
        <!--Status Viewed-->
         <div class="status-viewBox" id="status-viewBox" style="display:none;">
-            <button class="status-viewBox-close">
+
+            <button class="status-viewBox-close" id="status-viewBox-close">
                 <span aria-hidden="true" data-icon="x-viewer" class=""><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>x-viewer</title><path fill="currentColor" d="M19.8,5.8l-1.6-1.6L12,10.4L5.8,4.2L4.2,5.8l6.2,6.2l-6.2,6.2l1.6,1.6l6.2-6.2l6.2,6.2l1.6-1.6L13.6,12 L19.8,5.8z"></path></svg></span>           
             </button>
 
-            <button class="status-viewBox-arrow">
+            <button class="status-viewBox-arrow" id="status-viewBox-arrow">
                 <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>back</title><path fill="currentColor" d="M12,4l1.4,1.4L7.8,11H20v2H7.8l5.6,5.6L12,20l-8-8L12,4z"></path></svg>
             </button>
 
@@ -467,7 +468,7 @@
                         </div>
                     </div>   
 
-                    <div class="status-viewBox-show-status-bottom">
+                    <div class="status-viewBox-show-status-bottom" >
                         <div class="status-viewBox-show-status-bottom-under">
                             <div class="status-viewBox-show-status-bottom-under2">
 
@@ -492,6 +493,16 @@
                                     </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="status-viewBox-show-mystatus-status-bottom">
+                           <div  class="status-viewBox-show-mystatus-content">
+                               
+                           </div>
+                           <div class="status-viewBox-show-mystatus-viewedCount">
+                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>visibility-on</title><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM9 12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12C15 13.66 13.66 15 12 15C10.34 15 9 13.66 9 12Z" fill="currentColor"></path></svg>
+                                <div>8</div>
+                            </div>
                     </div>
 
                 </div>

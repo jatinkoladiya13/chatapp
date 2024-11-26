@@ -30,6 +30,10 @@ const imagePreviewClose = document.getElementById('imagePreviewClose');
 const chat_box          = document.getElementById('chatBox'); 
 const chat_box_input    = document.getElementById('chatbox_input');
 
+// status profile  box change with status line and without status lines 
+const topheader_Profile_Status = document.getElementById('topheader-profile-status');
+const topheaderProfile_Status_Second = document.getElementById('topheader-profile-status-second');
+
 
 // WebSocket  initialization
 const roomName = 'chat_consumer'; 
@@ -212,6 +216,31 @@ function toggleDrawer(drawerId, button){
     }
 
     button.classList.add('selected');
+
+    if(drawerId === 'status_story'){
+        button_get_status_data();
+    }
+}
+
+// when user go to the status then change data 
+function button_get_status_data(){
+    fetch('/get_My_status/',{
+        method:'GET',
+        headers:{
+            'Content-Type': 'application/json',
+        }
+    }).then(response => response.json()).then(data=>{
+        const sendStatus = data.message;
+        if(sendStatus.length > 0){
+            topheader_Profile_Status.style.display = 'none';
+            topheaderProfile_Status_Second.style.display = 'flex';
+            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.total_status, data.unviewed_code);
+        }
+      
+        
+    }).catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
 }
 
 // profile edit name and email funtionality
@@ -329,7 +358,6 @@ logout_button.addEventListener('click', function(){
 //  click plush button for create status
 
 const topheaderAddStatus = document.getElementById('topheader-add-status');
-const topheaderProfileStatus = document.getElementById('topheader-profile-status');
 const smallDrawerStatus = document.getElementById('small-drawer-status');
 const scrollableContent = document.getElementById('scrollable-content');
 
@@ -352,12 +380,12 @@ document.addEventListener('click', function(event) {
         scrollableContent.style.overflowY = "auto";
     }
 
-    if (!topheaderProfileStatus.contains(event.target)) { 
+    if (!topheader_Profile_Status.contains(event.target)) { 
         smallDrawerStatus.style.display = 'none';
         scrollableContent.style.overflowY = "auto";
     }
 });
-topheaderProfileStatus.addEventListener('click', function(event){
+topheader_Profile_Status.addEventListener('click', function(event){
     smallDrawerStatus.style.cssText = `transform-origin: right top;
     left: 44px;
     top: 103.5px;
@@ -627,12 +655,10 @@ function handlePhotoAndVideoCapture(event){
 //  status upload send button click
 const statusUploadSend = document.getElementById('status_upload_send');
 const profile_Status_Second_details = document.getElementById('profile_Status_Second_details');
-const topheader_Profile_Status = document.getElementById('topheader-profile-status');
-const topheaderProfile_Status_Second = document.getElementById('topheader-profile-status-second');
 
 statusUploadSend.addEventListener('click', function(event){
     if(fileBlobs.length > 0){
-
+       
         fileBlobs.forEach( async (status_file, index) => {
             const formDate = new FormData();
     
@@ -646,7 +672,7 @@ statusUploadSend.addEventListener('click', function(event){
             const file_catption_get = document.querySelector(`.status_Multiple_File_Btn[data-index="${status_file.index}"]`);
             const caption =  file_catption_get ? file_catption_get.getAttribute('data-caption') : '';
             formDate.append('caption', caption);  
-
+          
             await statusFileSenToApi(formDate, index);
 
         });
@@ -669,19 +695,18 @@ async function statusFileSenToApi(formatDate, index){
         if(response.ok){
             const data = await response.json();
             let checking = fileBlobs.length-1;
+            
             if(checking === index){
                 fileBlobs=[];
                 console.log(data.message.Upload_time);
                 topheaderProfile_Status_Second.style.display = 'flex';
                 topheader_Profile_Status.style.display = 'none';
-                profile_Status_Second_details.textContent = data.message.Upload_time;
-                statusCountViewedAndUnviewed("Unviewed", "Viewed", data.message.total_count_status, data.message.unviewed_count);
-                console.log(data.message.Upload_time);
-                console.log(data.message.total_count_status);
-                console.log(data.message.unviewed_count);
-            
+                profile_Status_Second_details.textContent = data.message.Upload_time;            
             }
+
+            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.message.total_count_status, data.message.unviewed_count);
             imgPreviewContainers.style.display ="none";
+
         }else{
             console.error("Failed to update profile. Status:", response.status);
         }
@@ -692,9 +717,13 @@ async function statusFileSenToApi(formatDate, index){
 
 
 // Status  and story
-function statusCountViewedAndUnviewed(UnviewedId, ViewedId, totalStatus, totalCountOfUnviewed){
+function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, totalCountOfUnviewed){
     const Unviewed = document.getElementById(UnviewedId);
     const viewed = document.getElementById(ViewedId);
+
+    Unviewed.innerHTML = '';
+    viewed.innerHTML = '';
+    viewed.style.removeProperty('display');
     
     const radius = 50;
     const circumference = 2 * Math.PI * radius;
@@ -706,21 +735,20 @@ function statusCountViewedAndUnviewed(UnviewedId, ViewedId, totalStatus, totalCo
     const divideLength  = circumference / totalDash;
     const dashLength = divideLength - 10;
     
-    console.log(`dashofLenght===${dashLength}`);
     
     const totalOfUnviewedDashs = divideLength * unviewed_status;
     
     const viewedDashSet =  387.69908169872417 - totalOfUnviewedDashs;
     
-    console.log(`second circle stroke-dashoffset=========${viewedDashSet}`);
     
     const unviewed_last_gap_minus = circumference - totalOfUnviewedDashs;
     const unviewed_last_gap = unviewed_last_gap_minus + 10;
     
-    console.log(`first circle Last Gap=========${unviewed_last_gap}`);
     
     if(totalDash != 1){
-        Unviewed.setAttribute('stroke-dasharray',`${dashLength} 10 `.repeat(unviewed_status - 1 ) + `${dashLength} ${unviewed_last_gap}`);
+        Unviewed.setAttribute('stroke-dasharray',unviewed_status > 1 
+            ? `${dashLength} 10 `.repeat(unviewed_status - 1) + `${dashLength} ${unviewed_last_gap}`
+            : `${dashLength} ${unviewed_last_gap}`);
     }
     Unviewed.setAttribute('stroke-dashoffset',  387.69908169872417);
     
@@ -728,8 +756,7 @@ function statusCountViewedAndUnviewed(UnviewedId, ViewedId, totalStatus, totalCo
     
         const totalOfUviewedDashs = divideLength * viewed_status;
         const viewed_last_gap = unviewed_status == viewed_status ? unviewed_last_gap  : circumference - totalOfUviewedDashs + 10;
-        console.log(`second circle  Last Gap=====${circumference}===${divideLength}====${circumference - divideLength + 10}`);
-    
+      
         viewed.setAttribute('stroke-dasharray', `${dashLength} 10 `.repeat(viewed_status - 1 ) + `${dashLength} ${viewed_last_gap}`);
         viewed.setAttribute('stroke-dashoffset',  viewedDashSet);
     }else {
@@ -743,8 +770,34 @@ const statusBackground = document.querySelector('.status-viewBox-background-them
 const statusImageDisplay = document.querySelector('.status-viewBox-show-status-second img'); 
 const statusMoveLeftside = document.getElementById('status-move-leftside');
 const statusMoveRightside = document.getElementById('status-move-rightside');
+const status_viewBox_close = document.getElementById('status-viewBox-close');
+const status_viewBox_arrow = document.getElementById('status-viewBox-arrow');
 
+const type_reply_input = document.querySelector('.status-viewBox-show-status-bottom');
+const mystatus_viewedCount = document.querySelector('.status-viewBox-show-mystatus-status-bottom');
+const mystatus_viewedContent = document.querySelector('.status-viewBox-show-mystatus-content');
 
+let currentStatusIndex = 0;
+let statuses = [];
+let isPlaying = false;
+let animationTimeout = null;
+let statusesViewed = [];
+
+// status view close button click
+status_viewBox_close.addEventListener('click', function(){
+    close_status_view();
+});
+
+status_viewBox_arrow.addEventListener('click', function(){
+    close_status_view();
+});
+
+function close_status_view(){
+    statusViewBox.style.display = "none";
+    clearTimeout(animationTimeout);
+    isPlaying = false;
+    currentStatusIndex = 0;
+}
 
 topheaderProfile_Status_Second.addEventListener('click', function(){
     console.log("this show my all status");
@@ -759,29 +812,30 @@ function get_status_By_api(){
             'Content-Type': 'application/json',
         }
     }).then(response => response.json()).then(data=>{
+        statuses = data.message;
+        statusesViewed = Array(statuses.length).fill(false);
         statusViewBox.style.display = "flex";   
 
-     
         const statusViewBox_Calculation_lines = document.querySelector('.status-viewBox-top-calculation-lines');
         statusViewBox_Calculation_lines.innerHTML = '';
-
-        data.message.forEach((element, index) => {
+        
+        type_reply_input.style.display = 'none';
+        
+       
+        statuses.forEach((element, index) => {
+           
             const statusLine = document.createElement('div');
             statusLine.classList.add('status-viewBox-top-calculation-line');
 
-            
             const lineTop = document.createElement('div');
             lineTop.classList.add('status-viewBox-top-calculation-line-top');
             statusLine.appendChild(lineTop);
 
-           
             const lineBottom = document.createElement('div');
             lineBottom.classList.add('status-viewBox-top-calculation-line-bottom');
 
             const lineBottomTop = document.createElement('div');
             lineBottomTop.classList.add('status-viewBox-top-calculation-line-bottom-top');
-
-            
             lineBottomTop.textContent = element.statusText || "No status";
 
             lineBottom.appendChild(lineBottomTop);
@@ -790,50 +844,145 @@ function get_status_By_api(){
             statusViewBox_Calculation_lines.appendChild(statusLine);
         });
 
-        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
-        animateStatusLines(statusLines,  data.message,  5000);
+        // Start showing statuses
+        currentStatusIndex = 0; // Reset the index
+        playAllStatuses();
 
     }).catch(error => {
         console.error('There was a problem with the fetch operation:', error);
     });
     
 }
-
-
-async function animateStatusLines(lines, messages, duration) {
+       
+async function   playAllStatuses(){
+    if (isPlaying) return; // Prevent multiple playbacks
+    isPlaying = true;
     
-    for (let i = 0; i < lines.length; i++) {
-        await animateLine(lines[i], messages[i].image_url, duration, i);
-         console.log(`Animation ${i+1} completed == ${i}`);
-    }
+    const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+    for (let i = currentStatusIndex; i < statuses.length; i++) {
+        currentStatusIndex = i; 
 
+        if(!statusesViewed[currentStatusIndex]){
+            statusesViewed[currentStatusIndex] = true;
+
+            const totalStatus = statuses.length;
+            const totalCountOfUnviewed = statusesViewed.filter(viewed => !viewed).length;
+            
+            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", totalStatus, totalCountOfUnviewed);
+            add_Viewed_status(statuses[i].id);
+
+            if(statuses[i].caption){
+                mystatus_viewedCount.style.background = 'rgba(0, 0, 0, .4)';
+                mystatus_viewedContent.style.display = 'flex';
+                mystatus_viewedContent.innerText = statuses[i].caption;
+            }else{
+                mystatus_viewedCount.style.background = 'none';
+                mystatus_viewedContent.style.display = 'none';
+            }
+        }  
+
+        statusBackground.style.backgroundImage = `url(${statuses[i].image_url})`;
+        statusImageDisplay.src = statuses[i].image_url;
+
+        await animateLine(statusLines[i],  5000);
+    }
+    isPlaying = false;
+
+    close_status_view();
+    
 }
 
-function animateLine(line, imageUrl, duration, index) {
-    return new Promise(resolve => {
-        statusBackground.style.backgroundImage = `url(${imageUrl})`;
-        statusImageDisplay.src = imageUrl;
 
-        line.style.width = '0%'; 
+
+
+function animateLine(line, duration) {
+    return new Promise(resolve => {
+      
+
+        line.style.width = '0%';
         line.style.transition = `width ${duration}ms linear`;
 
-        requestAnimationFrame(()=>{
+        requestAnimationFrame(() => {
             line.style.width = '100%';
         });
 
-        setTimeout(() => {
+        animationTimeout = setTimeout(() => {
             resolve();
         }, duration);
     });
+
+  
 }
 
-statusMoveLeftside.addEventListener('click', function(){
+function moveStatus(direction) {
+    const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+    
+    const currentLine = statusLines[currentStatusIndex];
+    currentLine.style.width = direction === 'right' ? '100%' : '0%';
+    currentLine.style.transition = 'none';
+    currentLine.offsetWidth;
+
+    if(direction === 'right'){
+        currentStatusIndex++;
+    }else if(direction === 'left'){
+        currentStatusIndex--;
+    }
+
+    const targetLine = statusLines[currentStatusIndex];
+    targetLine.style.width = '0%';
+    targetLine.style.transition = 'none';
+    targetLine.offsetWidth;
+
+    statusBackground.style.backgroundImage = `url(${statuses[currentStatusIndex].image_url})`;
+    statusImageDisplay.src = statuses[currentStatusIndex].image_url;
+    
+}
+
+statusMoveLeftside.addEventListener('click', async function(){
+    if (statuses.length === 0 ||  currentStatusIndex === 0) return;
+
+    clearTimeout(animationTimeout);
+    isPlaying = false; 
+
+    moveStatus('left');
+
+    playAllStatuses();
+
     console.log("this is working............... Leftside");
 });
 
-statusMoveRightside.addEventListener('click', function(){
-    console.log("this is working............... Rightside");
+
+
+statusMoveRightside.addEventListener('click',   function(){
+    const minuse_one = statuses.length - 1 ;
+    if (statuses.length === 0 || currentStatusIndex == minuse_one) return;
+
+    
+    clearTimeout(animationTimeout); 
+    isPlaying = false; 
+
+    moveStatus('right');
+
+    
+    playAllStatuses();
 });
+ 
+// create viewed status change in data base with api
+function add_Viewed_status(status_id){
+    fetch('/add_viewed_status/',{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json',
+            'X-CSRFToken':getCookie('csrftoken')
+        },
+        body:JSON.stringify({'status_id':status_id}),
+    }).then(response => response.json()).then(data=>{
+        console.log('Data:',data);
+    }).catch(error => {
+        console.error('Error:',error);
+    });
+}
+
 
 const multipleItems = document.getElementById('multiple-items');
 const dataLoader = document.getElementById('loader');
