@@ -6,7 +6,7 @@ from app.email import send_otp_via_email
 from .untils import encrypt, decrypt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from app.models import User, Message
+from app.models import User, Message, Status, StatusView
 from django.db.models import Q
 from django.utils.timezone import localtime
 from app.formate_date import format_date
@@ -14,6 +14,7 @@ from django.db.models import Q
 from app.decorator import custom_login_required
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
+from app.custom_time_filters import relative_time
 from django.utils import timezone
 import json
 import uuid
@@ -207,6 +208,10 @@ def create_contacts(request):
         user  = User.objects.get(email=contact_email)
         if user :
             create_by_user = User.objects.get(id=login_user_id)
+
+            if not isinstance(create_by_user.contacts, list):
+                create_by_user.contacts = []
+
             for contact in create_by_user.contacts:
                 if contact['user_id'] == user.id:
                     contact['delete_status'] = False
@@ -214,6 +219,7 @@ def create_contacts(request):
                 if contact['user_id'] in create_by_user.deleted_contacts:
                     del create_by_user.deleted_contacts[contact['user_id']]
             else:
+                print(type(user.contacts), user.contacts)
                 create_by_user.contacts.append({
                     'user_id':user.id,
                     'delete_status':False,})
@@ -340,3 +346,111 @@ def upload_videos(request):
         return JsonResponse({'status':'200', 'message': send_data}, status=200)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def edit_profile(request):
+
+    if request.method == 'POST':
+        id  = request.user.id
+    
+        image = request.FILES.get('profile_image')
+        name = request.POST.get('name-input')
+        email = request.POST.get('email-input')
+        
+        user = User.objects.get(id=id)
+        
+        if image:
+            user.profile_image = image
+        elif name:
+            user.username = name
+        elif email:
+            user.email = email
+
+        user.save()
+        
+        return JsonResponse({'status':'200', 'message': 'this is ok'}, status=200)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def upload_status(request):
+    if request.method == 'POST':
+        video = request.FILES.get('video')
+        image = request.FILES.get('image')
+        caption = request.POST.get('caption')
+        user_id = request.user.id
+
+        print(f"{video}===={image}===={caption}===={user_id}")
+        user = User.objects.get(id=user_id)
+        send_data = {}
+        type = ''
+        if image:
+            new_filename = f"{uuid.uuid4()}.jpg"
+            image.name = new_filename
+            type = 'Photo'
+
+        elif video:   
+            new_filename = f"{uuid.uuid4()}.mp4" 
+            video.name = new_filename
+            type = 'Video'
+
+        status_instance = Status.objects.create(user=user, image=image, video=video, caption=caption, )   
+        
+        statuses = Status.objects.filter(user=user)
+        status_count = statuses.count()
+        viewed_count = StatusView.objects.filter(viewer=user).count()
+
+        unviewed_count = status_count - viewed_count 
+
+        local_timestamps = localtime(status_instance.created_at)
+        send_data = {'id':status_instance.id, 'type': type, 'Upload_time': relative_time(local_timestamps), 'total_count_status':status_count, 'unviewed_count':unviewed_count}
+       
+        return JsonResponse({'status':'200', 'message': send_data}, status=200)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def get_My_status(request):
+    if request.method == 'GET':
+        user_id = request.user.id
+        user = User.objects.get(id=user_id)
+        
+        statuses = Status.objects.filter(user=user)
+        
+        
+        send_status = []
+
+        for status in statuses:
+            send_status.append({
+                'image_url': status.image.url if status.image else None, 
+                'video_url':status.video.url if status.video else None, 
+                'caption':status.caption,
+                'id':status.id,})
+            
+        status_count = statuses.count()    
+        viewed_count = StatusView.objects.filter(viewer=user).count()
+        unviewed_code = status_count - viewed_count
+
+
+        return JsonResponse({'status':'200', 'message': send_status, 'total_status':status_count, 'unviewed_code':unviewed_code}, status=200)
+        
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def add_viewed_status(request):
+    if request.method == 'POST':
+        json_data=json.loads(request.body)
+        status_id = json_data.get('status_id')
+        viewer_id = request.user.id
+
+
+        viewer_user = User.objects.get(id=viewer_id)
+        status = Status.objects.get(id=status_id)
+
+        if StatusView.objects.filter(status=status, viewer=viewer_user).exists():
+                return JsonResponse({'status':'400', 'message': 'Already added data'}, status=200)            
+
+        StatusView.objects.create(status=status, viewer=viewer_user)
+        
+        return JsonResponse({'status':'200', 'message': 'status change successfully'}, status=200)
+    return JsonResponse({'error': 'Invalid request'}, status=400)    

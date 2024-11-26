@@ -30,6 +30,10 @@ const imagePreviewClose = document.getElementById('imagePreviewClose');
 const chat_box          = document.getElementById('chatBox'); 
 const chat_box_input    = document.getElementById('chatbox_input');
 
+// status profile  box change with status line and without status lines 
+const topheader_Profile_Status = document.getElementById('topheader-profile-status');
+const topheaderProfile_Status_Second = document.getElementById('topheader-profile-status-second');
+
 
 // WebSocket  initialization
 const roomName = 'chat_consumer'; 
@@ -190,6 +194,796 @@ imagePreviewClose.addEventListener('click',()=>{
     clearImages(); 
 });
 
+// side header click functionality 
+
+function closeAllDrawers(){
+    document.querySelectorAll('.leftside-drawer').forEach(icon => {
+        icon.classList.remove('open');
+    });
+    document.querySelectorAll('.chat_header_top_icon, .chat_header_userimg').forEach(icon => {
+        icon.classList.remove('selected');
+    });
+
+}
+
+function toggleDrawer(drawerId, button){
+    
+    
+    closeAllDrawers();
+    const drawer =  document.getElementById(drawerId);
+    if(drawer){
+        drawer.classList.add('open');
+    }
+
+    button.classList.add('selected');
+
+    if(drawerId === 'status_story'){
+        button_get_status_data();
+    }
+}
+
+// when user go to the status then change data 
+function button_get_status_data(){
+    fetch('/get_My_status/',{
+        method:'GET',
+        headers:{
+            'Content-Type': 'application/json',
+        }
+    }).then(response => response.json()).then(data=>{
+        const sendStatus = data.message;
+        if(sendStatus.length > 0){
+            topheader_Profile_Status.style.display = 'none';
+            topheaderProfile_Status_Second.style.display = 'flex';
+            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.total_status, data.unviewed_code);
+        }
+      
+        
+    }).catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
+
+// profile edit name and email funtionality
+function setupEditableField(displayId, inputId, editIconId, checkIconId, loaderId){
+    const displayElement = document.getElementById(displayId);
+    const inputElement = document.getElementById(inputId);
+    const editIconElement = document.getElementById(editIconId);
+    const checkIconElement = document.getElementById(checkIconId);
+    const loader = document.getElementById(loaderId);
+    
+    inputElement.style.display = 'none';
+    checkIconElement.style.display = 'none';
+    loader.style.display = 'none';
+    inputElement.value = displayElement.textContent;
+
+    editIconElement.addEventListener('click',function(){
+        inputElement.style.display = '';
+        checkIconElement.style.display = '';
+
+        editIconElement.style.display = 'none';
+        displayElement.style.display = 'none';
+        inputElement.focus();
+        inputElement.setSelectionRange(inputElement.value.length, inputElement.value.length);
+    });
+
+    checkIconElement.addEventListener('click', async function(){
+        loader.style.display = '';
+        checkIconElement.style.display = 'none';
+        const success = await editProfileUrl(inputId, inputElement.value);
+        if(success){
+            inputElement.style.display = 'none';
+            editIconElement.style.display = '';
+            displayElement.style.display = '';
+            loader.style.display = 'none';
+            displayElement.textContent = inputElement.value;
+        }else{
+            loader.style.display = 'none';
+            inputElement.style.display = 'none';
+            checkIconElement.style.display = 'none';
+            editIconElement.style.display = '';
+            displayElement.style.display = '';
+            loader.style.display = 'none';
+        }
+    });
+}
+
+setupEditableField("name-display", "name-input", "edit-icon-name", "check-icon-name", "edit-icon-name-loader" );
+setupEditableField("email-display", "email-input", "edit-icon-email", "check-icon-email", "edit-icon-email-loader");
+
+// drawer profile image taken by device
+const profile_loader = document.getElementById('profile_loader');
+function profikeImgTakenByDevice(event) {
+    
+    profile_loader.style.display = 'flex';
+
+    const file = event.target.files[0]; 
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        const profileImage = document.getElementById('drawer_profile_img');
+        profileImage.src = e.target.result;
+        const success = await editProfileUrl('profile_image', file);
+        if(success){
+            profile_loader.style.display = 'none';
+        }
+    };
+
+    if(file){
+        reader.readAsDataURL(file);
+    }
+}
+
+//  drawer edit profile url 
+
+function createFormData(field, value) {
+    const formData = new FormData();
+    formData.append(field, value);
+    return formData;
+}
+
+async function editProfileUrl(field, value){
+    try{
+        const formData = createFormData(field, value);
+        const response = await fetch('/edit_profile/', {
+            method: 'POST',
+            header:{
+                'Content-Type':'application/json',
+                'X-CSRFToken':getCookie('csrftoken')
+            },
+            body: formData,
+        });
+         
+        if(response.ok){
+            const data = await response.json();
+            console.log('Status:', data);
+            return true; 
+        }else{
+            console.error("Failed to update profile. Status:", response.status);
+            return false;
+        }
+       
+
+    }catch(error){
+        console.error("Error:",error);
+        return false;
+    }
+}
+
+// logout profile
+const logout_button = document.getElementById('logout-button');
+logout_button.addEventListener('click', function(){
+    window.location.href = '/signout/';
+});
+
+//  click plush button for create status
+
+const topheaderAddStatus = document.getElementById('topheader-add-status');
+const smallDrawerStatus = document.getElementById('small-drawer-status');
+const scrollableContent = document.getElementById('scrollable-content');
+
+topheaderAddStatus.addEventListener('click', function(event){
+    topheaderAddStatus.style.background = "rgba(255, 255, 255, .1)";
+    smallDrawerStatus.style.cssText = `transform-origin: right top;
+    right: 74px;
+    top: 56.5px;
+    transform: scale(1);
+    display:flex;`;
+    scrollableContent.style.overflowY = "hidden";
+    event.stopPropagation();
+   
+});
+
+document.addEventListener('click', function(event) {
+    if (!topheaderAddStatus.contains(event.target)) {
+        topheaderAddStatus.style.background = ""; 
+        smallDrawerStatus.style.display = 'none';
+        scrollableContent.style.overflowY = "auto";
+    }
+
+    if (!topheader_Profile_Status.contains(event.target)) { 
+        smallDrawerStatus.style.display = 'none';
+        scrollableContent.style.overflowY = "auto";
+    }
+});
+topheader_Profile_Status.addEventListener('click', function(event){
+    smallDrawerStatus.style.cssText = `transform-origin: right top;
+    left: 44px;
+    top: 103.5px;
+    transform: scale(1);
+    display:flex;`;
+    scrollableContent.style.overflowY = "hidden";
+    event.stopPropagation();
+});
+
+// take photo and video for status and viewed 
+const imgPreviewContainers = document.getElementById('imgPreview-containers');
+const closeStausImgandVidPreview = document.getElementById('closeStausImgandVidPreview');
+
+closeStausImgandVidPreview.addEventListener('click', function(){
+    imgPreviewContainers.style.display ="none";
+});
+
+let statusFileIndexCounter = 0;
+let fileBlobs = [];
+
+function extractVideoThumbnail(videoFile){
+    return new Promise((resolve, reject) => {
+        const videoElement = document.createElement('video');
+        const canvasElement = document.createElement('canvas');
+        const context = canvasElement.getContext('2d');
+
+        const videoURL = URL.createObjectURL(videoFile);
+        videoElement.src = videoURL;
+
+        videoElement.muted = true;
+        videoElement.playsInline = true;
+        videoElement.autoplay = true;
+
+        videoElement.addEventListener('loadeddata', () => {
+            // Set canvas size to match the video's dimensions
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+
+            // Draw the current frame of the video onto the canvas
+            context.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
+
+            // Convert the canvas content to a Data URL (base64 string)
+            const thumbnailDataUrl = canvasElement.toDataURL('image/png');
+
+            // Clean up and revoke the blob URL
+            URL.revokeObjectURL(videoURL);
+
+            // Resolve the thumbnail image Data URL
+            resolve(thumbnailDataUrl);
+        });
+
+        videoElement.addEventListener('error', (e) => {
+            reject(new Error('Error loading video file for thumbnail extraction.'));
+        });
+    });
+}
+
+function isCheckLogic(result, checkIsVideo){
+    const statusTakePrviews = document.querySelector(".status-take-file-previews");
+    let file_tag = ``;
+    statusTakePrviews.innerHTML = "";
+
+    if (checkIsVideo) {
+        file_tag = `
+        <video id="statuspreviewFile" controls>
+            <source src=${result} type="video/mp4">
+        </video>`;
+    } else {
+        file_tag = `<img id="statuspreviewFile" src=${result} alt="Image Preview">`;
+    }
+    statusTakePrviews.insertAdjacentHTML('beforeend', file_tag);
+}
+
+function handlePhotoAndVideoCapture(event){
+    const files = event.target.files;
+
+    imgPreviewContainers.style.display ="flex";
+
+    const  statusMutipleFile  = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
+    const statusCaptionInput = document.getElementById("status-caption-input");
+    const statusCaptionClose = document.getElementById("status-caption-close");
+
+    const isFirstUpload = statusMutipleFile.innerHTML.trim() === '';
+
+    if(isFirstUpload){
+        statusFileIndexCounter = 0;  
+        fileBlobs = [];  
+        statusCaptionInput.value="";
+        statusCaptionInput.setAttribute('data-index', '0');
+    }
+
+    const filePromises  = Array.from(files).map((file)=>{
+        return new Promise((resolve, reject)=>{
+            const readerMultiple  = new FileReader();
+            readerMultiple.onload = function(e){
+                resolve({ 
+                    result: e.target.result,
+                    file
+                });
+            }
+            readerMultiple.onerror = reject;
+            readerMultiple.readAsDataURL(file);
+        });
+    });
+
+    Promise.all(filePromises).then((fileDataArray)=>{
+        fileDataArray.forEach( ({result, file }) => {
+            const isVideo = file.type.startsWith('video/');
+            let imgTeg;
+            
+            if (isVideo) {
+                extractVideoThumbnail(file).then(thumbnailDataUrl => {
+                    imgTeg = `
+                        <button class="status_Multiple_File_Btn" data-index="${statusFileIndexCounter}" data-caption="" data-src="${result}">
+                            <div class="first">
+                                <ion-icon name="close-outline" id="st-removeFile"></ion-icon>
+                            </div>
+                            <div class="second">
+                                <img alt="Video Thumbnail" class="cover" src="${thumbnailDataUrl}">
+                            </div>
+                        </button>
+                    `;
+                    statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
+                    fileBlobs.push({
+                        file: file,
+                        index: statusFileIndexCounter,
+                        type: true,
+                    }); 
+    
+                    if (statusFileIndexCounter === 0 && isFirstUpload) {
+                        isCheckLogic(result, true);
+                    }
+
+                    statusFileIndexCounter++;
+                });
+            } else {
+                imgTeg = `
+                    <button class="status_Multiple_File_Btn" data-index="${statusFileIndexCounter}" data-caption="">
+                        <div class="first">
+                            <ion-icon name="close-outline" id="st-removeFile"></ion-icon>
+                        </div>
+                        <div class="second">
+                            <img alt="Preview" class="cover" src="${result}">
+                        </div>
+                    </button>
+                `;
+                statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
+                fileBlobs.push({
+                    file: file,
+                    index: statusFileIndexCounter,
+                    type:false,
+                }); 
+
+                if (statusFileIndexCounter === 0 && isFirstUpload) {
+                    isCheckLogic(result, false);
+                } 
+
+                statusFileIndexCounter++;
+            }
+           
+             
+           
+
+        });
+    });
+
+    //  this is bottom click change privewe and remove 
+    const observer = new MutationObserver(()=>{
+        const status_Multiple_File_Btn = document.querySelectorAll('.status_Multiple_File_Btn');
+
+        if(isFirstUpload){
+            status_Multiple_File_Btn[0].classList.add('selected');
+            const caption = status_Multiple_File_Btn[0].getAttribute('data-caption');
+            statusCaptionInput.value = caption || '';
+        
+        }
+
+        const statusMutipleFile = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
+        statusMutipleFile.addEventListener('click', function(event){
+            if(event.target.closest('#st-removeFile')){
+                const button = event.target.closest('.status_Multiple_File_Btn');
+                if(button){
+                    const isSelected = button.classList.contains('selected');
+                   
+                    button.remove();
+
+                    const dataIndex = button.getAttribute('data-index');
+                    const indexToRemove = parseInt(dataIndex);
+                    fileBlobs.splice(indexToRemove, 1);
+
+                    const remainingButtons = document.querySelectorAll('.status_Multiple_File_Btn');
+                    if(remainingButtons.length > 0){
+                        if(isSelected){
+                            remainingButtons[0].classList.add('selected');
+                            const imgElement = remainingButtons[0].querySelector('img');
+                            const dataOfSrc = remainingButtons[0].getAttribute('data-src');
+                            if(dataOfSrc){
+                                isCheckLogic(dataOfSrc, true);
+                            }else{
+                                isCheckLogic(imgElement.src, false);
+                            }
+    
+                            const caption  = remainingButtons[0].getAttribute('data-caption');
+                            statusCaptionInput.value = caption || '';
+                            statusCaptionInput.setAttribute('data-index',  remainingButtons[0].getAttribute('data-index'));
+                        }
+
+                    }else{
+                        imgPreviewContainers.style.display ="none";
+                    }
+
+                }
+            }else if(event.target.closest('.status_Multiple_File_Btn')){
+                const clickedButton = event.target.closest('.status_Multiple_File_Btn');
+                const status_Multiple_File_Btn = document.querySelectorAll('.status_Multiple_File_Btn');
+
+                status_Multiple_File_Btn.forEach(item => item.classList.remove('selected'));
+                clickedButton.classList.add('selected');
+
+                const imgElement = clickedButton.querySelector('img');
+                const dataSrc = clickedButton.getAttribute('data-src');
+                if(dataSrc){
+                    isCheckLogic(dataSrc, true);
+                }else{
+                    isCheckLogic(imgElement.src, false);
+                }
+                
+        
+                const caption = clickedButton.getAttribute('data-caption');
+                const statusCaptionInput = document.getElementById("status-caption-input");
+                statusCaptionInput.value = caption || '';
+                statusCaptionInput.setAttribute('data-index', clickedButton.getAttribute('data-index'));
+            }
+        });
+
+    
+
+
+        observer.disconnect();
+    });
+
+    observer.observe(statusMutipleFile, { childList: true });
+    
+    // this is caption input access
+    statusCaptionInput.addEventListener('input', function(){
+        const selectedIndex = this.getAttribute('data-index');
+        const selectedImageButton = document.querySelector(`.status_Multiple_File_Btn[data-index="${selectedIndex}"]`);
+        if(selectedImageButton){
+            selectedImageButton.setAttribute('data-caption', this.value);   
+        }
+    });
+
+    // this is caption close icon click
+    statusCaptionClose.addEventListener('click', function(){
+        
+        const selectedIndex = statusCaptionInput.getAttribute('data-index');
+        const selectedImageButton = document.querySelector(`.status_Multiple_File_Btn[data-index="${selectedIndex}"]`);
+
+        if(selectedImageButton){
+            statusCaptionInput.value = '';
+            selectedImageButton.setAttribute('data-caption', '');
+        }
+    });
+   
+}
+
+//  status upload send button click
+const statusUploadSend = document.getElementById('status_upload_send');
+const profile_Status_Second_details = document.getElementById('profile_Status_Second_details');
+
+statusUploadSend.addEventListener('click', function(event){
+    if(fileBlobs.length > 0){
+       
+        fileBlobs.forEach( async (status_file, index) => {
+            const formDate = new FormData();
+    
+           
+            if(status_file.type){
+                formDate.append('video', status_file.file);
+            }else{
+                formDate.append('image', status_file.file);
+            }
+
+            const file_catption_get = document.querySelector(`.status_Multiple_File_Btn[data-index="${status_file.index}"]`);
+            const caption =  file_catption_get ? file_catption_get.getAttribute('data-caption') : '';
+            formDate.append('caption', caption);  
+          
+            await statusFileSenToApi(formDate, index);
+
+        });
+          console.log(fileBlobs);
+    }
+});
+
+async function statusFileSenToApi(formatDate, index){
+    try{
+        const response = await fetch('/upload_status/',{
+            method:'POST',
+            header:{
+                'Content-Type':'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formatDate,
+        });
+        
+       
+        if(response.ok){
+            const data = await response.json();
+            let checking = fileBlobs.length-1;
+            
+            if(checking === index){
+                fileBlobs=[];
+                console.log(data.message.Upload_time);
+                topheaderProfile_Status_Second.style.display = 'flex';
+                topheader_Profile_Status.style.display = 'none';
+                profile_Status_Second_details.textContent = data.message.Upload_time;            
+            }
+
+            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.message.total_count_status, data.message.unviewed_count);
+            imgPreviewContainers.style.display ="none";
+
+        }else{
+            console.error("Failed to update profile. Status:", response.status);
+        }
+    }catch(error){
+        console.error("Error:",error);
+    }
+}
+
+
+// Status  and story
+function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, totalCountOfUnviewed){
+    const Unviewed = document.getElementById(UnviewedId);
+    const viewed = document.getElementById(ViewedId);
+
+    Unviewed.innerHTML = '';
+    viewed.innerHTML = '';
+    viewed.style.removeProperty('display');
+    
+    const radius = 50;
+    const circumference = 2 * Math.PI * radius;
+    
+    const totalDash = totalStatus;
+    const unviewed_status = totalCountOfUnviewed;
+    const viewed_status = totalDash - unviewed_status;
+    
+    const divideLength  = circumference / totalDash;
+    const dashLength = divideLength - 10;
+    
+    
+    const totalOfUnviewedDashs = divideLength * unviewed_status;
+    
+    const viewedDashSet =  387.69908169872417 - totalOfUnviewedDashs;
+    
+    
+    const unviewed_last_gap_minus = circumference - totalOfUnviewedDashs;
+    const unviewed_last_gap = unviewed_last_gap_minus + 10;
+    
+    
+    if(totalDash != 1){
+        Unviewed.setAttribute('stroke-dasharray',unviewed_status > 1 
+            ? `${dashLength} 10 `.repeat(unviewed_status - 1) + `${dashLength} ${unviewed_last_gap}`
+            : `${dashLength} ${unviewed_last_gap}`);
+    }
+    Unviewed.setAttribute('stroke-dashoffset',  387.69908169872417);
+    
+    if(viewed_status > 0){
+    
+        const totalOfUviewedDashs = divideLength * viewed_status;
+        const viewed_last_gap = unviewed_status == viewed_status ? unviewed_last_gap  : circumference - totalOfUviewedDashs + 10;
+      
+        viewed.setAttribute('stroke-dasharray', `${dashLength} 10 `.repeat(viewed_status - 1 ) + `${dashLength} ${viewed_last_gap}`);
+        viewed.setAttribute('stroke-dashoffset',  viewedDashSet);
+    }else {
+        viewed.style.display = "none";   
+    }
+}
+
+// my status click show my status
+const statusViewBox = document.getElementById('status-viewBox');
+const statusBackground = document.querySelector('.status-viewBox-background-them'); 
+const statusImageDisplay = document.querySelector('.status-viewBox-show-status-second img'); 
+const statusMoveLeftside = document.getElementById('status-move-leftside');
+const statusMoveRightside = document.getElementById('status-move-rightside');
+const status_viewBox_close = document.getElementById('status-viewBox-close');
+const status_viewBox_arrow = document.getElementById('status-viewBox-arrow');
+
+const type_reply_input = document.querySelector('.status-viewBox-show-status-bottom');
+const mystatus_viewedCount = document.querySelector('.status-viewBox-show-mystatus-status-bottom');
+const mystatus_viewedContent = document.querySelector('.status-viewBox-show-mystatus-content');
+
+let currentStatusIndex = 0;
+let statuses = [];
+let isPlaying = false;
+let animationTimeout = null;
+let statusesViewed = [];
+
+// status view close button click
+status_viewBox_close.addEventListener('click', function(){
+    close_status_view();
+});
+
+status_viewBox_arrow.addEventListener('click', function(){
+    close_status_view();
+});
+
+function close_status_view(){
+    statusViewBox.style.display = "none";
+    clearTimeout(animationTimeout);
+    isPlaying = false;
+    currentStatusIndex = 0;
+}
+
+topheaderProfile_Status_Second.addEventListener('click', function(){
+    console.log("this show my all status");
+    get_status_By_api();
+    
+});
+
+function get_status_By_api(){
+    fetch('/get_My_status/',{
+        method:'GET',
+        headers:{
+            'Content-Type': 'application/json',
+        }
+    }).then(response => response.json()).then(data=>{
+        statuses = data.message;
+        statusesViewed = Array(statuses.length).fill(false);
+        statusViewBox.style.display = "flex";   
+
+        const statusViewBox_Calculation_lines = document.querySelector('.status-viewBox-top-calculation-lines');
+        statusViewBox_Calculation_lines.innerHTML = '';
+        
+        type_reply_input.style.display = 'none';
+        
+       
+        statuses.forEach((element, index) => {
+           
+            const statusLine = document.createElement('div');
+            statusLine.classList.add('status-viewBox-top-calculation-line');
+
+            const lineTop = document.createElement('div');
+            lineTop.classList.add('status-viewBox-top-calculation-line-top');
+            statusLine.appendChild(lineTop);
+
+            const lineBottom = document.createElement('div');
+            lineBottom.classList.add('status-viewBox-top-calculation-line-bottom');
+
+            const lineBottomTop = document.createElement('div');
+            lineBottomTop.classList.add('status-viewBox-top-calculation-line-bottom-top');
+            lineBottomTop.textContent = element.statusText || "No status";
+
+            lineBottom.appendChild(lineBottomTop);
+            statusLine.appendChild(lineBottom);
+
+            statusViewBox_Calculation_lines.appendChild(statusLine);
+        });
+
+        // Start showing statuses
+        currentStatusIndex = 0; // Reset the index
+        playAllStatuses();
+
+    }).catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+    
+}
+       
+async function   playAllStatuses(){
+    if (isPlaying) return; // Prevent multiple playbacks
+    isPlaying = true;
+    
+    const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+    for (let i = currentStatusIndex; i < statuses.length; i++) {
+        currentStatusIndex = i; 
+
+        if(!statusesViewed[currentStatusIndex]){
+            statusesViewed[currentStatusIndex] = true;
+
+            const totalStatus = statuses.length;
+            const totalCountOfUnviewed = statusesViewed.filter(viewed => !viewed).length;
+            
+            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", totalStatus, totalCountOfUnviewed);
+            add_Viewed_status(statuses[i].id);
+
+            if(statuses[i].caption){
+                mystatus_viewedCount.style.background = 'rgba(0, 0, 0, .4)';
+                mystatus_viewedContent.style.display = 'flex';
+                mystatus_viewedContent.innerText = statuses[i].caption;
+            }else{
+                mystatus_viewedCount.style.background = 'none';
+                mystatus_viewedContent.style.display = 'none';
+            }
+        }  
+
+        statusBackground.style.backgroundImage = `url(${statuses[i].image_url})`;
+        statusImageDisplay.src = statuses[i].image_url;
+
+        await animateLine(statusLines[i],  5000);
+    }
+    isPlaying = false;
+
+    close_status_view();
+    
+}
+
+
+
+
+function animateLine(line, duration) {
+    return new Promise(resolve => {
+      
+
+        line.style.width = '0%';
+        line.style.transition = `width ${duration}ms linear`;
+
+        requestAnimationFrame(() => {
+            line.style.width = '100%';
+        });
+
+        animationTimeout = setTimeout(() => {
+            resolve();
+        }, duration);
+    });
+
+  
+}
+
+function moveStatus(direction) {
+    const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+    
+    const currentLine = statusLines[currentStatusIndex];
+    currentLine.style.width = direction === 'right' ? '100%' : '0%';
+    currentLine.style.transition = 'none';
+    currentLine.offsetWidth;
+
+    if(direction === 'right'){
+        currentStatusIndex++;
+    }else if(direction === 'left'){
+        currentStatusIndex--;
+    }
+
+    const targetLine = statusLines[currentStatusIndex];
+    targetLine.style.width = '0%';
+    targetLine.style.transition = 'none';
+    targetLine.offsetWidth;
+
+    statusBackground.style.backgroundImage = `url(${statuses[currentStatusIndex].image_url})`;
+    statusImageDisplay.src = statuses[currentStatusIndex].image_url;
+    
+}
+
+statusMoveLeftside.addEventListener('click', async function(){
+    if (statuses.length === 0 ||  currentStatusIndex === 0) return;
+
+    clearTimeout(animationTimeout);
+    isPlaying = false; 
+
+    moveStatus('left');
+
+    playAllStatuses();
+
+    console.log("this is working............... Leftside");
+});
+
+
+
+statusMoveRightside.addEventListener('click',   function(){
+    const minuse_one = statuses.length - 1 ;
+    if (statuses.length === 0 || currentStatusIndex == minuse_one) return;
+
+    
+    clearTimeout(animationTimeout); 
+    isPlaying = false; 
+
+    moveStatus('right');
+
+    
+    playAllStatuses();
+});
+ 
+// create viewed status change in data base with api
+function add_Viewed_status(status_id){
+    fetch('/add_viewed_status/',{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json',
+            'X-CSRFToken':getCookie('csrftoken')
+        },
+        body:JSON.stringify({'status_id':status_id}),
+    }).then(response => response.json()).then(data=>{
+        console.log('Data:',data);
+    }).catch(error => {
+        console.error('Error:',error);
+    });
+}
+
+
 const multipleItems = document.getElementById('multiple-items');
 const dataLoader = document.getElementById('loader');
 
@@ -290,7 +1084,7 @@ function handlePhotoCapture(event){
                             <ion-icon name="close-outline"  id="removeImg"></ion-icon>
                         </div>
                         <div class="second">
-                            <img alt="Preview" src=${e.target.result}>
+                            <img alt="Preview" class="cover" src=${e.target.result}>
                         </div>
                     </button>
                 `;
@@ -724,33 +1518,48 @@ chatSocket.onmessage = function(e){
             handleChathistory(data);
         }else if(data.type == 'chat_message'){
             handleChatMessage(data);
+        }else if(data.type  == 'user_status' && selectedUserId == data.user_id){
+            
+            is_online = data.is_online
+            
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = is_online ? "Online" : "Offline";   
         }
 
-    let emaplath = `.chatlist .block[data-user-id="${selectedUserId}"]` 
-    if(djangoUserId == data.sender_id){
-        emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
-    }else if(djangoUserId == data.receiver_id){
-        emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
-    }
-    const userElements = document.querySelector(emaplath);
-    if(userElements){
-        const messagePElement = userElements.querySelector('.message_p p');
-        if (data.type_content == 'Photo'){
-            messagePElement.textContent = 'Photo';
-        }else if(data.type_content == 'Video'){
-            messagePElement.textContent = 'Video';
-        }else{
-            messagePElement.textContent = data.message;
-        }
-        const times = userElements.querySelector('.listHead p');
-        times.textContent = data.timestamp;
-    }
+        
+        if(data.type != 'user_status'){
+            let emaplath = `.chatlist .block[data-user-id="${selectedUserId}"]` 
+            if(djangoUserId == data.sender_id){
+                emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
+            }else if(djangoUserId == data.receiver_id){
+                emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
+            }
+            const userElements = document.querySelector(emaplath);
+            if(userElements){
+                const messagePElement = userElements.querySelector('.message_p p');
+                if (data.type_content == 'Photo'){
+                    messagePElement.textContent = 'Photo';
+                }else if(data.type_content == 'Video'){
+                    messagePElement.textContent = 'Video';
+                }else{
+                    messagePElement.textContent = data.message;
+                }
+                const times = userElements.querySelector('.listHead p');
+                times.textContent = data.timestamp;
+            }
+                }
        
 }
 
 // functions 
 function handleChathistory(data){
+
+    const statusText = document.getElementById('statusText');
+    is_online = data.status
+    statusText.textContent = is_online ? "Online" : "Offline"; 
+
     if(data.sender_id == djangoUserId){
+
         data.history.forEach((day, index) => {
             lastDate = day.date; 
             const dateLabel = `
@@ -1310,7 +2119,7 @@ function clickopenbox(){
             const lastMessageTime = this.querySelector('.time').textContent;
 
             document.querySelector('.rightside .userimg img').src = profileImage;
-            document.querySelector('.rightside h4').innerHTML = `${userName}<br><span>online</span>`;
+            document.querySelector('.rightside h4').innerHTML = `${userName}<br><span id="statusText">online</span>`;
         });
     });
    

@@ -17,6 +17,10 @@ urlpatterns = [
        path('create_contacts/',views.create_contacts),
        path('get_contacts/', views.get_contacts),
        path('upload-video/',views.upload_videos),
+       path('edit_profile/', views.edit_profile),
+       path('upload_status/',views.upload_status),
+       path('get_My_status/', views.get_My_status),
+       path('add_viewed_status/',views.add_viewed_status),
 ]
 
 if settings.DEBUG:

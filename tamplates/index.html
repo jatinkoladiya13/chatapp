@@ -17,123 +17,499 @@
 </head>
 <body class="chat_body">
    <div class="chat-container">
-       <div class="leftside">
-        <!-- chat header -->
-        <div class="chat-header">
-            <div class="userimg">
-                {% if user.is_authenticated %}
-                    {% if user.profile_image %}
-                        <img src="{{ user.profile_image.url }}" class="cover">
-                    {% else %}
-                        <img src="/static/images/profile.png" class="cover">
-                    {% endif %}
-                    
-                    
-                {% endif %}
-            </div>
-           
-            <!--Profile dropdown-->
-            <div class="sub-menu-wrap">
-                <div class="user-info">
-                    <div class="user-info-img">
-                        {% if user.profile_image %}
-                            <img src="{{ user.profile_image.url }}" class="cover">
-                        {% else %}
-                            <img src="/static/images/profile.png" class="cover">
-                        {% endif %}
-                    </div>
-                    <div class="user-info-details">
-                        <h2>{{ user.username }}</h2>
-                    </div>
-                    
-                </div> 
-                <hr>
-
-                <a href="#" class="sub-menu-link">
-                    <p>Profile</p>
-                    <span>></span>    
-                </a> 
-                <a href="/signout" class="sub-menu-link">
-                    <p>Log Out</p>
-                    <span>></span>    
-                </a>
-
-            </div>
-
-            <ul class="nav_icons">
-                <li><ion-icon name="scan-circle-outline"></ion-icon></li>
-                <li><ion-icon name="duplicate-outline" id="createfriend"></ion-icon></li>
-                <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
-            </ul> 
-
-        </div>
-          
        
-        <!-- search -->
-         <div class="search_chat">
-            <div>
-                <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                <input type="text" id="search-input" placeholder="Search or start new chat">
-                <ion-icon name="close-outline" class="search-close" id="search-close"></ion-icon>
-                
+       <div class="chat_header">
+
+            <div class="chat_header_top">
+
+                <div class="chat_header_top_icon selected" onclick="toggleDrawer('chat_drawer_open', this)">
+                    <i class="fa-brands fa-facebook-messenger" style="color: #aebac1;"></i>
+                </div>
+
+                <div class="chat_header_top_icon"  onclick="toggleDrawer('status_story', this)">
+                    <i class="fa-solid fa-circle-radiation" style="color: #aebac1;"></i>
+                </div>
+                        
             </div>
-         </div>
-        <!-- chat list -->
-         <div class="chatlist" id="chatlist">
-             {% for user in  user_data %}
-                {{ user_data|json_script:"user-data" }}
-                <div class="block" data-user-id="{{user.id}}">
-                    <div class="imgbox">
-                        {% if user.profile_image %}
-                        <img src=" {{user.profile_image}}" class="cover">
-                        {% else %}
-                        <img src='/static/images/profile.png' class="cover">
-                        {% endif %}
-                       
-                    </div>     
-                    <div class="details">
-                        <div class="listHead">
-                            <h4>{{user.username}}</h4>
-                            <p class="time">{{user.last_msg_time}}</p>
-                        </div>
-                        <div class="message_p">
-                            {% if user.last_msg != '' %}
-                                <p>{{user.last_msg}}</p>
+            <div class="chat_header_bottom">
+                <div class="chat_header_userimg"  onclick="toggleDrawer('user_profile', this)">
+                    {% if user.is_authenticated %}
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}">
                             {% else %}
-                                <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
+                                <img src="/static/images/profile.png">
+                            {% endif %}
+                        
+                        
+                        {% endif %}
+                </div>
+            </div>
+
+       </div> 
+
+       <div class="leftside">
+
+            <div class="leftside_first">
+
+                <!-- chat header -->
+                <div class="chat-header">
+                    
+                    <h1>Chats</h1>
+                
+
+                    <ul class="nav_icons">
+                        <li><ion-icon name="scan-circle-outline"></ion-icon></li>
+                        <li><ion-icon name="duplicate-outline" id="createfriend"></ion-icon></li>
+                        <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
+                    </ul>
+
+
+                </div>
+
+                <!-- search -->
+                <div class="search_chat">
+                    <div>
+                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                        <input type="text" id="search-input" placeholder="Search or start new chat">
+                        <ion-icon name="close-outline" class="search-close" id="search-close"></ion-icon>
+                    
+                    </div>
+                </div>
+
+                <!-- chat list -->
+                <div class="chatlist" id="chatlist">
+                    {% for user in  user_data %}
+                    {{ user_data|json_script:"user-data" }}
+                    <div class="block" data-user-id="{{user.id}}">
+                        <div class="imgbox">
+                            {% if user.profile_image %}
+                            <img src=" {{user.profile_image}}" class="cover">
+                            {% else %}
+                            <img src='/static/images/profile.png' class="cover">
                             {% endif %}
                             
-                            {% if user.toggle_count > 0 %}
-                                <b class="toggle-count">{{user.toggle_count}}</b>
+                        </div>    
+                        <div class="details">
+                            <div class="listHead">
+                                <h4>{{user.username}}</h4>
+                                <p class="time">{{user.last_msg_time}}</p>
+                            </div>
+                            <div class="message_p">
+                                {% if user.last_msg != '' %}
+                                    <p>{{user.last_msg}}</p>
+                                {% else %}
+                                    <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
+                                {% endif %}
+                                
+                                {% if user.toggle_count > 0 %}
+                                    <b class="toggle-count">{{user.toggle_count}}</b>
+                                {% endif %}
+                                
+                            </div>
+                        </div>                        
+                    </div>
+                    
+                    {% endfor %}
+                </div>
+
+
+            </div>
+
+            <!-- New Drawer for contacts/Settings -->
+            <div class="leftside-drawer" id="leftsideDrawer">
+                
+                <div class="drawer-header">
+                    <ion-icon name="arrow-back-outline" id="drawer-close"></ion-icon>
+                    <h1>Receive User</h1>
+                </div>
+
+                <div class="search_chat">
+                    <div>
+                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                        <input type="text" id="drawer-search-input" placeholder="Search or start new chat">
+                        <ion-icon name="close-outline" class="search-close" id="drawer-search-close"></ion-icon>
+                    </div>
+                </div>
+
+                <div class="drwer-chatlist" id="drwer-chatlist">
+               
+                </div>
+
+                <button id="addUserBtn" class="add-user-btn">+</button>
+
+            </div>
+
+            <!-- New Drawer for create new contact -->
+            <div class="leftside-drawer" id="adduserDrawer">
+
+                <div class="drawer-header">
+                    <ion-icon name="arrow-back-outline" id="adduser-drawer-close"></ion-icon>
+                    <h1>Add User</h1>
+                </div>
+
+                <div class="scrollable-content">
+                    <div class="addUserRe">
+                        <div class="search_div">
+                            <h6>Add receive message user...!</h6>
+                            <input type="email" id="drawer-email-input" placeholder="Email Id">
+                        </div>
+                    </div>
+    
+                    <button type="submit" class="save-btn" id="save-btn">Save</button>
+    
+                </div>
+
+               
+            </div>
+
+
+              <!-- New Drawer for Status -->
+            <div class="leftside-drawer" id="status_story">
+                
+                <div class="status-drawer-header">
+                    <h1>Status</h1>
+                    <ul class="drawer-header_nav_icons">
+                        <li id="topheader-add-status"><ion-icon name="add-outline"></ion-icon></li>
+                        <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
+                    </ul>
+                </div>
+
+                <div class="small-drawer-status" id="small-drawer-status">
+                    <ul style="margin-bottom: 0;">
+
+                        <li style="opacity: 1;">
+
+                            <label for="pho-vid-input">
+                                <div class="small-drawer-status-box">
+                                    <div class="small-drawer-status-icon">
+                                        <svg viewBox="0 0 20 20" height="20" width="20" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>media-multiple</title><path fill-rule="evenodd" clip-rule="evenodd" d="M20 14V2C20 0.9 19.1 0 18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14ZM9.4 10.53L11.03 12.71L13.61 9.49C13.81 9.24 14.19 9.24 14.39 9.49L17.35 13.19C17.61 13.52 17.38 14 16.96 14H7C6.59 14 6.35 13.53 6.6 13.2L8.6 10.53C8.8 10.27 9.2 10.27 9.4 10.53ZM0 18V5C0 4.45 0.45 4 1 4C1.55 4 2 4.45 2 5V17C2 17.55 2.45 18 3 18H15C15.55 18 16 18.45 16 19C16 19.55 15.55 20 15 20H2C0.9 20 0 19.1 0 18Z" fill="currentColor"></path></svg>
+                                    </div>
+                                    <div class="small-drawer-status-content">Photos & Videos</div>
+                                </div>
+                            </label>
+                            <input type="file" id="pho-vid-input" accept="image/*,video/mp4,video/3gpp,video/quicktime" multiple="" style="display: none;" onchange="handlePhotoAndVideoCapture(event);">
+                        </li>
+
+                        <li  style="opacity: 1;">
+                            <div class="small-drawer-status-box">
+                                    <div class="small-drawer-status-icon">
+                                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>video-call</title><path d="M3.27096 7.31042C3 7.82381 3 8.49587 3 9.84V14.16C3 15.5041 3 16.1762 3.27096 16.6896C3.5093 17.1412 3.88961 17.5083 4.35738 17.7384C4.88916 18 5.58531 18 6.9776 18H13.1097C14.502 18 15.1982 18 15.7299 17.7384C16.1977 17.5083 16.578 17.1412 16.8164 16.6896C17.0873 16.1762 17.0873 15.5041 17.0873 14.16V9.84C17.0873 8.49587 17.0873 7.82381 16.8164 7.31042C16.578 6.85883 16.1977 6.49168 15.7299 6.26158C15.1982 6 14.502 6 13.1097 6H6.9776C5.58531 6 4.88916 6 4.35738 6.26158C3.88961 6.49168 3.5093 6.85883 3.27096 7.31042Z" fill="currentColor"></path><path d="M18.7308 9.60844C18.5601 9.75994 18.4629 9.97355 18.4629 10.1974V13.8026C18.4629 14.0264 18.5601 14.2401 18.7308 14.3916L20.9567 16.3669C21.4879 16.8384 22.3462 16.4746 22.3462 15.778V8.22203C22.3462 7.52542 21.4879 7.16163 20.9567 7.63306L18.7308 9.60844Z" fill="currentColor"></path></svg>
+                                    </div>
+                                    <div class="small-drawer-status-content">videos</div>
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+
+                <div class="scrollable-content" id="scrollable-content">
+                    <div class="status-box" id="topheader-profile-status" style="border-bottom: 10px solid #0C1317;">
+                        <div class="status-imgbox" id="change-profile-first">
+                            <div class="status-image-box">
+                                <img src="/media/product_images/ai-generated-8845454_1280_sS142qw.jpg" >
+                            </div>
+                            <div class="add-icon-top">
+                               +
+                            </div>
+                        </div>
+                       
+                        <div class="status-details">
+                            <span class="status-details-top">My Status</span>
+                            <span class="status-details-bottom">Click to add status update</span>
+                        </div>
+                    </div>
+
+                    <div class="status-box" id="topheader-profile-status-second"   style="border-bottom: 10px solid #0C1317; display:none;">
+                        <div class="status-boxs-image" style="margin-right: 30px;">
+                            <svg width="48" height="48" viewBox="0 0 104 104">
+                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
+                                stroke-dasharray="" stroke-width="4" style="stroke: #008069;" id="Unviewed" ></circle>
+                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" 
+                                stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" id="Viewed"></circle> 
+                            </svg>
+                            <div class="status-boxs-img-second">
+                                <div class="status-boxs-final-imag" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
+                            </div>
+                        </div>
+                        <div class="status-details">
+                            <span class="status-details-top">My Status</span>
+                            <span class="status-details-bottom" id="profile_Status_Second_details">Click to add status update</span>
+                        </div>
+                    </div>
+
+                     <div class="status-titleBox" >
+                        <div class="status-title">Recent</div>   
+                     </div>
+
+                     <div class="status-boxs">
+                        <div class="status-boxs-image">
+                            <svg  width="48" height="48" viewBox="0 0 104 104">
+                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
+                                stroke-dasharray="" stroke-width="4" style="stroke: #008069;"  ></circle>
+                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" 
+                                stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" ></circle> 
+                                
+                               
+                            </svg>
+                            <div class="status-boxs-img-second">
+                                <div class="status-boxs-final-imag" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
+                            </div>
+                        </div>
+                        <div class="status-show-details">
+                            <span class="status-details-top">Jatin koladiya</span>
+                            <span class="status-details-bottom">Todat at 13:59</span>
+                        </div>
+
+                     </div>
+
+                     <div class="status-titleBox" >
+                        <div class="status-title">VIEWED</div>   
+                     </div>
+
+                     <div class="status-boxs">
+                        <div class="status-boxs-image">
+                            <svg  width="48" height="48" viewBox="0 0 104 104">
+                                {% comment %} <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
+                                stroke-dasharray="" stroke-width="4" style="stroke: #008069;" id="Unviewed" ></circle>
+                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" 
+                                stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" id="Viewed"></circle> 
+                                {% endcomment %}
+                            </svg>
+                            <div class="status-boxs-img-second">
+                                <div class="status-boxs-final-imag" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
+                            </div>
+                        </div>
+                        <div class="status-show-details">
+                            <span class="status-details-top">Jatin koladiya</span>
+                            <span class="status-details-bottom">Todat at 13:59</span>
+                        </div>
+
+                     </div>
+                </div>
+
+               
+
+            </div>
+
+            <!-- New Drawer for Profile -->
+            <div class="leftside-drawer" id="user_profile">
+                <div class="drawer-header">
+                    <h1>Profile</h1>
+                </div>
+
+                <div class="scrollable-content">
+
+                    <div class="userimg_drawer">
+                        <div class="profile_loader" id="profile_loader"></div>
+                        <div class="overlay" alt="Profile Image" id="overlay" onclick="document.getElementById('file-input').click();">
+                            <ion-icon name="camera"></ion-icon>
+                            <p>CHANGE</p>
+                            <p>PROFILE PHOTO</p>
+                        </div>
+                       
+                        {% if user.is_authenticated %}
+                            {% if user.profile_image %}
+                                <img id="drawer_profile_img" src="{{ user.profile_image.url }}" class="cover">
+                            {% else %}
+                                <img id="drawer_profile_img" src="/static/images/profile.png" class="cover">
                             {% endif %}
                            
-                        </div>
-                    </div>                         
-                </div>
-                
-             {% endfor %}
-         </div> 
-       </div>
+                           
+                        {% endif %}
+                        <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="profikeImgTakenByDevice(event)">
+                    </div>
 
-        <!-- New Drawer for Profile/Settings -->
-        <div class="leftside-drawer" id="leftsideDrawer">
-            <div class="drawer-header">
-                <ion-icon name="arrow-back-outline" id="drawer-close"></ion-icon>
-                <h1>Receive User</h1>
-            </div>
-            <div class="search_chat">
-                <div>
-                    <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                    <input type="text" id="drawer-search-input" placeholder="Search or start new chat">
-                    <ion-icon name="close-outline" class="search-close" id="drawer-search-close"></ion-icon>
+                    <div class="hintText">Your name</div>
+   
+                    <div class="name-field">
+                        <span id="name-display">{{ user.username }}</span>
+                        <input type="text" id="name-input" value={{ user.username }} class="hidden" />
+                        <i class="fa-solid fa-arrow-rotate-right"  id="edit-icon-name-loader" style="color: #4CAF50; position: absolute; right: 30px; animation: spin 1.2s linear infinite;"></i>
+                        <i class="fa-solid fa-pen" id="edit-icon-name" style="color:#8696a0; cursor: pointer;"></i>
+                        <i class="fa-solid fa-check" id="check-icon-name"  style="color: #8696a0; cursor: pointer; position: absolute; right: 30px;"></i>
+                    </div>
+   
+                    <div class="name-field-discription">
+                        <p>This is not your username or PIN. This name will be visible to your Chatapp contacts.</p>
+                    </div>
+                   
+                    <div class="hintText">Your email</div>
+   
+                    <div class="name-field">
+                        <span id="email-display">{{ user.email }}</span>
+                        <input type="text" id="email-input" value={{ user.email }} class="hidden" />
+                        <i class="fa-solid fa-arrow-rotate-right" id="edit-icon-email-loader" style="color: #4CAF50; position: absolute; right: 30px; animation: spin 1.2s linear infinite;"></i>
+                        <i class="fa-solid fa-pen" id="edit-icon-email" style="color:#8696a0; cursor: pointer;"></i>
+                        <i class="fa-solid fa-check" id="check-icon-email"  style="color: #8696a0; cursor: pointer; position: absolute; right: 30px;"></i>
+                    </div>
+   
+                    <div class="logout-container">
+                        <button id="logout-button" class="logout-button">Logout</button>
+                    </div>
+
+
                 </div>
+
             </div>
-            <div class="drwer-chatlist" id="drwer-chatlist">
-               
-            </div> 
-            <button id="addUserBtn" class="add-user-btn">+</button>
-        </div>
+            
+       </div>
          
+
+       <!--Status imag and video geting preview container-->
+       <div class="imag-preview-containers" id="imgPreview-containers" style="height:100%">
+            <div  style="display: contents;" >
+                <ion-icon name="close-outline" id="closeStausImgandVidPreview" style="
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                color: #AEBAC1;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                font-size: 100%;
+                font-weight: bold;
+                font: inherit;
+                "></ion-icon>
+
+                <div class="status-take-file-previews">
+                    
+                </div>
+
+                 <div class="caption_input">
+                    <input type="text" placeholder="Add a caption" id="status-caption-input">
+                    <ion-icon name="close-outline" style="margin: 0px 20px;"; class="caption-close" id="status-caption-close"></ion-icon>
+                </div>
+
+                <div class="status_preview_bottoms">
+                    <div class="send-images">
+                        <div class="status-multiple-files" >
+            
+                        </div>
+                        <button class="imgAddBtn">
+                            <label for="add-more-pho-vid">
+                                <ion-icon name="add-sharp"></ion-icon>
+                            </label>
+                            <input type="file" id="add-more-pho-vid" accept="image/*,video/mp4,video/3gpp,video/quicktime" multiple="" style="display: none;" onchange="handlePhotoAndVideoCapture(event);">
+                        </button>
+                    </div>
+                    <div class="send_button" id="status_upload_send">
+                        <ion-icon name="send"></ion-icon>
+                    </div>
+                </div>
+ 
+
+            </div>
+       </div> 
+
+       <!--Status Viewed-->
+        <div class="status-viewBox" id="status-viewBox" style="display:none;">
+
+            <button class="status-viewBox-close" id="status-viewBox-close">
+                <span aria-hidden="true" data-icon="x-viewer" class=""><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>x-viewer</title><path fill="currentColor" d="M19.8,5.8l-1.6-1.6L12,10.4L5.8,4.2L4.2,5.8l6.2,6.2l-6.2,6.2l1.6,1.6l6.2-6.2l6.2,6.2l1.6-1.6L13.6,12 L19.8,5.8z"></path></svg></span>           
+            </button>
+
+            <button class="status-viewBox-arrow" id="status-viewBox-arrow">
+                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>back</title><path fill="currentColor" d="M12,4l1.4,1.4L7.8,11H20v2H7.8l5.6,5.6L12,20l-8-8L12,4z"></path></svg>
+            </button>
+
+            <div class="status-viewBox-leftside" id="status-move-leftside"></div>
+            <div class="status-viewBox-leftside-arrow" >
+                    <svg  viewBox="0 0 30 30" height="30" width="30" preserveAspectRatio="xMidYMid meet" class="" x="0px" y="0px"><title>chevron</title><path fill="currentColor" d="M11,21.212L17.35,15L11,8.65l1.932-1.932L21.215,15l-8.282,8.282L11,21.212z"></path></svg>
+            </div>
+
+            <div class="status-viewBox-rightside" id="status-move-rightside"></div>
+            <div class="status-viewBox-rightside-arrow" >
+                    <svg  viewBox="0 0 30 30" height="30" width="30" preserveAspectRatio="xMidYMid meet" class="" x="0px" y="0px" ><title>chevron</title><path fill="currentColor" d="M11,21.212L17.35,15L11,8.65l1.932-1.932L21.215,15l-8.282,8.282L11,21.212z"></path></svg>
+            </div>
+
+                <div class="status-viewBox-center">
+                    <div class="status-viewBox-profile-head">
+                        <div class="status-viewBox-profile-img">
+                            <div class="status-viewBox-profile-img-second">
+                                <img src="/media/product_images/ai-generated-8845454_1280_sS142qw.jpg">
+                            </div>
+                        </div>
+
+                        <div class="status-viewBox-profile-details">
+                            <div class="status-viewBox-profile-details-top">
+                                <span>Jatin koladiya</span>
+                            </div>
+                            <div class="status-viewBox-profile-details-bottom">
+                                <div>Yesterday at 19:34</div>
+                            </div>
+                        </div> 
+
+                        <div class="status-viewBox-profile-icons">
+                            <div class="status-viewBox-profile-icons-sets">
+                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none" ><title>status-media-controls-play</title><path d="M8 6.81976V17.1798C8 17.9698 8.87 18.4498 9.54 18.0198L17.68 12.8398C18.3 12.4498 18.3 11.5498 17.68 11.1498L9.54 5.97976C8.87 5.54976 8 6.02976 8 6.81976Z" fill="currentColor"></path></svg>
+                                <div style="width:8px;"></div>
+                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>status-media-controls-volume-on</title><path fill-rule="evenodd" clip-rule="evenodd" d="M14 4.65204V4.45204C14 3.82204 14.63 3.37204 15.21 3.60204C18.6 4.89204 21 8.16204 21 12.002C21 15.842 18.6 19.112 15.21 20.402C14.63 20.622 14 20.182 14 19.552V19.352C14 18.972 14.24 18.642 14.6 18.502C17.18 17.472 19 14.942 19 12.002C19 9.06204 17.18 6.53204 14.6 5.50204C14.25 5.36204 14 5.03204 14 4.65204ZM3 10.002V14.002C3 14.552 3.45 15.002 4 15.002H7L10.29 18.292C10.92 18.922 12 18.472 12 17.582V6.41204C12 5.52204 10.92 5.07204 10.29 5.70204L7 9.00204H4C3.45 9.00204 3 9.45204 3 10.002ZM16.5 12.002C16.5 10.232 15.48 8.71204 14 7.97204V16.022C15.48 15.292 16.5 13.772 16.5 12.002Z" fill="currentColor"></path></svg> 
+                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>menu</title><path fill="currentColor" d="M12,7c1.104,0,2-0.896,2-2c0-1.105-0.895-2-2-2c-1.104,0-2,0.894-2,2 C10,6.105,10.895,7,12,7z M12,9c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,9.895,13.104,9,12,9z M12,15 c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,15.894,13.104,15,12,15z"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-viewBox-top-blackShadow"></div>
+
+                    <div class="status-viewBox-top-calculation-lines">
+                       
+                    </div>
+
+                    <div class="status-viewBox-background-them" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
+
+                    <div class="status-viewBox-show-status">
+                        <div class="status-viewBox-show-status-first">
+                            <div class="status-viewBox-show-status-second">
+                                <img src="/media/product_images/ai-generated-8845454_1280_sS142qw.jpg" alt="">
+                            </div>
+                        </div>
+                    </div>   
+
+                    <div class="status-viewBox-show-status-bottom" >
+                        <div class="status-viewBox-show-status-bottom-under">
+                            <div class="status-viewBox-show-status-bottom-under2">
+
+                                <div style="padding: right 12px;">
+                                        <div class="status-viewBox-show-status-bottom-icons">
+                                            <button class="status-viewBox-show-status-bottom-icns">
+                                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24" style="transform: translateX(0px);"><title>smiley</title><path fill="currentColor" d="M9.153,11.603c0.795,0,1.439-0.879,1.439-1.962S9.948,7.679,9.153,7.679 S7.714,8.558,7.714,9.641S8.358,11.603,9.153,11.603z M5.949,12.965c-0.026-0.307-0.131,5.218,6.063,5.551 c6.066-0.25,6.066-5.551,6.066-5.551C12,14.381,5.949,12.965,5.949,12.965z M17.312,14.073c0,0-0.669,1.959-5.051,1.959 c-3.505,0-5.388-1.164-5.607-1.959C6.654,14.073,12.566,15.128,17.312,14.073z M11.804,1.011c-6.195,0-10.826,5.022-10.826,11.217 s4.826,10.761,11.021,10.761S23.02,18.423,23.02,12.228C23.021,6.033,17.999,1.011,11.804,1.011z M12,21.354 c-5.273,0-9.381-3.886-9.381-9.159s3.942-9.548,9.215-9.548s9.548,4.275,9.548,9.548C21.381,17.467,17.273,21.354,12,21.354z  M15.108,11.603c0.795,0,1.439-0.879,1.439-1.962s-0.644-1.962-1.439-1.962s-1.439,0.879-1.439,1.962S14.313,11.603,15.108,11.603z"></path></svg>
+                                            </button>
+
+                                            <button class="status-viewBox-show-status-bottom-icns">
+                                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24" style="transform: translateX(42px);"><title>sticker</title><path fill="currentColor" d="M21.799,10.183c-0.002-0.184-0.003-0.373-0.008-0.548c-0.02-0.768-0.065-1.348-0.173-1.939 c-0.124-0.682-0.328-1.296-0.624-1.87c-0.301-0.587-0.695-1.124-1.171-1.594c-0.473-0.469-1.016-0.859-1.614-1.159 c-0.576-0.291-1.196-0.493-1.887-0.615c-0.59-0.106-1.174-0.15-1.961-0.171c-0.318-0.008-3.607-0.012-4.631,0 c-0.798,0.02-1.383,0.064-1.975,0.17C7.066,2.58,6.446,2.781,5.867,3.073c-0.596,0.299-1.139,0.69-1.614,1.16 C3.78,4.7,3.386,5.236,3.082,5.826C2.788,6.398,2.584,7.012,2.459,7.694C2.352,8.285,2.307,8.88,2.286,9.635 C2.278,9.912,2.27,12.517,2.27,12.517c0,0.52,0.008,1.647,0.016,1.925c0.02,0.755,0.066,1.349,0.172,1.938 c0.126,0.687,0.33,1.3,0.624,1.871c0.303,0.59,0.698,1.126,1.173,1.595c0.473,0.469,1.017,0.859,1.614,1.159 c0.578,0.291,1.197,0.492,1.887,0.615c0.085,0.015,0.171,0.029,0.259,0.041c0.479,0.068,0.833,0.087,1.633,0.108 c0.035,0.001,2.118-0.024,2.578-0.035c1.667-0.04,3.261-0.684,4.487-1.811c1.128-1.038,2.129-1.972,2.928-2.737 c1.242-1.19,1.99-2.806,2.097-4.528l0.066-1.052c0.001-0.296,0.001-0.499,0.001-0.668C21.806,10.915,21.8,10.2,21.799,10.183z  M18.604,16.103c-0.79,0.757-1.784,1.684-2.906,2.716c-0.588,0.541-1.292,0.919-2.044,1.154c0.051-0.143,0.116-0.276,0.145-0.433 c0.042-0.234,0.06-0.461,0.067-0.74c0.003-0.105,0.009-0.789,0.009-0.789c0.013-0.483,0.042-0.865,0.107-1.22 c0.069-0.379,0.179-0.709,0.336-1.016c0.16-0.311,0.369-0.595,0.621-0.844c0.254-0.252,0.542-0.458,0.859-0.617 c0.314-0.158,0.65-0.268,1.037-0.337c0.359-0.064,0.733-0.093,1.253-0.106c0,0,0.383,0.001,0.701-0.003 c0.301-0.008,0.523-0.025,0.755-0.066c0.186-0.034,0.348-0.105,0.515-0.169C19.806,14.568,19.311,15.425,18.604,16.103z  M20.267,11.346c-0.028,0.15-0.063,0.263-0.111,0.356c-0.06,0.116-0.128,0.211-0.208,0.29c-0.088,0.087-0.187,0.158-0.296,0.213 s-0.228,0.094-0.371,0.119c-0.141,0.025-0.298,0.037-0.52,0.043c-0.309,0.004-0.687,0.004-0.687,0.004 c-0.613,0.016-1.053,0.049-1.502,0.129c-0.527,0.094-1.002,0.249-1.447,0.473c-0.457,0.229-0.875,0.529-1.241,0.891 c-0.363,0.358-0.667,0.771-0.9,1.224C12.757,15.53,12.6,16,12.505,16.522c-0.081,0.447-0.116,0.895-0.131,1.461 c0,0-0.006,0.684-0.008,0.777c-0.006,0.208-0.018,0.37-0.043,0.511c-0.025,0.136-0.063,0.251-0.117,0.356 c-0.056,0.108-0.127,0.206-0.213,0.291c-0.088,0.087-0.187,0.158-0.296,0.213c-0.072,0.036-0.168,0.063-0.37,0.098 c-0.027,0.005-0.25,0.027-0.448,0.031c-0.021,0-1.157,0.01-1.192,0.009c-0.742-0.019-1.263-0.046-1.668-0.126 c-0.551-0.098-1.031-0.254-1.477-0.479c-0.457-0.229-0.871-0.527-1.233-0.885c-0.363-0.358-0.663-0.766-0.894-1.215 c-0.225-0.436-0.382-0.909-0.482-1.453c-0.09-0.495-0.13-1.025-0.149-1.71c-0.007-0.266-0.011-0.543-0.012-0.847 C3.769,13.262,3.777,9.94,3.784,9.675c0.02-0.685,0.061-1.214,0.151-1.712c0.098-0.54,0.256-1.012,0.481-1.45 C4.647,6.064,4.946,5.657,5.308,5.3c0.363-0.36,0.777-0.657,1.233-0.886c0.447-0.225,0.927-0.382,1.477-0.479 c0.503-0.09,1.022-0.129,1.74-0.149c1.008-0.012,4.26-0.008,4.561,0c0.717,0.019,1.236,0.058,1.737,0.148 c0.552,0.098,1.032,0.254,1.476,0.478c0.458,0.23,0.872,0.527,1.234,0.885c0.364,0.359,0.663,0.766,0.892,1.213 c0.228,0.441,0.385,0.913,0.482,1.453c0.091,0.499,0.131,1.013,0.15,1.712c0.008,0.271,0.014,1.098,0.014,1.235 C20.299,11.085,20.289,11.226,20.267,11.346z"></path></svg>                                       
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="status-viewBox-show-status-bottom-reply">
+                                        <input type="text" class="status-viewBox-show-status-bottom-reply-input" placeholder="Type a reply…">
+                                    </div>
+
+                                    <div class="status-viewBox-show-status-bottom-reply-send">
+                                        <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="x23j0i4 xd7y6wv" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>send</title><path fill="currentColor" d="M1.101,21.757L23.8,12.028L1.101,2.3l0.011,7.912l13.623,1.816L1.112,13.845 L1.101,21.757z"></path></svg>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-viewBox-show-mystatus-status-bottom">
+                           <div  class="status-viewBox-show-mystatus-content">
+                               
+                           </div>
+                           <div class="status-viewBox-show-mystatus-viewedCount">
+                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>visibility-on</title><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM9 12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12C15 13.66 13.66 15 12 15C10.34 15 9 13.66 9 12Z" fill="currentColor"></path></svg>
+                                <div>8</div>
+                            </div>
+                    </div>
+
+                </div>
+
+        </div>
+
+
         <!-- Delete Confirmation Dialog -->
         <div class="dialog-overlay" id="deleteDialog">
             <div class="dialog-content">
@@ -146,38 +522,22 @@
             </div>
         </div>
 
-        <div class="leftside-drawer" id="adduserDrawer">
-            <div class="drawer-header">
-                <ion-icon name="arrow-back-outline" id="adduser-drawer-close"></ion-icon>
-                <h1>Add User</h1>
-            </div>
-            
-            <div class="addUserRe">
-                <div class="search_div">
-                    <h6>Add receive message user...!</h6>
-                    <input type="email" id="drawer-email-input" placeholder="Email Id">
-                </div>
-            </div>
-
-            <button type="submit" class="save-btn" id="save-btn">Save</button>
-            
-
-        </div> 
-
-
+        
+       <!-- This is right side intro part --> 
        <div class="intro-right">
             <div class="intro-img">
                 <img src="/static/images/Group Chat-cuate.svg" alt="">
             </div>
             
        </div>
+
        <div class="rightside">
            <div class="chat-header">
                 <div class="imgText">
                     <div class="userimg">
                         <img src="/static/images/profile.png" class="cover">
                     </div> 
-                    <h4>jatin koladiya<br><span>online</span></h4>
+                    <h4>jatin koladiya<br><span id="statusText">online</span></h4>
                 </div>
                 <ul class="nav_icons">
                     <li><ion-icon name="search-outline"></ion-icon></li> 
@@ -223,37 +583,34 @@
             <!-- Image preview and send button -->
             <div class="imag-preview-container" id="imagePreviewContainer">
                <div  style="display: contents;" id="multiple-items">
-                <ion-icon name="close-outline"  id="imagePreviewClose"></ion-icon>
-                <div class="image-preview">
+                    <ion-icon name="close-outline"  id="imagePreviewClose"></ion-icon>
+                    <div class="image-preview">
+                    
+                    </div>
+                    <div class="caption_input">
+                        <input type="text" id="captinoInput" placeholder="Add a caption">
+                        <ion-icon name="close-outline" class="caption-close"  id="caption-close"></ion-icon>
+                    </div>
+
+                    <div class="preview_bottom">
+                        <div class="send-images">
+                            <div class="multiple-image" id="multiple-image">
                 
-                </div>
-                <div class="caption_input">
-                   <input type="text" id="captinoInput" placeholder="Add a caption">
-                   <ion-icon name="close-outline" class="caption-close"  id="caption-close"></ion-icon>
-                </div>
-                <div class="preview_bottom">
-                    <div class="send-images">
-                        <div class="multiple-image" id="multiple-image">
-            
+                            </div>
+                            <button class="imgAddBtn">
+                                <label for="addmoreImg">
+                                    <ion-icon name="add-sharp"></ion-icon>
+                                </label>
+                            </button>
                         </div>
-                        <button class="imgAddBtn">
-                            <label for="addmoreImg">
-                                <ion-icon name="add-sharp"></ion-icon>
-                            </label>
-                        </button>
+                        <div class="send_button">
+                            <ion-icon name="send" id="sendFiles"></ion-icon>
+                        </div>
                     </div>
-                    <div class="send_button">
-                        <ion-icon name="send" id="sendFiles"></ion-icon>
-                    </div>
-                </div>
 
                </div> 
                <div class="loader" id="loader"></div>
             </div>
-
-          
-            
-
             
         </div> 
  
