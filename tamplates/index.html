@@ -206,7 +206,12 @@
                     <div class="status-box" id="topheader-profile-status" style="border-bottom: 10px solid #0C1317;">
                         <div class="status-imgbox" id="change-profile-first">
                             <div class="status-image-box">
-                                <img src="/media/product_images/ai-generated-8845454_1280_sS142qw.jpg" >
+                                {% if user.profile_image %}
+                                <img src="/media/{{user.profile_image}}" class="cover">
+                                {% else %}
+                                <img src='/static/images/profile.png' class="cover">
+                                {% endif %}
+                               
                             </div>
                             <div class="add-icon-top">
                                +
@@ -228,7 +233,7 @@
                                 stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" id="Viewed"></circle> 
                             </svg>
                             <div class="status-boxs-img-second">
-                                <div class="status-boxs-final-imag" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
+                                <div class="status-boxs-final-imag" style="background-image: url({% if user.profile_image %}{{ user.profile_image.url }}{% else %}/static/images/profile.png{% endif %});"></div>
                             </div>
                         </div>
                         <div class="status-details">
@@ -237,54 +242,27 @@
                         </div>
                     </div>
 
-                     <div class="status-titleBox" >
+                     <div class="status-titleBox"  id="show_recent_status">
                         <div class="status-title">Recent</div>   
                      </div>
 
-                     <div class="status-boxs">
-                        <div class="status-boxs-image">
-                            <svg  width="48" height="48" viewBox="0 0 104 104">
-                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
-                                stroke-dasharray="" stroke-width="4" style="stroke: #008069;"  ></circle>
-                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" 
-                                stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" ></circle> 
-                                
-                               
-                            </svg>
-                            <div class="status-boxs-img-second">
-                                <div class="status-boxs-final-imag" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
-                            </div>
-                        </div>
-                        <div class="status-show-details">
-                            <span class="status-details-top">Jatin koladiya</span>
-                            <span class="status-details-bottom">Todat at 13:59</span>
-                        </div>
 
-                     </div>
-
-                     <div class="status-titleBox" >
+                     <div class="status-box-container" id="recent-status-container">
+                        <!-- Recent statuses will be appended here dynamically -->
+                       
+                    </div>
+                     
+                     
+                     <div class="status-titleBox" id="show_viewed_status">
                         <div class="status-title">VIEWED</div>   
                      </div>
 
-                     <div class="status-boxs">
-                        <div class="status-boxs-image">
-                            <svg  width="48" height="48" viewBox="0 0 104 104">
-                                {% comment %} <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
-                                stroke-dasharray="" stroke-width="4" style="stroke: #008069;" id="Unviewed" ></circle>
-                                <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" 
-                                stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" id="Viewed"></circle> 
-                                {% endcomment %}
-                            </svg>
-                            <div class="status-boxs-img-second">
-                                <div class="status-boxs-final-imag" style="background-image: url(/media/product_images/ai-generated-8845454_1280_sS142qw.jpg);"></div>
-                            </div>
-                        </div>
-                        <div class="status-show-details">
-                            <span class="status-details-top">Jatin koladiya</span>
-                            <span class="status-details-bottom">Todat at 13:59</span>
-                        </div>
+                     <div class="status-box-container" id="viewed-status-container">
+                        <!-- Viewed statuses will be appended here dynamically -->
+                         
+                    </div>
 
-                     </div>
+                     
                 </div>
 
                
@@ -465,9 +443,26 @@
                             <div class="status-viewBox-show-status-second">
                                 <img src="/media/product_images/ai-generated-8845454_1280_sS142qw.jpg" alt="">
                             </div>
+
+                            <div class="status-viewBox-show-mystatus-status-bottom">
+                                <div  class="status-viewBox-show-mystatus-content">
+                                </div>
+                                <div class="status-viewBox-show-mystatus-viewedCount">
+                                     <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>visibility-on</title><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM9 12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12C15 13.66 13.66 15 12 15C10.34 15 9 13.66 9 12Z" fill="currentColor"></path></svg>
+                                     <div>8</div>
+                                 </div>
+                            </div> 
+
                         </div>
+
+                       
+ 
+                        
                     </div>   
 
+                    
+
+                    
                     <div class="status-viewBox-show-status-bottom" >
                         <div class="status-viewBox-show-status-bottom-under">
                             <div class="status-viewBox-show-status-bottom-under2">
@@ -493,17 +488,7 @@
                                     </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="status-viewBox-show-mystatus-status-bottom">
-                           <div  class="status-viewBox-show-mystatus-content">
-                               
-                           </div>
-                           <div class="status-viewBox-show-mystatus-viewedCount">
-                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>visibility-on</title><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM9 12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12C15 13.66 13.66 15 12 15C10.34 15 9 13.66 9 12Z" fill="currentColor"></path></svg>
-                                <div>8</div>
-                            </div>
-                    </div>
+                    </div> 
 
                 </div>
 

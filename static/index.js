@@ -218,30 +218,112 @@ function toggleDrawer(drawerId, button){
     button.classList.add('selected');
 
     if(drawerId === 'status_story'){
-        button_get_status_data();
+        status_data_get_On_button();
     }
 }
 
+// show status recent and viewed
+const recentContainer = document.getElementById("recent-status-container");
+const viewedContainer = document.getElementById("viewed-status-container");
+const show_recent_status = document.getElementById("show_recent_status");
+const show_viewed_status = document.getElementById("show_viewed_status"); 
+
+
+const createStatusBox = (status) => {
+    return `
+        <div class="status-boxs" data-id="${status.id}">
+            <div class="status-boxs-image">
+                <svg width="48" height="48" viewBox="0 0 104 104">
+                    <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
+                    stroke-dasharray="" stroke-width="4" style="stroke: #008069;" id="Unviewed_${status.id}" ></circle>
+                    <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" 
+                    stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" id="Viewed_${status.id}"></circle> 
+                           
+                </svg>
+                <div class="status-boxs-img-second">
+                    <div class="status-boxs-final-imag" style="background-image: url(${status.image_url ? status.image_url : '/static/images/profile.png'});"></div>
+                </div>
+            </div>
+            <div class="status-show-details">
+                <span class="status-details-top">${status.name}</span>
+                <span class="status-details-bottom">${status.time}</span>
+            </div>
+        </div>
+    `;
+};
+
+
+
 // when user go to the status then change data 
-function button_get_status_data(){
-    fetch('/get_My_status/',{
+function status_data_get_On_button(){
+
+    fetch('/get_recent_status/',{
         method:'GET',
         headers:{
             'Content-Type': 'application/json',
         }
     }).then(response => response.json()).then(data=>{
-        const sendStatus = data.message;
-        if(sendStatus.length > 0){
+
+        if(data.mystatus_data.mystatus_count > 0){
             topheader_Profile_Status.style.display = 'none';
             topheaderProfile_Status_Second.style.display = 'flex';
-            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.total_status, data.unviewed_code);
+            profile_Status_Second_details.textContent = data.mystatus_data.my_status_upload_time;
+            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.mystatus_data.mystatus_count, data.mystatus_data.mystatus_unviewed_count);
         }
-      
+        console.log(data.mystatus_data); 
+
+        api_functionality_recent_viewed_status(data);
         
     }).catch(error => {
         console.error('There was a problem with the fetch operation:', error);
     });
 }
+
+function api_functionality_recent_viewed_status(data){
+
+    show_recent_status.style.display = "flex";
+    show_viewed_status.style.display = "flex";
+
+    recentContainer.innerHTML = "";
+    viewedContainer.innerHTML = "";
+
+    data.message.forEach((status)=>{
+        console.log(status);
+        if(status.unviewed_count > 0){
+            recentContainer.innerHTML += createStatusBox(status);
+        }else{
+            viewedContainer.innerHTML += createStatusBox(status);
+        }
+       
+        statusCountViewedAndUnviewed_lines(`Unviewed_${status.id}`, `Viewed_${status.id}`, status.totalStatus, status.unviewed_count,);
+    });
+
+
+    if(recentContainer.innerHTML.trim() === ""){
+        show_recent_status.style.display = "none";
+    }else if(viewedContainer.innerHTML.trim() === ""){
+        show_viewed_status.style.display = "none";
+    }
+
+    recentContainer.addEventListener('click', (event) => {
+        const statusBox = event.target.closest('.status-boxs');
+        if (statusBox) {
+            const statusId = statusBox.getAttribute('data-id');
+            console.log(`Clicked on status with ID: ${statusId}`);
+            get_status_By_api(statusId);
+        }
+    });
+
+    viewedContainer.addEventListener('click', (event) => {
+        const statusBox = event.target.closest('.status-boxs');
+        if (statusBox) {
+            const statusId = statusBox.getAttribute('data-id');
+            console.log(`Clicked on status with ID: ${statusId}`);
+            get_status_By_api(statusId);
+        }
+    });
+}
+
 
 // profile edit name and email funtionality
 function setupEditableField(displayId, inputId, editIconId, checkIconId, loaderId){
@@ -700,10 +782,10 @@ async function statusFileSenToApi(formatDate, index){
                 fileBlobs=[];
                 console.log(data.message.Upload_time);
                 topheaderProfile_Status_Second.style.display = 'flex';
-                topheader_Profile_Status.style.display = 'none';
-                profile_Status_Second_details.textContent = data.message.Upload_time;            
+                topheader_Profile_Status.style.display = 'none';       
             }
 
+            profile_Status_Second_details.textContent = data.message['Upload_time']; 
             statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.message.total_count_status, data.message.unviewed_count);
             imgPreviewContainers.style.display ="none";
 
@@ -776,6 +858,7 @@ const status_viewBox_arrow = document.getElementById('status-viewBox-arrow');
 const type_reply_input = document.querySelector('.status-viewBox-show-status-bottom');
 const mystatus_viewedCount = document.querySelector('.status-viewBox-show-mystatus-status-bottom');
 const mystatus_viewedContent = document.querySelector('.status-viewBox-show-mystatus-content');
+const viewed_status_count_icon = document.querySelector('.status-viewBox-show-mystatus-viewedCount'); 
 
 let currentStatusIndex = 0;
 let statuses = [];
@@ -800,13 +883,12 @@ function close_status_view(){
 }
 
 topheaderProfile_Status_Second.addEventListener('click', function(){
-    console.log("this show my all status");
-    get_status_By_api();
-    
+    get_status_By_api(window.djangoUserId);
 });
 
-function get_status_By_api(){
-    fetch('/get_My_status/',{
+
+function get_status_By_api(id){
+    fetch(`/get_My_status/${id}/`,{
         method:'GET',
         headers:{
             'Content-Type': 'application/json',
@@ -819,7 +901,7 @@ function get_status_By_api(){
         const statusViewBox_Calculation_lines = document.querySelector('.status-viewBox-top-calculation-lines');
         statusViewBox_Calculation_lines.innerHTML = '';
         
-        type_reply_input.style.display = 'none';
+       
         
        
         statuses.forEach((element, index) => {
@@ -846,7 +928,7 @@ function get_status_By_api(){
 
         // Start showing statuses
         currentStatusIndex = 0; // Reset the index
-        playAllStatuses();
+        playAllStatuses(id);
 
     }).catch(error => {
         console.error('There was a problem with the fetch operation:', error);
@@ -854,23 +936,36 @@ function get_status_By_api(){
     
 }
        
-async function   playAllStatuses(){
+async function   playAllStatuses(id){
     if (isPlaying) return; // Prevent multiple playbacks
     isPlaying = true;
     
+    const request_user_id = window.djangoUserId;
+
     const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
     for (let i = currentStatusIndex; i < statuses.length; i++) {
         currentStatusIndex = i; 
 
-        if(!statusesViewed[currentStatusIndex]){
+        if(!statusesViewed[currentStatusIndex] && statuses[i].is_viewed == false){
             statusesViewed[currentStatusIndex] = true;
 
             const totalStatus = statuses.length;
             const totalCountOfUnviewed = statusesViewed.filter(viewed => !viewed).length;
             
-            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", totalStatus, totalCountOfUnviewed);
-            add_Viewed_status(statuses[i].id);
+            // statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", totalStatus, totalCountOfUnviewed);
+            // add_Viewed_status(statuses[i].id); 
 
+        }else{
+            statusesViewed[currentStatusIndex] = true;
+        }  
+
+        
+        console.log(`request_id============${request_user_id}===id==${request_user_id === id}=======${id}`);
+
+        if(request_user_id === id){
+            type_reply_input.style.display = 'none';
+            viewed_status_count_icon.style.display = 'flex';
+            mystatus_viewedCount.style = 'padding-bottom:10px';
             if(statuses[i].caption){
                 mystatus_viewedCount.style.background = 'rgba(0, 0, 0, .4)';
                 mystatus_viewedContent.style.display = 'flex';
@@ -879,7 +974,20 @@ async function   playAllStatuses(){
                 mystatus_viewedCount.style.background = 'none';
                 mystatus_viewedContent.style.display = 'none';
             }
-        }  
+        }else{
+            viewed_status_count_icon.style.display = 'none';
+            type_reply_input.style.display = 'flow';
+            if(statuses[i].caption){
+                mystatus_viewedCount.style.background = 'rgba(0, 0, 0, .4)';
+                mystatus_viewedCount.style = 'padding-bottom:80px';
+                mystatus_viewedContent.style.display = 'flex';
+                mystatus_viewedContent.innerText = statuses[i].caption; 
+            }else{
+                mystatus_viewedCount.style.display = "none";
+            }
+        }
+
+        
 
         statusBackground.style.backgroundImage = `url(${statuses[i].image_url})`;
         statusImageDisplay.src = statuses[i].image_url;

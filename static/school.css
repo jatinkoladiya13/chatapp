@@ -2144,6 +2144,7 @@ color: #008069;
     height: 72px;
     display: flex;
     align-items: center;
+    cursor: pointer;
     
 }
 
@@ -2880,12 +2881,9 @@ color: #008069;
 
 .status-viewBox-show-mystatus-status-bottom{
     position: absolute;
-    left: 0;
-    right: 0;
     bottom: 0px;
-    max-width: 920px;
     padding-bottom: 10px;
-    width: calc(100% - 40px);
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
     z-index: 200;
@@ -2897,7 +2895,7 @@ color: #008069;
     justify-content: center;
     align-items: center;
     overflow-y: auto;
-    max-height: 50vh;
+    max-height: 70vh;
     padding: 10px;
     box-sizing: border-box;
     color: white;
@@ -2917,7 +2915,7 @@ color: #008069;
 }
 
 .status-viewBox-show-mystatus-viewedCount svg{
-    color: white;
+    color: red;
 }
 
 .status-viewBox-show-mystatus-viewedCount div{

@@ -24,6 +24,6 @@ class SatusAdmin(admin.ModelAdmin):
 @admin.register(StatusView)
 class StatusViewAdmin(admin.ModelAdmin):
     model = StatusView
-    list_display = ['id', 'viewer', 'viewed_at',]
+    list_display = ['id', 'status','viewer','viewed_at',]
     ordering = ['pk']
 
