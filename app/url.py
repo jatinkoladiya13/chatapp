@@ -16,6 +16,7 @@ urlpatterns = [
        path('resendotp/', views.resendotp, name='resendotp'),
        path('create_contacts/',views.create_contacts),
        path('get_contacts/', views.get_contacts),
+       path('delete_contact/<int:contact_id>/',views.delete_contact),
        path('upload-video/',views.upload_videos),
        path('edit_profile/', views.edit_profile),
        path('upload_status/',views.upload_status),

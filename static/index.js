@@ -205,18 +205,20 @@ function closeAllDrawers(){
     });
 
 }
-
+ 
+let status_drawer_isOpen = false;
 function toggleDrawer(drawerId, button){
     
-    
+    console.log("this click left side button");
     closeAllDrawers();
     const drawer =  document.getElementById(drawerId);
     if(drawer){
         drawer.classList.add('open');
     }
+    status_drawer_isOpen = false; 
 
     button.classList.add('selected');
-
+  
     if(drawerId === 'status_story'){
         status_data_get_On_button();
     }
@@ -227,7 +229,7 @@ const recentContainer = document.getElementById("recent-status-container");
 const viewedContainer = document.getElementById("viewed-status-container");
 const show_recent_status = document.getElementById("show_recent_status");
 const show_viewed_status = document.getElementById("show_viewed_status"); 
-
+let my_status_count;
 
 const createStatusBox = (status) => {
     return `
@@ -256,15 +258,16 @@ const createStatusBox = (status) => {
 
 // when user go to the status then change data 
 function status_data_get_On_button(){
-
+    status_drawer_isOpen = true;
     fetch('/get_recent_status/',{
         method:'GET',
         headers:{
             'Content-Type': 'application/json',
         }
     }).then(response => response.json()).then(data=>{
-
+        
         if(data.mystatus_data.mystatus_count > 0){
+            my_status_count =  data.mystatus_data.mystatus_count;
             topheader_Profile_Status.style.display = 'none';
             topheaderProfile_Status_Second.style.display = 'flex';
             profile_Status_Second_details.textContent = data.mystatus_data.my_status_upload_time;
@@ -277,15 +280,20 @@ function status_data_get_On_button(){
     }).catch(error => {
         console.error('There was a problem with the fetch operation:', error);
     });
+    
 }
 
+
 function api_functionality_recent_viewed_status(data){
-
-    show_recent_status.style.display = "flex";
-    show_viewed_status.style.display = "flex";
-
-    recentContainer.innerHTML = "";
-    viewedContainer.innerHTML = "";
+    
+    if(data.message != ''){
+        show_recent_status.style.display = "flex";
+        show_viewed_status.style.display = "flex";
+    
+        recentContainer.innerHTML = "";
+        viewedContainer.innerHTML = "";
+    }
+    
 
     data.message.forEach((status)=>{
         console.log(status);
@@ -294,7 +302,7 @@ function api_functionality_recent_viewed_status(data){
         }else{
             viewedContainer.innerHTML += createStatusBox(status);
         }
-       
+        
         statusCountViewedAndUnviewed_lines(`Unviewed_${status.id}`, `Viewed_${status.id}`, status.totalStatus, status.unviewed_count,);
     });
 
@@ -305,23 +313,41 @@ function api_functionality_recent_viewed_status(data){
         show_viewed_status.style.display = "none";
     }
 
-    recentContainer.addEventListener('click', (event) => {
-        const statusBox = event.target.closest('.status-boxs');
-        if (statusBox) {
-            const statusId = statusBox.getAttribute('data-id');
-            console.log(`Clicked on status with ID: ${statusId}`);
-            get_status_By_api(statusId);
-        }
+
+    const statusBoxes = document.querySelectorAll('.status-boxs');
+
+    statusBoxes.forEach(box => {
+        box.addEventListener('click', function() {
+            const dataId = this.getAttribute('data-id');
+            console.log(`Status box with ID ${dataId} clicked!`);
+            get_status_By_api(dataId);
+            
+        });
     });
 
-    viewedContainer.addEventListener('click', (event) => {
-        const statusBox = event.target.closest('.status-boxs');
-        if (statusBox) {
-            const statusId = statusBox.getAttribute('data-id');
-            console.log(`Clicked on status with ID: ${statusId}`);
-            get_status_By_api(statusId);
-        }
-    });
+}
+
+ // chnange status recent and viewed When user viewed status 
+function change_statusBox_RecentAndViewed(current_statusview_user_id, currentStatusIndex, statuses){
+   
+    const current_index_plush = currentStatusIndex + 1;
+    if(statuses.length === current_index_plush){
+
+        const statusBoxes = recentContainer.querySelectorAll(".status-boxs");
+        if(statusBoxes.length === 1){
+            show_recent_status.style.display = "none";
+        } 
+    
+        const transfer_statusBox = recentContainer.querySelector(`.status-boxs[data-id="${current_statusview_user_id}"]`);
+        if(transfer_statusBox){
+            viewedContainer.appendChild(transfer_statusBox); 
+        } 
+    
+        const viewedstatusBoxes = viewedContainer.querySelectorAll(".status-boxs");
+        if(viewedstatusBoxes.length === 1){
+            show_viewed_status.style.display = "flex";
+        } 
+    } 
 }
 
 
@@ -483,6 +509,8 @@ const closeStausImgandVidPreview = document.getElementById('closeStausImgandVidP
 
 closeStausImgandVidPreview.addEventListener('click', function(){
     imgPreviewContainers.style.display ="none";
+    statusFileIndexCounter = 0;
+    fileBlobs = [];
 });
 
 let statusFileIndexCounter = 0;
@@ -525,6 +553,7 @@ function extractVideoThumbnail(videoFile){
     });
 }
 
+//  this function check video or image
 function isCheckLogic(result, checkIsVideo){
     const statusTakePrviews = document.querySelector(".status-take-file-previews");
     let file_tag = ``;
@@ -541,16 +570,25 @@ function isCheckLogic(result, checkIsVideo){
     statusTakePrviews.insertAdjacentHTML('beforeend', file_tag);
 }
 
+// input tage fille onchange called this function 
 function handlePhotoAndVideoCapture(event){
     const files = event.target.files;
-
+    
+    const total_status_limit = my_status_count + files.length;
+    if(total_status_limit > 25){
+        alert(`You can only upload a maximum of 25 statuses. Please reduce your selection.`);
+        return;
+    }
+    
     imgPreviewContainers.style.display ="flex";
 
     const  statusMutipleFile  = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
     const statusCaptionInput = document.getElementById("status-caption-input");
     const statusCaptionClose = document.getElementById("status-caption-close");
-
+    
+    statusMutipleFile.innerHTML = '';
     const isFirstUpload = statusMutipleFile.innerHTML.trim() === '';
+   
 
     if(isFirstUpload){
         statusFileIndexCounter = 0;  
@@ -734,11 +772,12 @@ function handlePhotoAndVideoCapture(event){
    
 }
 
-//  status upload send button click
+//  status upload send button click with called api function
 const statusUploadSend = document.getElementById('status_upload_send');
 const profile_Status_Second_details = document.getElementById('profile_Status_Second_details');
 
 statusUploadSend.addEventListener('click', function(event){
+    console.log("send button is working........");
     if(fileBlobs.length > 0){
        
         fileBlobs.forEach( async (status_file, index) => {
@@ -754,6 +793,8 @@ statusUploadSend.addEventListener('click', function(event){
             const file_catption_get = document.querySelector(`.status_Multiple_File_Btn[data-index="${status_file.index}"]`);
             const caption =  file_catption_get ? file_catption_get.getAttribute('data-caption') : '';
             formDate.append('caption', caption);  
+
+            
           
             await statusFileSenToApi(formDate, index);
 
@@ -762,6 +803,7 @@ statusUploadSend.addEventListener('click', function(event){
     }
 });
 
+//  upload api function 
 async function statusFileSenToApi(formatDate, index){
     try{
         const response = await fetch('/upload_status/',{
@@ -773,7 +815,7 @@ async function statusFileSenToApi(formatDate, index){
             body: formatDate,
         });
         
-       
+        // console.log("this is working with json data", response.json()); 
         if(response.ok){
             const data = await response.json();
             let checking = fileBlobs.length-1;
@@ -786,8 +828,16 @@ async function statusFileSenToApi(formatDate, index){
             }
 
             profile_Status_Second_details.textContent = data.message['Upload_time']; 
+            my_status_count = data.message.total_count_status;
             statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.message.total_count_status, data.message.unviewed_count);
             imgPreviewContainers.style.display ="none";
+
+            chatSocket.send(JSON.stringify({
+                'action':'uploade_status',
+                'uploaded_user_id': data.user_id,
+                'status_id':data.message.id,  
+                'uploaded_users_contacts':data.user_contacts, 
+            }));
 
         }else{
             console.error("Failed to update profile. Status:", response.status);
@@ -798,10 +848,15 @@ async function statusFileSenToApi(formatDate, index){
 }
 
 
-// Status  and story
+// this is common function show lines viewed and unviewed 
 function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, totalCountOfUnviewed){
     const Unviewed = document.getElementById(UnviewedId);
     const viewed = document.getElementById(ViewedId);
+
+    if (!Unviewed || !viewed) {
+        console.error(`Elements with IDs "${UnviewedId}" or "${ViewedId}" not found.`);
+        return;
+    }
 
     Unviewed.innerHTML = '';
     viewed.innerHTML = '';
@@ -834,13 +889,14 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
     }
     Unviewed.setAttribute('stroke-dashoffset',  387.69908169872417);
     
-    if(viewed_status > 0){
     
-        const totalOfUviewedDashs = divideLength * viewed_status;
-        const viewed_last_gap = unviewed_status == viewed_status ? unviewed_last_gap  : circumference - totalOfUviewedDashs + 10;
-      
-        viewed.setAttribute('stroke-dasharray', `${dashLength} 10 `.repeat(viewed_status - 1 ) + `${dashLength} ${viewed_last_gap}`);
-        viewed.setAttribute('stroke-dashoffset',  viewedDashSet);
+   
+    if(viewed_status > 0){
+            const totalOfUviewedDashs = divideLength * viewed_status;
+            const viewed_last_gap = unviewed_status == viewed_status ? unviewed_last_gap  : circumference - totalOfUviewedDashs + 10;
+        
+            viewed.setAttribute('stroke-dasharray', viewed_status != 1  || unviewed_status != 0 ? `${dashLength} 10 `.repeat(viewed_status - 1 ) + `${dashLength} ${viewed_last_gap}`: '');
+            viewed.setAttribute('stroke-dashoffset',  viewedDashSet);
     }else {
         viewed.style.display = "none";   
     }
@@ -861,25 +917,40 @@ const mystatus_viewedContent = document.querySelector('.status-viewBox-show-myst
 const viewed_status_count_icon = document.querySelector('.status-viewBox-show-mystatus-viewedCount'); 
 
 let currentStatusIndex = 0;
+let current_statusview_user_id = 0;
 let statuses = [];
 let isPlaying = false;
 let animationTimeout = null;
 let statusesViewed = [];
 
+// check status view is open 
+let check_statusview_isopen = false;
+
+
 // status view close button click
 status_viewBox_close.addEventListener('click', function(){
     close_status_view();
+    
 });
 
 status_viewBox_arrow.addEventListener('click', function(){
     close_status_view();
+    
 });
 
 function close_status_view(){
+    
     statusViewBox.style.display = "none";
+    change_statusBox_RecentAndViewed(current_statusview_user_id, currentStatusIndex, statuses);
+    
     clearTimeout(animationTimeout);
     isPlaying = false;
     currentStatusIndex = 0;
+    check_statusview_isopen = false;
+    current_statusview_user_id = 0;
+   
+   
+    
 }
 
 topheaderProfile_Status_Second.addEventListener('click', function(){
@@ -888,6 +959,7 @@ topheaderProfile_Status_Second.addEventListener('click', function(){
 
 
 function get_status_By_api(id){
+    check_statusview_isopen = true;
     fetch(`/get_My_status/${id}/`,{
         method:'GET',
         headers:{
@@ -902,7 +974,11 @@ function get_status_By_api(id){
         statusViewBox_Calculation_lines.innerHTML = '';
         
        
-        
+        if (statusViewBox_Calculation_lines.innerHTML.trim() === '') {
+            console.log('The element is empty.');
+        } else {
+            console.log('The element is not empty.');
+        }
        
         statuses.forEach((element, index) => {
            
@@ -926,9 +1002,11 @@ function get_status_By_api(id){
             statusViewBox_Calculation_lines.appendChild(statusLine);
         });
 
+       
         // Start showing statuses
-        currentStatusIndex = 0; // Reset the index
-        playAllStatuses(id);
+        currentStatusIndex = 0;
+        current_statusview_user_id = id; // Reset the index
+        playAllStatuses();
 
     }).catch(error => {
         console.error('There was a problem with the fetch operation:', error);
@@ -936,33 +1014,42 @@ function get_status_By_api(id){
     
 }
        
-async function   playAllStatuses(id){
+async function   playAllStatuses(){
     if (isPlaying) return; // Prevent multiple playbacks
     isPlaying = true;
     
+    
+
     const request_user_id = window.djangoUserId;
 
     const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+    
+    
     for (let i = currentStatusIndex; i < statuses.length; i++) {
         currentStatusIndex = i; 
-
+        
+        
         if(!statusesViewed[currentStatusIndex] && statuses[i].is_viewed == false){
             statusesViewed[currentStatusIndex] = true;
+        
 
             const totalStatus = statuses.length;
             const totalCountOfUnviewed = statusesViewed.filter(viewed => !viewed).length;
+             
             
-            // statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", totalStatus, totalCountOfUnviewed);
-            // add_Viewed_status(statuses[i].id); 
+            if(request_user_id === current_statusview_user_id){
+                statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", totalStatus, totalCountOfUnviewed);
+            }else{
+                statusCountViewedAndUnviewed_lines(`Unviewed_${current_statusview_user_id}`, `Viewed_${current_statusview_user_id}`, totalStatus, totalCountOfUnviewed); 
+            }
+           
+            add_Viewed_status(statuses[i].id); 
 
         }else{
             statusesViewed[currentStatusIndex] = true;
         }  
 
-        
-        console.log(`request_id============${request_user_id}===id==${request_user_id === id}=======${id}`);
-
-        if(request_user_id === id){
+        if(request_user_id === current_statusview_user_id){
             type_reply_input.style.display = 'none';
             viewed_status_count_icon.style.display = 'flex';
             mystatus_viewedCount.style = 'padding-bottom:10px';
@@ -988,14 +1075,14 @@ async function   playAllStatuses(id){
         }
 
         
-
+       
         statusBackground.style.backgroundImage = `url(${statuses[i].image_url})`;
         statusImageDisplay.src = statuses[i].image_url;
 
         await animateLine(statusLines[i],  5000);
     }
     isPlaying = false;
-
+    
     close_status_view();
     
 }
@@ -1004,6 +1091,7 @@ async function   playAllStatuses(id){
 
 
 function animateLine(line, duration) {
+    
     return new Promise(resolve => {
       
 
@@ -1017,6 +1105,7 @@ function animateLine(line, duration) {
         animationTimeout = setTimeout(() => {
             resolve();
         }, duration);
+       
     });
 
   
@@ -1024,7 +1113,7 @@ function animateLine(line, duration) {
 
 function moveStatus(direction) {
     const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
-    
+
     const currentLine = statusLines[currentStatusIndex];
     currentLine.style.width = direction === 'right' ? '100%' : '0%';
     currentLine.style.transition = 'none';
@@ -1053,7 +1142,7 @@ statusMoveLeftside.addEventListener('click', async function(){
     isPlaying = false; 
 
     moveStatus('left');
-
+     
     playAllStatuses();
 
     console.log("this is working............... Leftside");
@@ -1077,6 +1166,7 @@ statusMoveRightside.addEventListener('click',   function(){
  
 // create viewed status change in data base with api
 function add_Viewed_status(status_id){
+    console.log("api called")
     fetch('/add_viewed_status/',{
         method:'POST',
         headers:{
@@ -1632,6 +1722,30 @@ chatSocket.onmessage = function(e){
             
             const statusText = document.getElementById('statusText');
             statusText.textContent = is_online ? "Online" : "Offline";   
+        }else if(data.type == 'status_update'){
+
+            const userExists = data.message['uploaded_users_contacts'].some(item => item.user_id === Number(djangoUserId) && item.delete_status == false);
+            if(userExists){
+                status_update(data.message['uploaded_user_id'],data.message['status_id']); 
+            }else {
+                if(data.message['uploaded_user_id'] == djangoUserId){
+                    status_update(data.message['uploaded_user_id'],data.message['status_id']); 
+                }
+            }
+            
+        }else if(data.type == 'uploade_status'){
+            const userExists = data.uploaded_users_contacts.some(item => item.user_id === Number(djangoUserId) && item.delete_status == false);
+            if(userExists){
+                if(status_drawer_isOpen){
+                    status_data_get_On_button();
+                }    
+            }else{
+                if(data.message['uploaded_user_id'] == djangoUserId){
+
+                    
+                }
+            }
+            
         }
 
         
@@ -2040,18 +2154,20 @@ function handleChatMessage(data){
             }
                 
         }else{
-            const userElements = document.querySelector(`.chatlist .block[data-user-id="${data.sender_id}"]`);
-            if(userElements){
-                const messagePElement = userElements.querySelector('.message_p');
-                let toggleCountElement = messagePElement.querySelector('.toggle-count');
+            if(djangoUserId == data.receiver_id){
+                const userElements = document.querySelector(`.chatlist .block[data-user-id="${data.sender_id}"]`);
+                if(userElements){
+                    const messagePElement = userElements.querySelector('.message_p');
+                    let toggleCountElement = messagePElement.querySelector('.toggle-count');
 
-                if(toggleCountElement){
-                    toggleCountElement.textContent = data.toggle_count;
-                }else{
-                    messagePElement.innerHTML += `<b class="toggle-count">${data.toggle_count}</b>`;
+                    if(toggleCountElement){
+                        toggleCountElement.textContent = data.toggle_count;
+                    }else{
+                        messagePElement.innerHTML += `<b class="toggle-count">${data.toggle_count}</b>`;
+                    }
+
+                    
                 }
-
-                
             }
         }
     }
@@ -2179,7 +2295,7 @@ function getContacts(query){
 
 
 function deleteContact(id){
-    fetch(`/delete_contact?user_id=${id}`,{
+    fetch(`/delete_contact/${id}/`,{
         method:'GET',
         header:{
             'Content-Type':'application/json',
@@ -2231,4 +2347,92 @@ function clickopenbox(){
         });
     });
    
+}
+
+// status 24 hours  status delete functionality 
+function status_update(uploaded_user_id,statusId){
+    if(status_drawer_isOpen){
+        status_data_get_On_button();
+        if(check_statusview_isopen){
+            if(uploaded_user_id == current_statusview_user_id){
+                removeStatusById(statusId);
+            }
+        }
+    }
+}
+
+function  removeStatusById(statusId){
+    clearTimeout(animationTimeout); // Clear any ongoing animation
+    isPlaying = false;
+
+    
+    const statusIndex = statuses.findIndex(status => status.id === Number(statusId));
+    if (statusIndex === -1) {
+        console.error('Status not found:', statusId);
+        return;
+    }
+    
+
+    statuses.splice(statusIndex, 1);
+    statusesViewed.splice(statusIndex, 1);
+
+    const statusViewBox_Calculation_lines = document.querySelector('.status-viewBox-top-calculation-lines');
+    const statusLines = statusViewBox_Calculation_lines.querySelectorAll('.status-viewBox-top-calculation-line');
+    const lineToRemove = statusLines[statusIndex];
+
+
+
+    
+    if (lineToRemove) {
+        lineToRemove.remove();
+    }
+
+    statusViewBox_Calculation_lines.innerHTML = '';
+
+
+   
+    statuses.forEach((element, index)=>{
+        const statusLine = document.createElement('div');
+        statusLine.classList.add('status-viewBox-top-calculation-line');
+
+        const lineTop = document.createElement('div');
+        lineTop.classList.add('status-viewBox-top-calculation-line-top');
+        statusLine.appendChild(lineTop);
+
+        const lineBottom = document.createElement('div');
+        lineBottom.classList.add('status-viewBox-top-calculation-line-bottom');
+
+        const lineBottomTop = document.createElement('div');
+        lineBottomTop.classList.add('status-viewBox-top-calculation-line-bottom-top');
+        lineBottomTop.textContent = element.statusText || "No status";
+
+        lineBottom.appendChild(lineBottomTop);
+        statusLine.appendChild(lineBottom);
+
+        statusViewBox_Calculation_lines.appendChild(statusLine);
+        
+    });
+   
+    
+    
+    if(currentStatusIndex >= statuses.length){
+        currentStatusIndex = statuses.length - 1; 
+    } else  if (currentStatusIndex > statusIndex) {
+        currentStatusIndex -= 1; // Move to the previous index
+    }    
+   
+    const status_bototm_Lines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+    
+    for(let k =0; k < currentStatusIndex; k++){
+        const currentLine = status_bototm_Lines[k];
+        currentLine.style.width = '100%';
+        currentLine.style.transition = 'none';
+        currentLine.offsetWidth;
+    }
+   
+
+    playAllStatuses(); 
+    if (statuses.length === 0){
+        close_status_view();
+    }
 }

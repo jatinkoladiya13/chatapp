@@ -1,5 +1,6 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.layers import get_channel_layer
 from app.models import Message, User
 from channels.db import database_sync_to_async
 from django.utils.timezone import localtime
@@ -35,6 +36,7 @@ def mark_messages_as_read(sender_id, receiver_id):
 def mark_messages_bothsame_read(sender_id, receiver_id):
     return Message.objects.filter(sender_id=sender_id, receiver_id=receiver_id).update(is_read=True)
 
+user_connections = {}
 class ChatConsumer(AsyncWebsocketConsumer):
      
 
@@ -42,7 +44,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name =  f'chat_{self.room_name}'
         id = self.scope['user'].id
+        
         await self.update_user_status(True, id)
+
+        if id not in user_connections:
+            user_connections[id] = []
+        user_connections[id].append(self)
+
+        
         
        
         # join group 
@@ -52,12 +61,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
         
         await self.broadcast_user_status(id, True)
-
         await self.accept()
 
     async def disconnect(self, code):
         id = self.scope['user'].id
         await self.update_user_status(False, id)
+
+        if id in user_connections:
+            user_connections[id].remove(self)
+            if not user_connections[id]:
+                del user_connections[id]  
+
+       
         
         await self.channel_layer.group_discard(
             self.room_group_name,
@@ -73,7 +88,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         user.save()  
 
     async def broadcast_user_status(self, user_id, is_online):
-        print("this is working", self.room_group_name)
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -97,19 +111,43 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         sender_id = self.scope['user'].id
-        receiver_id = text_data_json['receiver_id']
         action = text_data_json['action']
 
+        if action == 'uploade_status':
+            uploaded_user_id = text_data_json['uploaded_user_id']
+            status_id = text_data_json['status_id']
+            uploaded_users_contacts = text_data_json['uploaded_users_contacts']
+
+            
+            
+            uploaded_contacts_id = [contact['user_id'] for contact in uploaded_users_contacts]
+            print(f'sender_id===={sender_id}==={uploaded_contacts_id}==={sender_id in uploaded_contacts_id}')
+            
+            for id in uploaded_contacts_id:
+                if id in user_connections:
+                    for coneection in user_connections[id]:
+                        await coneection.send(text_data=json.dumps({
+                            'type': 'uploade_status',
+                            'uploaded_user_id': uploaded_user_id,
+                            'status_id':status_id,
+                            'uploaded_users_contacts':uploaded_users_contacts,
+                            })
+                        )
+               
+
+
         if action == 'send_history':
+            receiver_id = text_data_json['receiver_id']
             await self.send_chat_history(sender_id, receiver_id)
 
         if action == 'send_message_toggle_true':
+            receiver_id = text_data_json['receiver_id']
             sender_id = text_data_json['sender_id']
             await mark_messages_bothsame_read(sender_id, receiver_id)
 
         if action == 'send_message':
             message = text_data_json['message']
-
+            receiver_id = text_data_json['receiver_id']
             sender = await database_sync_to_async(User.objects.get)(id=sender_id)
             receiver = await database_sync_to_async(User.objects.get)(id=receiver_id)
             
@@ -274,3 +312,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'status':reciver.is_online,
         }))
 
+    async def status_update(self, event):
+        message = event['message']
+        await self.send(text_data=json.dumps({
+                'type': 'status_update',
+                'message': message,
+            })
+        )
+
+  

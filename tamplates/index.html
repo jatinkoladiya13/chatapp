@@ -230,7 +230,7 @@
                                 <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
                                 stroke-dasharray="" stroke-width="4" style="stroke: #008069;" id="Unviewed" ></circle>
                                 <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="387.69908169872417" 
-                                stroke-dasharray="50 271" stroke-width="4" style="stroke: #bbbec4;" id="Viewed"></circle> 
+                                stroke-dasharray="" stroke-width="4" style="stroke: #bbbec4;" id="Viewed"></circle> 
                             </svg>
                             <div class="status-boxs-img-second">
                                 <div class="status-boxs-final-imag" style="background-image: url({% if user.profile_image %}{{ user.profile_image.url }}{% else %}/static/images/profile.png{% endif %});"></div>
@@ -242,7 +242,7 @@
                         </div>
                     </div>
 
-                     <div class="status-titleBox"  id="show_recent_status">
+                     <div class="status-titleBox"  id="show_recent_status" style="display:none;">
                         <div class="status-title">Recent</div>   
                      </div>
 
@@ -253,7 +253,7 @@
                     </div>
                      
                      
-                     <div class="status-titleBox" id="show_viewed_status">
+                     <div class="status-titleBox" id="show_viewed_status" style="display: none;">
                         <div class="status-title">VIEWED</div>   
                      </div>
 
