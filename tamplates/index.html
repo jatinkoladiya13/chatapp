@@ -233,7 +233,7 @@
                                 stroke-dasharray="" stroke-width="4" style="stroke: #bbbec4;" id="Viewed"></circle> 
                             </svg>
                             <div class="status-boxs-img-second">
-                                <div class="status-boxs-final-imag" style="background-image: url({% if user.profile_image %}{{ user.profile_image.url }}{% else %}/static/images/profile.png{% endif %});"></div>
+                                <div class="status-boxs-final-imag" id="status-boxs-final-imag" ></div>
                             </div>
                         </div>
                         <div class="status-details">
@@ -618,7 +618,22 @@
        
    
     </div>
-    <script>var djangoUserId = "{{ user.id }}";</script>
+    <script>
+    
+    var djangoUserId = "{{ user.id }}";
+    document.addEventListener("DOMContentLoaded", function(){
+        const statusBox = document.getElementById("status-boxs-final-imag");
+        const userProfileImage = "{{ user.profile_image.url }}"; 
+        const defaultImage = "/static/images/profile.png";
+
+        if (userProfileImage) {
+            statusBox.style.backgroundImage = `url('${userProfileImage}')`;
+        } else {
+            statusBox.style.backgroundImage = `url('${defaultImage}')`;
+        }
+    });
+    
+    </script>
     <script src="{% static '\static\index.js' %}"></script>
 
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
