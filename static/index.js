@@ -580,6 +580,26 @@ function handlePhotoAndVideoCapture(event){
         return;
     }
     
+    const validFiles = Array.from(event.target.files).filter((file)=>{
+    
+        if(file.type.startsWith('video/') && file.size > 10 * 1024 * 1024){
+            alert(`The video file "${file.name}" exceeds the size limit of 10 MB and will be skipped.`);
+            return false;
+        }
+
+        const video = document.createElement("video");
+        const videoFileUrl = URL.createObjectURL(file);
+        video.src = videoFileUrl;
+        video.onloadedmetadata = function() {
+            if(video.duration < 30){
+                alert(`The video file "${file.name}" duration must be less than or equal to 30 seconds.`);
+                return false;
+            }
+        }
+        
+        return true;
+    });
+
     imgPreviewContainers.style.display ="flex";
 
     const  statusMutipleFile  = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
@@ -597,7 +617,8 @@ function handlePhotoAndVideoCapture(event){
         statusCaptionInput.setAttribute('data-index', '0');
     }
 
-    const filePromises  = Array.from(files).map((file)=>{
+    const filePromises  = validFiles.map((file)=>{
+
         return new Promise((resolve, reject)=>{
             const readerMultiple  = new FileReader();
             readerMultiple.onload = function(e){
@@ -628,9 +649,24 @@ function handlePhotoAndVideoCapture(event){
                             </div>
                         </button>
                     `;
+
+                    // thumbnailDataurl convert to file
+                    const byteString = atob(thumbnailDataUrl.split(',')[1]);
+                    const arrayBufferr = new ArrayBuffer(byteString.length);
+                    const uint8Array = new Uint8Array(arrayBufferr);
+                    
+                    for(let i=0; i<byteString.length; i++){
+                        uint8Array[i] = byteString.charCodeAt(i);
+                    }
+
+                    const blob = new Blob([uint8Array], {type: 'image/png'});
+                    const background_file = new File([blob], 'thumbnail.png', { type: 'image/png' });
+   
+
                     statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
                     fileBlobs.push({
                         file: file,
+                        background_file:background_file,
                         index: statusFileIndexCounter,
                         type: true,
                     }); 
@@ -786,6 +822,7 @@ statusUploadSend.addEventListener('click', function(event){
            
             if(status_file.type){
                 formDate.append('video', status_file.file);
+                formDate.append('background_img', status_file.background_file);
             }else{
                 formDate.append('image', status_file.file);
             }
@@ -906,6 +943,7 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
 const statusViewBox = document.getElementById('status-viewBox');
 const statusBackground = document.querySelector('.status-viewBox-background-them'); 
 const statusImageDisplay = document.querySelector('.status-viewBox-show-status-second img'); 
+const statusVideoDisplay = document.querySelector('.status-viewBox-show-status-second video'); 
 const statusMoveLeftside = document.getElementById('status-move-leftside');
 const statusMoveRightside = document.getElementById('status-move-rightside');
 const status_viewBox_close = document.getElementById('status-viewBox-close');
@@ -1076,14 +1114,25 @@ async function   playAllStatuses(){
 
         
        
-        statusBackground.style.backgroundImage = `url(${statuses[i].image_url})`;
-        statusImageDisplay.src = statuses[i].image_url;
+        statusBackground.style.backgroundImage = `url(${statuses[i].image_url})`
+        if (statuses[i].video_url){
+            statusVideoDisplay.src = statuses[i].video_url;
+            statusVideoDisplay.load()
+            statusVideoDisplay.play();
+            statusVideoDisplay.style.display = 'block';  
+            statusImageDisplay.style.display = 'none';
+        }else{
+            statusImageDisplay.src = statuses[i].image_url;
+            statusImageDisplay.style.display = 'block';
+            statusVideoDisplay.style.display = 'none';
+        }
+       
 
         await animateLine(statusLines[i],  5000);
     }
     isPlaying = false;
     
-    close_status_view();
+    // close_status_view();
     
 }
 

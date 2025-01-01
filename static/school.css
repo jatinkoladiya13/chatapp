@@ -2780,6 +2780,14 @@ color: #008069;
     visibility: visible;
 }
 
+.status-viewBox-show-status-second video{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: block;
+    visibility: visible;
+}
+
 .status-viewBox-show-status-bottom{
     position: absolute;
     left: 0;

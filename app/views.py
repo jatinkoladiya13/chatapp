@@ -376,8 +376,9 @@ def edit_profile(request):
 @csrf_exempt
 def upload_status(request):
     if request.method == 'POST':
-        video = request.FILES.get('video')
         image = request.FILES.get('image')
+        video = request.FILES.get('video')
+        background_img = request.FILES.get('background_img')
         caption = request.POST.get('caption')
         user_id = request.user.id
 
@@ -392,6 +393,8 @@ def upload_status(request):
         elif video:   
             new_filename = f"{uuid.uuid4()}.mp4" 
             video.name = new_filename
+            background_img.name = f"{uuid.uuid4()}.jpg"
+            image = background_img
             type = 'Video'
 
         status_instance = Status.objects.create(user=user, image=image, video=video, caption=caption, )   
