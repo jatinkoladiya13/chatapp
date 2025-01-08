@@ -1003,10 +1003,26 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
     });
 
     show_mystatus_viewedCount.addEventListener('click',function(){
+        
+        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+        const line = statusLines[currentStatusIndex];
+        handlePause(line);
+        
+        mystatus_play.style.display = "none";
+        mystatus_pause.style.display = "block";
+        
         mystatus_dialog.style.display = 'flex';
     });
 
     mystatus_dialog_close.addEventListener('click', function(){
+        
+
+        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+        const line = statusLines[currentStatusIndex];   
+        handelResume(line);
+        mystatus_play.style.display = "block";
+        mystatus_pause.style.display = "none";
+
         mystatus_dialog.style.display = 'none';
     });
 
@@ -1146,8 +1162,7 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
         
         if (isPlaying) return; // Prevent multiple playbacks
         isPlaying = true;
-        
-        console.log("this ++++++++++++", currentStatusIndex);
+    
 
         const request_user_id = window.djangoUserId;
 
@@ -1310,6 +1325,9 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
     }
 
     function moveStatus(direction) {
+        mystatus_play.style.display = "block";
+        mystatus_pause.style.display = "none";
+
         const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
 
         const currentLine = statusLines[currentStatusIndex];
