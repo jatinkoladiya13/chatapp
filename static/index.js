@@ -952,349 +952,415 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
 }
 
 // my status click show my status
-const statusViewBox = document.getElementById('status-viewBox');
-const statusBackground = document.querySelector('.status-viewBox-background-them'); 
-const statusImageDisplay = document.querySelector('.status-viewBox-show-status-second img'); 
-const statusVideoDisplay = document.querySelector('.status-viewBox-show-status-second video'); 
-const statusMoveLeftside = document.getElementById('status-move-leftside');
-const statusMoveRightside = document.getElementById('status-move-rightside');
-const status_viewBox_close = document.getElementById('status-viewBox-close');
-const status_viewBox_arrow = document.getElementById('status-viewBox-arrow');
+    const statusViewBox = document.getElementById('status-viewBox');
+    const statusBackground = document.querySelector('.status-viewBox-background-them'); 
+    const statusImageDisplay = document.querySelector('.status-viewBox-show-status-second img'); 
+    const statusVideoDisplay = document.querySelector('.status-viewBox-show-status-second video'); 
+    const statusMoveLeftside = document.getElementById('status-move-leftside');
+    const statusMoveRightside = document.getElementById('status-move-rightside');
+    const status_viewBox_close = document.getElementById('status-viewBox-close');
+    const status_viewBox_arrow = document.getElementById('status-viewBox-arrow');
 
-const type_reply_input = document.querySelector('.status-viewBox-show-status-bottom');
-const mystatus_viewedCount = document.querySelector('.status-viewBox-show-mystatus-status-bottom');
-const mystatus_viewedContent = document.querySelector('.status-viewBox-show-mystatus-content');
-const viewed_status_count_icon = document.querySelector('.status-viewBox-show-mystatus-viewedCount'); 
-const show_mystatus_viewedCount = document.querySelector('.status-viewBox-show-mystatus-viewedCount-items');
-const mystatus_dialog = document.querySelector('.mystatus_dialog');
-const mystatus_dialog_close = document.querySelector('.dialog_header_content svg');
-const mystatus_dialog_addcount = document.querySelector('.dialog_header_title h1');
-const statusviews_my_count = document.querySelector('.status-viewBox-show-mystatus-viewedCount-items div');
-const mystatus_dialog_django_content = document.querySelector('.dialog_content');
-const mystatus_for_dialog = document.querySelector('.dialog');
+    const type_reply_input = document.querySelector('.status-viewBox-show-status-bottom');
+    const mystatus_viewedCount = document.querySelector('.status-viewBox-show-mystatus-status-bottom');
+    const mystatus_viewedContent = document.querySelector('.status-viewBox-show-mystatus-content');
+    const viewed_status_count_icon = document.querySelector('.status-viewBox-show-mystatus-viewedCount'); 
+    const show_mystatus_viewedCount = document.querySelector('.status-viewBox-show-mystatus-viewedCount-items');
+    const mystatus_dialog = document.querySelector('.mystatus_dialog');
+    const mystatus_dialog_close = document.querySelector('.dialog_header_content svg');
+    const mystatus_dialog_addcount = document.querySelector('.dialog_header_title h1');
+    const statusviews_my_count = document.querySelector('.status-viewBox-show-mystatus-viewedCount-items div');
+    const mystatus_dialog_django_content = document.querySelector('.dialog_content');
+    const mystatus_for_dialog = document.querySelector('.dialog');
+    const mystatus_pause = document.getElementById('mystatus_pause');
+    const mystatus_play =  document.getElementById('mystatus_play');
 
-let currentStatusIndex = 0;
-let current_statusview_user_id = 0;
-let statuses = [];
-let isPlaying = false;
-let animationTimeout = null;
-let statusesViewed = [];
-
-// check status view is open 
-let check_statusview_isopen = false;
-
-
-// status view close button click
-status_viewBox_close.addEventListener('click', function(){
-    close_status_view();
-    
-});
-
-status_viewBox_arrow.addEventListener('click', function(){
-    close_status_view();
-    
-});
-
-show_mystatus_viewedCount.addEventListener('click',function(){
-    mystatus_dialog.style.display = 'flex';
-});
-
-mystatus_dialog_close.addEventListener('click', function(){
-    mystatus_dialog.style.display = 'none';
-});
-
-function close_status_view(){
-    
-    statusViewBox.style.display = "none";
-    change_statusBox_RecentAndViewed(current_statusview_user_id, currentStatusIndex, statuses);
-    
-    clearTimeout(animationTimeout);
-    isPlaying = false;
-    currentStatusIndex = 0;
-    check_statusview_isopen = false;
-    current_statusview_user_id = 0;
+    let currentStatusIndex = 0;
+    let current_statusview_user_id = 0;
+    let statuses = [];
+    let isPlaying = false;
+    let animationTimeout = null;
+    let statusesViewed = [];
    
-   
+    let animationFrameId = null;
+    let isPaused = false;
+    let remainingTime = 0; 
     
-}
 
-topheaderProfile_Status_Second.addEventListener('click', function(){
-    get_status_By_api(window.djangoUserId);
-});
+    // check status view is open 
+    let check_statusview_isopen = false;
 
 
-function get_status_By_api(id){
-    check_statusview_isopen = true;
-    fetch(`/get_My_status/${id}/`,{
-        method:'GET',
-        headers:{
-            'Content-Type': 'application/json',
-        }
-    }).then(response => response.json()).then(data=>{
-        statuses = data.message;
-        statusesViewed = Array(statuses.length).fill(false);
-        statusViewBox.style.display = "flex";   
-
-        const statusViewBox_Calculation_lines = document.querySelector('.status-viewBox-top-calculation-lines');
-        statusViewBox_Calculation_lines.innerHTML = '';
+    // status view close button click
+    status_viewBox_close.addEventListener('click', function(){
+        close_status_view();
         
-       
-        if (statusViewBox_Calculation_lines.innerHTML.trim() === '') {
-            console.log('The element is empty.');
-        } else {
-            console.log('The element is not empty.');
-        }
-       
-        statuses.forEach((element, index) => {
-           
-            const statusLine = document.createElement('div');
-            statusLine.classList.add('status-viewBox-top-calculation-line');
-
-            const lineTop = document.createElement('div');
-            lineTop.classList.add('status-viewBox-top-calculation-line-top');
-            statusLine.appendChild(lineTop);
-
-            const lineBottom = document.createElement('div');
-            lineBottom.classList.add('status-viewBox-top-calculation-line-bottom');
-
-            const lineBottomTop = document.createElement('div');
-            lineBottomTop.classList.add('status-viewBox-top-calculation-line-bottom-top');
-            lineBottomTop.textContent = element.statusText || "No status";
-
-            lineBottom.appendChild(lineBottomTop);
-            statusLine.appendChild(lineBottom);
-
-            statusViewBox_Calculation_lines.appendChild(statusLine);
-        });
-
-       
-        // Start showing statuses
-        currentStatusIndex = 0;
-        current_statusview_user_id = id; // Reset the index
-        playAllStatuses();
-
-    }).catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
     });
-    
-}
-       
-async function   playAllStatuses(){
-    if (isPlaying) return; // Prevent multiple playbacks
-    isPlaying = true;
-    
-    
 
-    const request_user_id = window.djangoUserId;
-
-    const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
-    
-    
-    for (let i = currentStatusIndex; i < statuses.length; i++) {
-        currentStatusIndex = i; 
+    status_viewBox_arrow.addEventListener('click', function(){
+        close_status_view();
         
+    });
+
+    show_mystatus_viewedCount.addEventListener('click',function(){
+        mystatus_dialog.style.display = 'flex';
+    });
+
+    mystatus_dialog_close.addEventListener('click', function(){
+        mystatus_dialog.style.display = 'none';
+    });
+
+    mystatus_play.addEventListener('click', function(){
+        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+        const line = statusLines[currentStatusIndex];
+        handlePause(line);
         
-        if(!statusesViewed[currentStatusIndex] && statuses[i].is_viewed == false){
-            statusesViewed[currentStatusIndex] = true;
-        
+        mystatus_play.style.display = "none";
+        mystatus_pause.style.display = "block";
 
-            const totalStatus = statuses.length;
-            const totalCountOfUnviewed = statusesViewed.filter(viewed => !viewed).length;
-             
-            
-            if(request_user_id === current_statusview_user_id){
-                statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", totalStatus, totalCountOfUnviewed);
-            }else{
-                statusCountViewedAndUnviewed_lines(`Unviewed_${current_statusview_user_id}`, `Viewed_${current_statusview_user_id}`, totalStatus, totalCountOfUnviewed); 
-            }
-           
-            add_Viewed_status(statuses[i].id); 
+    });
 
-        }else{
-            statusesViewed[currentStatusIndex] = true;
-        }  
+    mystatus_pause.addEventListener('click', function(){
+        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+        const line = statusLines[currentStatusIndex];   
+        handelResume(line);
+        mystatus_play.style.display = "block";
+        mystatus_pause.style.display = "none";
+    
+    });
 
-        if(request_user_id === current_statusview_user_id){
-            type_reply_input.style.display = 'none';
-            viewed_status_count_icon.style.display = 'flex';
-            mystatus_viewedCount.style = 'padding-bottom:10px';
-            if(statuses[i].caption){
-                mystatus_viewedCount.style.background = 'rgba(0, 0, 0, .4)';
-                mystatus_viewedContent.style.display = 'flex';
-                mystatus_viewedContent.innerText = statuses[i].caption;
-            }else{
-                mystatus_viewedCount.style.background = 'none';
-                mystatus_viewedContent.style.display = 'none';
-            }
-        }else{
-            viewed_status_count_icon.style.display = 'none';
-            type_reply_input.style.display = 'flow';
-            if(statuses[i].caption){
-                mystatus_viewedCount.style.background = 'rgba(0, 0, 0, .4)';
-                mystatus_viewedCount.style = 'padding-bottom:80px';
-                mystatus_viewedContent.style.display = 'flex';
-                mystatus_viewedContent.innerText = statuses[i].caption; 
-            }else{
-                mystatus_viewedCount.style.display = "none";
-            }
+    function handlePause(line){
+        const computedStyle = getComputedStyle(line);
+        const currentWidth = parseFloat(computedStyle.width); 
+        const totalWidth = parseFloat(getComputedStyle(line.parentElement).width);
+        const currentWidthPercentage = (currentWidth / totalWidth) * 100;
+
+        if (statusVideoDisplay.style.display === 'block') {
+            statusVideoDisplay.pause(); 
         }
+    
+        const totalDuration = statuses[currentStatusIndex].video_url
+        ? Math.ceil(statusVideoDisplay.duration * 1000) : 5000;
+        remainingTime = (100 - currentWidth) * (totalDuration / 100);
 
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+        clearTimeout(animationTimeout);
+        animationTimeout = null;
+
+        line.style.transition = 'none'; 
+        line.style.width = `${currentWidthPercentage}%`;
+    }
+
+    function handelResume(line){
+        if (statusVideoDisplay.style.display === 'block') {
+            statusVideoDisplay.play(); // Resume video playback
+        }
+    
+        line.style.transition = '';
+        animateLine(line, remainingTime).then(() => {
+            currentStatusIndex++;
+            isPlaying = false;
+            playAllStatuses();
+        });
+    }
+
+
+    function close_status_view(){
         
-       
-        statusBackground.style.backgroundImage = `url(${statuses[i].image_url})`
-       
-        let animationDuration = 5000;
-        if (statuses[i].video_url){
+        statusViewBox.style.display = "none";
+        change_statusBox_RecentAndViewed(current_statusview_user_id, currentStatusIndex, statuses);
+        
+        clearTimeout(animationTimeout);
+        isPlaying = false;
+        currentStatusIndex = 0;
+        check_statusview_isopen = false;
+        current_statusview_user_id = 0;
+        
+    }
+
+   
+
+    topheaderProfile_Status_Second.addEventListener('click', function(){
+        get_status_By_api(window.djangoUserId);
+    });
+
+
+    function get_status_By_api(id){
+        check_statusview_isopen = true;
+        fetch(`/get_My_status/${id}/`,{
+            method:'GET',
+            headers:{
+                'Content-Type': 'application/json',
+            }
+        }).then(response => response.json()).then(data=>{
+            statuses = data.message;
+            statusesViewed = Array(statuses.length).fill(false);
+            statusViewBox.style.display = "flex";   
+
+            const statusViewBox_Calculation_lines = document.querySelector('.status-viewBox-top-calculation-lines');
+            statusViewBox_Calculation_lines.innerHTML = '';
             
-            statusVideoDisplay.src = statuses[i].video_url;
-            statusVideoDisplay.load();
-            statusVideoDisplay.play();
+        
+            if (statusViewBox_Calculation_lines.innerHTML.trim() === '') {
+                console.log('The element is empty.');
+            } else {
+                console.log('The element is not empty.');
+            }
+        
+            statuses.forEach((element, index) => {
+            
+                const statusLine = document.createElement('div');
+                statusLine.classList.add('status-viewBox-top-calculation-line');
 
-            statusVideoDisplay.style.display = 'block';  
-            statusImageDisplay.style.display = 'none';
+                const lineTop = document.createElement('div');
+                lineTop.classList.add('status-viewBox-top-calculation-line-top');
+                statusLine.appendChild(lineTop);
 
-            await new Promise(resolve => {
-                statusVideoDisplay.addEventListener('loadedmetadata', function handler() {
-                    animationDuration = Math.ceil(statusVideoDisplay.duration * 1000); 
-                    statusVideoDisplay.removeEventListener('loadedmetadata', handler);
-                    resolve();
-                });
+                const lineBottom = document.createElement('div');
+                lineBottom.classList.add('status-viewBox-top-calculation-line-bottom');
+
+                const lineBottomTop = document.createElement('div');
+                lineBottomTop.classList.add('status-viewBox-top-calculation-line-bottom-top');
+                lineBottomTop.textContent = element.statusText || "No status";
+
+                lineBottom.appendChild(lineBottomTop);
+                statusLine.appendChild(lineBottom);
+
+                statusViewBox_Calculation_lines.appendChild(statusLine);
             });
-        }else{
-            statusImageDisplay.src = statuses[i].image_url;
-            statusImageDisplay.style.display = 'block';
-            statusVideoDisplay.style.display = 'none';
-        }
-       
-        statusviews_my_count.textContent = statuses[i].mystatus_viewers_count;
-        mystatus_dialog_addcount.textContent = `Viewed by ${statuses[i].mystatus_viewers_count}`;
-        mystatus_dialog_django_content.innerHTML = '';
 
-        if(statuses[i].mystatus_viewers_count > 0){
-            mystatus_for_dialog.style.height = "";
-            statuses[i].mystatus_viewers.forEach((data, index)=>{
-                mystatus_dialog_django_content.innerHTML += 
-                    `
-                    <div class="block" >
-                                <div class="block_second">
-                                    <div class="img-top">
-                                        <div class="img-second">
-                                            <div class="imgbox">
-                                                <img src="${data.image_url}" class="cover">
-                                            </div>
-                                        </div>
-                                    </div>    
-                                    <div class="details">
-                                        <div class="details_title">
-                                            <div class="details_title_second">
-                                                <div class="details_content_second">
-                                                    <span>${data.viewer_name}</span>
+        
+            // Start showing statuses
+            currentStatusIndex = 0;
+            current_statusview_user_id = id; // Reset the index
+            playAllStatuses();
+
+        }).catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+        
+    }
+        
+    async function   playAllStatuses(){
+        
+        if (isPlaying) return; // Prevent multiple playbacks
+        isPlaying = true;
+        
+        console.log("this ++++++++++++", currentStatusIndex);
+
+        const request_user_id = window.djangoUserId;
+
+        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+        
+        
+        for (let i = currentStatusIndex; i < statuses.length; i++) {
+            currentStatusIndex = i; 
+            
+            
+            if(!statusesViewed[currentStatusIndex] && statuses[i].is_viewed == false){
+                statusesViewed[currentStatusIndex] = true;
+            
+
+                const totalStatus = statuses.length;
+                const totalCountOfUnviewed = statusesViewed.filter(viewed => !viewed).length;
+                
+                
+                if(request_user_id === current_statusview_user_id){
+                    statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", totalStatus, totalCountOfUnviewed);
+                }else{
+                    statusCountViewedAndUnviewed_lines(`Unviewed_${current_statusview_user_id}`, `Viewed_${current_statusview_user_id}`, totalStatus, totalCountOfUnviewed); 
+                }
+            
+                add_Viewed_status(statuses[i].id); 
+
+            }else{
+                statusesViewed[currentStatusIndex] = true;
+            }  
+
+            if(request_user_id === current_statusview_user_id){
+                type_reply_input.style.display = 'none';
+                viewed_status_count_icon.style.display = 'flex';
+                mystatus_viewedCount.style = 'padding-bottom:10px';
+                if(statuses[i].caption){
+                    mystatus_viewedCount.style.background = 'rgba(0, 0, 0, .4)';
+                    mystatus_viewedContent.style.display = 'flex';
+                    mystatus_viewedContent.innerText = statuses[i].caption;
+                }else{
+                    mystatus_viewedCount.style.background = 'none';
+                    mystatus_viewedContent.style.display = 'none';
+                }
+            }else{
+                viewed_status_count_icon.style.display = 'none';
+                type_reply_input.style.display = 'flow';
+                if(statuses[i].caption){
+                    mystatus_viewedCount.style.background = 'rgba(0, 0, 0, .4)';
+                    mystatus_viewedCount.style = 'padding-bottom:80px';
+                    mystatus_viewedContent.style.display = 'flex';
+                    mystatus_viewedContent.innerText = statuses[i].caption; 
+                }else{
+                    mystatus_viewedCount.style.display = "none";
+                }
+            }
+
+            
+        
+            statusBackground.style.backgroundImage = `url(${statuses[i].image_url})`
+        
+            let animationDuration = 5000;
+            if (statuses[i].video_url){
+                
+                statusVideoDisplay.src = statuses[i].video_url;
+                statusVideoDisplay.load();
+                statusVideoDisplay.play();
+
+                statusVideoDisplay.style.display = 'block';  
+                statusImageDisplay.style.display = 'none';
+
+                await new Promise(resolve => {
+                    statusVideoDisplay.addEventListener('loadedmetadata', function handler() {
+                        animationDuration = Math.ceil(statusVideoDisplay.duration * 1000); 
+                        statusVideoDisplay.removeEventListener('loadedmetadata', handler);
+                        resolve();
+                    });
+                });
+            }else{
+                statusImageDisplay.src = statuses[i].image_url;
+                statusImageDisplay.style.display = 'block';
+                statusVideoDisplay.style.display = 'none';
+            }
+        
+            // how to viewer show my status 
+            statusviews_my_count.textContent = statuses[i].mystatus_viewers_count;
+            mystatus_dialog_addcount.textContent = `Viewed by ${statuses[i].mystatus_viewers_count}`;
+            mystatus_dialog_django_content.innerHTML = '';
+
+            if(statuses[i].mystatus_viewers_count > 0){
+                mystatus_for_dialog.style.height = "";
+                statuses[i].mystatus_viewers.forEach((data, index)=>{
+                    mystatus_dialog_django_content.innerHTML += 
+                        `
+                        <div class="block" >
+                                    <div class="block_second">
+                                        <div class="img-top">
+                                            <div class="img-second">
+                                                <div class="imgbox">
+                                                    <img src="${data.image_url}" class="cover">
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="details_content">
-                                            <span>${data.time}</span>
-                                        </div>
-                                        
-                                    </div>  
+                                        </div>    
+                                        <div class="details">
+                                            <div class="details_title">
+                                                <div class="details_title_second">
+                                                    <div class="details_content_second">
+                                                        <span>${data.viewer_name}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="details_content">
+                                                <span>${data.time}</span>
+                                            </div>
+                                            
+                                        </div>  
 
-                                </div>                      
-                            </div> 
-                    `;
-            });
+                                    </div>                      
+                                </div> 
+                        `;
+                });
+                
             
+
+            }else{
+                mystatus_for_dialog.style.height = "159px";
+                mystatus_dialog_django_content.innerHTML = `<span>No Views Yet</span>`;
+            }
+            
+
+            await animateLine(statusLines[i],  animationDuration);
+        }
+        isPlaying = false;
+        
+        // close_status_view();
+        
+    }
+
+
+
+
+    function animateLine(line, duration) {
+        
+        return new Promise(resolve => {
         
 
-        }else{
-            mystatus_for_dialog.style.height = "159px";
-            mystatus_dialog_django_content.innerHTML = `<span>No Views Yet</span>`;
-        }
-        console.log(`status_viewer========${statuses[i].mystatus_viewers}==status_viewer_count==========${statuses[i].mystatus_viewers_count}`);
+            line.style.width = '0%';
+            line.style.transition = `width ${duration}ms linear`;
 
-        await animateLine(statusLines[i],  animationDuration);
-    }
-    isPlaying = false;
-    
-    // close_status_view();
-    
-}
+            animationFrameId = requestAnimationFrame(() => {
+               
+                line.style.width = '100%';
+            });
 
-
-
-
-function animateLine(line, duration) {
-    
-    return new Promise(resolve => {
-      
-
-        line.style.width = '0%';
-        line.style.transition = `width ${duration}ms linear`;
-
-        requestAnimationFrame(() => {
-            line.style.width = '100%';
+            animationTimeout = setTimeout(() => {
+                resolve();
+            }, duration);
+        
         });
 
-        animationTimeout = setTimeout(() => {
-            resolve();
-        }, duration);
-       
-    });
-
-  
-}
-
-function moveStatus(direction) {
-    const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
-
-    const currentLine = statusLines[currentStatusIndex];
-    currentLine.style.width = direction === 'right' ? '100%' : '0%';
-    currentLine.style.transition = 'none';
-    currentLine.offsetWidth;
-
-    if(direction === 'right'){
-        currentStatusIndex++;
-    }else if(direction === 'left'){
-        currentStatusIndex--;
+    
     }
 
-    const targetLine = statusLines[currentStatusIndex];
-    targetLine.style.width = '0%';
-    targetLine.style.transition = 'none';
-    targetLine.offsetWidth;
+    function moveStatus(direction) {
+        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
 
-    statusBackground.style.backgroundImage = `url(${statuses[currentStatusIndex].image_url})`;
-    statusImageDisplay.src = statuses[currentStatusIndex].image_url;
-    
-}
+        const currentLine = statusLines[currentStatusIndex];
+        currentLine.style.width = direction === 'right' ? '100%' : '0%';
+        currentLine.style.transition = 'none';
+        currentLine.offsetWidth;
 
-statusMoveLeftside.addEventListener('click', async function(){
-    if (statuses.length === 0 ||  currentStatusIndex === 0) return;
+        if(direction === 'right'){
+            currentStatusIndex++;
+        }else if(direction === 'left'){
+            currentStatusIndex--;
+        }
 
-    clearTimeout(animationTimeout);
-    isPlaying = false; 
+        const targetLine = statusLines[currentStatusIndex];
+        targetLine.style.width = '0%';
+        targetLine.style.transition = 'none';
+        targetLine.offsetWidth;
 
-    moveStatus('left');
-     
-    playAllStatuses();
+        statusBackground.style.backgroundImage = `url(${statuses[currentStatusIndex].image_url})`;
+        statusImageDisplay.src = statuses[currentStatusIndex].image_url;
+        
+    }
 
-    console.log("this is working............... Leftside");
-});
+    statusMoveLeftside.addEventListener('click', async function(){
+        if (statuses.length === 0 ||  currentStatusIndex === 0) return;
+
+        clearTimeout(animationTimeout);
+        isPlaying = false; 
+
+        moveStatus('left');
+        
+        playAllStatuses();
+
+        console.log("this is working............... Leftside");
+    });
 
 
 
-statusMoveRightside.addEventListener('click',   function(){
-    const minuse_one = statuses.length - 1 ;
-    if (statuses.length === 0 || currentStatusIndex == minuse_one) return;
+    statusMoveRightside.addEventListener('click',   function(){
+        const minuse_one = statuses.length - 1 ;
+        if (statuses.length === 0 || currentStatusIndex == minuse_one) return;
 
-    
-    clearTimeout(animationTimeout); 
-    isPlaying = false; 
+        
+        clearTimeout(animationTimeout); 
+        isPlaying = false; 
 
-    moveStatus('right');
+        moveStatus('right');
 
-    
-    playAllStatuses();
-});
+        
+        playAllStatuses();
+    });
  
 // create viewed status change in data base with api
 function add_Viewed_status(status_id){
