@@ -570,6 +570,16 @@ function isCheckLogic(result, checkIsVideo){
     statusTakePrviews.insertAdjacentHTML('beforeend', file_tag);
 }
 
+function readFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve({ result: e.target.result, file });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+
 // input tage fille onchange called this function 
 function handlePhotoAndVideoCapture(event){
     const files = event.target.files;
@@ -580,27 +590,8 @@ function handlePhotoAndVideoCapture(event){
         return;
     }
     
-    const validFiles = Array.from(event.target.files).filter((file)=>{
+
     
-        if(file.type.startsWith('video/') && file.size > 10 * 1024 * 1024){
-            alert(`The video file "${file.name}" exceeds the size limit of 10 MB and will be skipped.`);
-            return false;
-        }
-
-        const video = document.createElement("video");
-        const videoFileUrl = URL.createObjectURL(file);
-        video.src = videoFileUrl;
-        video.onloadedmetadata = function() {
-            if(video.duration < 30){
-                alert(`The video file "${file.name}" duration must be less than or equal to 30 seconds.`);
-                return false;
-            }
-        }
-        
-        return true;
-    });
-
-    imgPreviewContainers.style.display ="flex";
 
     const  statusMutipleFile  = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
     const statusCaptionInput = document.getElementById("status-caption-input");
@@ -617,23 +608,43 @@ function handlePhotoAndVideoCapture(event){
         statusCaptionInput.setAttribute('data-index', '0');
     }
 
-    const filePromises  = validFiles.map((file)=>{
+    const filePromises  = Array.from(event.target.files).map((file)=>{
 
         return new Promise((resolve, reject)=>{
-            const readerMultiple  = new FileReader();
-            readerMultiple.onload = function(e){
-                resolve({ 
-                    result: e.target.result,
-                    file
-                });
+
+            if(file.type.startsWith('video/') && file.size > 10 * 1024 * 1024){
+                alert(`The video file "${file.name}" exceeds the size limit of 10 MB and will be skipped.`);
+                return resolve(null);
             }
-            readerMultiple.onerror = reject;
-            readerMultiple.readAsDataURL(file);
+
+            const isVideo = file.type.startsWith('video/');
+            if(isVideo){
+                const video = document.createElement("video");
+                const videoFileUrl = URL.createObjectURL(file);
+                
+                video.src = videoFileUrl;
+                video.onloadedmetadata = function() {
+
+                    if(video.duration > 30){
+                        alert(`The video file "${file.name}" duration must be less than or equal to 30 seconds.`);
+                        return resolve(null);
+                    }
+
+                    readFile(file).then(resolve).catch(reject);
+                }
+            } else{
+                readFile(file).then(resolve).catch(reject);
+            }
+          
+
+          
+           
+            
         });
-    });
+    }).filter((promise) => promise !== null);
 
     Promise.all(filePromises).then((fileDataArray)=>{
-        fileDataArray.forEach( ({result, file }) => {
+        fileDataArray.filter((fileData) => fileData !== null).forEach( ({result, file }) => {
             const isVideo = file.type.startsWith('video/');
             let imgTeg;
             
@@ -707,6 +718,7 @@ function handlePhotoAndVideoCapture(event){
 
         });
     });
+    imgPreviewContainers.style.display ="flex";
 
     //  this is bottom click change privewe and remove 
     const observer = new MutationObserver(()=>{
@@ -953,6 +965,13 @@ const type_reply_input = document.querySelector('.status-viewBox-show-status-bot
 const mystatus_viewedCount = document.querySelector('.status-viewBox-show-mystatus-status-bottom');
 const mystatus_viewedContent = document.querySelector('.status-viewBox-show-mystatus-content');
 const viewed_status_count_icon = document.querySelector('.status-viewBox-show-mystatus-viewedCount'); 
+const show_mystatus_viewedCount = document.querySelector('.status-viewBox-show-mystatus-viewedCount-items');
+const mystatus_dialog = document.querySelector('.mystatus_dialog');
+const mystatus_dialog_close = document.querySelector('.dialog_header_content svg');
+const mystatus_dialog_addcount = document.querySelector('.dialog_header_title h1');
+const statusviews_my_count = document.querySelector('.status-viewBox-show-mystatus-viewedCount-items div');
+const mystatus_dialog_django_content = document.querySelector('.dialog_content');
+const mystatus_for_dialog = document.querySelector('.dialog');
 
 let currentStatusIndex = 0;
 let current_statusview_user_id = 0;
@@ -974,6 +993,14 @@ status_viewBox_close.addEventListener('click', function(){
 status_viewBox_arrow.addEventListener('click', function(){
     close_status_view();
     
+});
+
+show_mystatus_viewedCount.addEventListener('click',function(){
+    mystatus_dialog.style.display = 'flex';
+});
+
+mystatus_dialog_close.addEventListener('click', function(){
+    mystatus_dialog.style.display = 'none';
 });
 
 function close_status_view(){
@@ -1115,20 +1142,76 @@ async function   playAllStatuses(){
         
        
         statusBackground.style.backgroundImage = `url(${statuses[i].image_url})`
+       
+        let animationDuration = 5000;
         if (statuses[i].video_url){
+            
             statusVideoDisplay.src = statuses[i].video_url;
-            statusVideoDisplay.load()
+            statusVideoDisplay.load();
             statusVideoDisplay.play();
+
             statusVideoDisplay.style.display = 'block';  
             statusImageDisplay.style.display = 'none';
+
+            await new Promise(resolve => {
+                statusVideoDisplay.addEventListener('loadedmetadata', function handler() {
+                    animationDuration = Math.ceil(statusVideoDisplay.duration * 1000); 
+                    statusVideoDisplay.removeEventListener('loadedmetadata', handler);
+                    resolve();
+                });
+            });
         }else{
             statusImageDisplay.src = statuses[i].image_url;
             statusImageDisplay.style.display = 'block';
             statusVideoDisplay.style.display = 'none';
         }
        
+        statusviews_my_count.textContent = statuses[i].mystatus_viewers_count;
+        mystatus_dialog_addcount.textContent = `Viewed by ${statuses[i].mystatus_viewers_count}`;
+        mystatus_dialog_django_content.innerHTML = '';
 
-        await animateLine(statusLines[i],  5000);
+        if(statuses[i].mystatus_viewers_count > 0){
+            mystatus_for_dialog.style.height = "";
+            statuses[i].mystatus_viewers.forEach((data, index)=>{
+                mystatus_dialog_django_content.innerHTML += 
+                    `
+                    <div class="block" >
+                                <div class="block_second">
+                                    <div class="img-top">
+                                        <div class="img-second">
+                                            <div class="imgbox">
+                                                <img src="${data.image_url}" class="cover">
+                                            </div>
+                                        </div>
+                                    </div>    
+                                    <div class="details">
+                                        <div class="details_title">
+                                            <div class="details_title_second">
+                                                <div class="details_content_second">
+                                                    <span>${data.viewer_name}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="details_content">
+                                            <span>${data.time}</span>
+                                        </div>
+                                        
+                                    </div>  
+
+                                </div>                      
+                            </div> 
+                    `;
+            });
+            
+        
+
+        }else{
+            mystatus_for_dialog.style.height = "159px";
+            mystatus_dialog_django_content.innerHTML = `<span>No Views Yet</span>`;
+        }
+        console.log(`status_viewer========${statuses[i].mystatus_viewers}==status_viewer_count==========${statuses[i].mystatus_viewers_count}`);
+
+        await animateLine(statusLines[i],  animationDuration);
     }
     isPlaying = false;
     

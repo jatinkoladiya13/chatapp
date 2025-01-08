@@ -2915,18 +2915,237 @@ color: #008069;
     display: flex;
     justify-content: center;
     align-items: center;
+    
+}
+
+.status-viewBox-show-mystatus-viewedCount-items{
+    display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     min-height: 0;
     min-width: 0;
     margin-top: 8px;
+    cursor: pointer;
 }
 
-.status-viewBox-show-mystatus-viewedCount svg{
-    color: red;
+.status-viewBox-show-mystatus-viewedCount-items svg{
+    color: white;
 }
 
-.status-viewBox-show-mystatus-viewedCount div{
+.status-viewBox-show-mystatus-viewedCount-items div{
     color: white;
     margin-left: 5px;
 }
+
+.mystatus_dialog{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.mystatus_dialog .dialog{
+    background-color: #3b4a54;
+    position: fixed;
+    width: 400px;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* height: 159px; */
+}
+
+.mystatus_dialog .dialog .dialog_header{
+    padding-bottom: 0;
+    padding-top: 0;
+    padding-right: 20px;
+    padding-left: 25px;
+    height: 59px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    flex: none;
+}
+
+.mystatus_dialog .dialog .dialog_content{
+    background-color: #202c33;
+    color: #d9dee0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    opacity: 1;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
+    flex: 1;
+}
+
+.mystatus_dialog .dialog .dialog_content span{
+    display: flex;
+    justify-content: center;
+}
+
+
+.mystatus_dialog .dialog .dialog_header .dialog_header_content{
+    width: 100%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    flex: none;
+    
+}
+
+.mystatus_dialog .dialog .dialog_header .dialog_header_content svg{
+    overflow: hidden;
+    color: #d9dee0;
+    vertical-align: top;
+    cursor: pointer;
+}
+
+.mystatus_dialog .dialog .dialog_header .dialog_header_content .dialog_header_title{
+    overflow-x: hidden;
+    max-height: calc(23px* 2);
+    margin-top: 4px;
+    overflow-y: hidden;
+    font-size: 1.1875rem;
+    font-weight: 500;
+    line-height: 23px;
+    -webkit-box-orient: vertical;
+    word-wrap: break-word;
+    flex-grow: 1;
+    display: flex;
+    margin-left: 20px;
+}
+
+.mystatus_dialog .dialog .dialog_header .dialog_header_content .dialog_header_title h1{
+    line-height: 32px;
+    font-size: inherit;
+    font-weight: inherit;
+    color: #d9dee0;
+}
+
+.mystatus_dialog .dialog .dialog_content .block{
+    position: relative;
+    width: 100%;
+}
+
+.mystatus_dialog .dialog .dialog_content .block .block_second{
+    cursor: default;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    height: 72px;
+    pointer-events: all;
+    background-color: #111B21;
+}
+
+.mystatus_dialog .dialog .dialog_content .block .block_second .img-top{
+    display: flex;
+}
+
+.mystatus_dialog .dialog .dialog_content .block .block_second .img-top .img-second{
+    display: flex;
+    flex: none;
+    align-items: center;
+    padding: 0 15px 0 13px;
+    margin-top: -1px;
+}
+
+.mystatus_dialog .dialog .dialog_content .block .block_second .img-top .imgbox{
+    position: relative;
+    height: 52px;
+    width: 52px;
+    border-radius: 50%;
+}
+
+.mystatus_dialog .dialog .dialog_content .block .block_second .img-top .imgbox img{
+    visibility: visible;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    position: relative;
+    display: block;
+    opacity: 1;
+    object-position: center;
+    transition: opacity .15s ease-out;
+}
+
+.mystatus_dialog .dialog .dialog_content .block .details{
+    display: flex;
+    flex-basis: auto;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    min-width: 0;
+    padding-right: 15px;
+    border-top: 1px solid rgba(134, 150, 160, .15);
+
+}
+
+.mystatus_dialog .dialog .dialog_content .block .details .details_title{
+    display: flex;
+    align-items: center;
+    line-height: normal;
+    text-align: left;
+}
+
+.mystatus_dialog .dialog .dialog_content .block .details .details_title .details_title_second{
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+    font-size: 17px;
+    font-weight: normal;
+    line-height: 21px;
+    color: #e9edef;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.mystatus_dialog .dialog .dialog_content .block .details .details_title span{
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: relative;
+    flex-grow: 1;
+    visibility: visible;
+}
+
+.mystatus_dialog .dialog .dialog_content .block .details .details_content{
+    display: flex;
+    align-items: center;
+    min-height: 20px;
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 20px;
+    color: #8696a0;
+} 
+
+.mystatus_dialog .dialog .dialog_content .block .details .details_content .details_content_second{
+    flex-grow: 1;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 20px;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background-color: transparent;
+} 
+

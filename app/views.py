@@ -424,13 +424,33 @@ def get_My_status(request, user_id):
         for status in statuses:
             
             has_been_viewed  = StatusView.objects.filter(status=status,  viewer=request.user,).exists()
+            
 
+            send_mystatus_viewers = []
+            status_viewer_count = 0
+            if request.user.id == user_id:
+                get_status_viewers = StatusView.objects.filter(status=status)
+                for get_status_viewer in get_status_viewers:
+                    if request.user.id is not get_status_viewer.viewer.id:
+                        unformate_time = localtime(get_status_viewer.viewed_at)
+                        send_mystatus_viewers.append({
+                            'viewer_name':get_status_viewer.viewer.username,
+                            'time':relative_time(unformate_time),
+                            'image_url':get_status_viewer.viewer.profile_image.url if get_status_viewer.viewer.profile_image.url else None,
+                        })
+
+                status_viewer_count = len(send_mystatus_viewers) 
+        
+          
             send_status.append({
                 'image_url': status.image.url if status.image else None, 
                 'video_url':status.video.url if status.video else None, 
                 'caption':status.caption,
                 'id':status.id,
-                'is_viewed': has_been_viewed})
+                'is_viewed': has_been_viewed,
+                'mystatus_viewers':send_mystatus_viewers,
+                'mystatus_viewers_count':status_viewer_count,
+                })
             
         status_count = statuses.count()    
         viewed_count = StatusView.objects.filter(viewer=user, status__user = user).count()
