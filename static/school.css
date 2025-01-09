@@ -2539,11 +2539,11 @@ color: #008069;
 }
 
 .status-viewBox-profile-img{
-    margin-bottom: auto;
-    margin-top: auto;
-    margin-right: 12px;
-    margin-left: 2px;
-    display: inline-block;
+    display: flex;
+    flex: none;
+    align-items: center;
+    padding: 0 15px 0 13px;
+    margin-top: -1px;
 }
 
 .status-viewBox-profile-img-second{
@@ -2551,15 +2551,14 @@ color: #008069;
     height: 40px;
     position: relative;
     border-radius: 50%;
-    background-color: initial;
 }
 
 .status-viewBox-profile-img-second img{
     visibility: visible;
-    width: 100%;
-    height: 100%;
     overflow-x: hidden;
     overflow-y: hidden;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
     position: relative;
@@ -2577,24 +2576,44 @@ color: #008069;
 }
 
 .status-viewBox-profile-details-top{
-    margin-bottom: 6px;
-    margin-top: 2px;
-    overflow-x: hidden;
-    overflow-y: hidden;
     display: flex;
+    align-items: center;
+    line-height: normal;
+    text-align: left;
 }
 
-.status-viewBox-profile-details-top span{
-    min-height: 0px;
+.status-viewBox-profile-details-top .status-viewBox-profile-details-second{
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+    font-size: 17px;
+    font-weight: normal;
+    line-height: 21px;
+    color: #e9edef;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.status-viewBox-profile-details-top .status-viewBox-profile-details-second .status-viewBox-profile-details-third{
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+    font-size: 17px;
+    font-weight: normal;
+    line-height: 21px;
+    color: #e9edef;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.status-viewBox-profile-details-top .status-viewBox-profile-details-second .status-viewBox-profile-details-third span{
+    min-height: 0;
     overflow-x: hidden;
     overflow-y: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    display: inline-block;
     position: relative;
-    font-size: 1rem;
-    flex-grow: 1;
-    color: white;
+    visibility: visible;
 }
 
 .status-viewBox-profile-details-bottom{

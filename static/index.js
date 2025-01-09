@@ -315,7 +315,6 @@ function api_functionality_recent_viewed_status(data){
 
 
     const statusBoxes = document.querySelectorAll('.status-boxs');
-
     statusBoxes.forEach(box => {
         box.addEventListener('click', function() {
             const dataId = this.getAttribute('data-id');
@@ -974,6 +973,9 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
     const mystatus_for_dialog = document.querySelector('.dialog');
     const mystatus_pause = document.getElementById('mystatus_pause');
     const mystatus_play =  document.getElementById('mystatus_play');
+    const mystatus_profile_time = document.getElementById('mystatus_profile_time');
+    const mystatus_profile_name = document.getElementById('mystatus_profile_name');
+    const mystatus_profile_img = document.getElementById('mystatus_profile_img');
 
     let currentStatusIndex = 0;
     let current_statusview_user_id = 0;
@@ -1113,10 +1115,13 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
             statuses = data.message;
             statusesViewed = Array(statuses.length).fill(false);
             statusViewBox.style.display = "flex";   
-
+           
             const statusViewBox_Calculation_lines = document.querySelector('.status-viewBox-top-calculation-lines');
             statusViewBox_Calculation_lines.innerHTML = '';
-            
+           
+            mystatus_profile_name.textContent = data.uploaded_status_user_name;
+            mystatus_profile_img.src = data.uploaded_status_user_img;
+            console.log(`name==================${data.uploaded_status_user_name}==img==========${data.uploaded_status_user_img}`)
         
             if (statusViewBox_Calculation_lines.innerHTML.trim() === '') {
                 console.log('The element is empty.');
@@ -1247,6 +1252,8 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
         
             // how to viewer show my status 
             statusviews_my_count.textContent = statuses[i].mystatus_viewers_count;
+            mystatus_profile_time.textContent =  statuses[i].time; 
+
             mystatus_dialog_addcount.textContent = `Viewed by ${statuses[i].mystatus_viewers_count}`;
             mystatus_dialog_django_content.innerHTML = '';
 

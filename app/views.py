@@ -441,7 +441,6 @@ def get_My_status(request, user_id):
 
                 status_viewer_count = len(send_mystatus_viewers) 
         
-          
             send_status.append({
                 'image_url': status.image.url if status.image else None, 
                 'video_url':status.video.url if status.video else None, 
@@ -450,6 +449,7 @@ def get_My_status(request, user_id):
                 'is_viewed': has_been_viewed,
                 'mystatus_viewers':send_mystatus_viewers,
                 'mystatus_viewers_count':status_viewer_count,
+                'time':relative_time(localtime(status.created_at))
                 })
             
         status_count = statuses.count()    
@@ -462,7 +462,7 @@ def get_My_status(request, user_id):
             upload_time = localtime(last_status.created_at)
             
 
-        return JsonResponse({'status':'200', 'message': send_status, 'total_status':status_count, 'unviewed_code':unviewed_code, 'Upload_time': relative_time(upload_time),}, status=200)
+        return JsonResponse({'status':'200', 'message': send_status, 'total_status':status_count, 'unviewed_code':unviewed_code, 'Upload_time': relative_time(upload_time), 'uploaded_status_user_name':user.username, 'uploaded_status_user_img':user.profile_image.url}, status=200)
         
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
