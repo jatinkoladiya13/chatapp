@@ -977,6 +977,11 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
     const mystatus_profile_name = document.getElementById('mystatus_profile_name');
     const mystatus_profile_img = document.getElementById('mystatus_profile_img');
 
+    // this is for status reply 
+    const statusview_input_reply = document.querySelector('.status-viewBox-show-status-bottom-reply-input');
+    const type_reply_shadow = document.querySelector('.type_reply_shadow');
+    const type_reply_sendButton = document.querySelector('.status-viewBox-show-status-bottom-reply-send svg');
+
     let currentStatusIndex = 0;
     let current_statusview_user_id = 0;
     let statuses = [];
@@ -1004,73 +1009,69 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
         
     });
 
-    show_mystatus_viewedCount.addEventListener('click',function(){
-        
-        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
-        const line = statusLines[currentStatusIndex];
-        handlePause(line);
-        
-        mystatus_play.style.display = "none";
-        mystatus_pause.style.display = "block";
-        
+    show_mystatus_viewedCount.addEventListener('click',function(){  
+
+        handlePause();
         mystatus_dialog.style.display = 'flex';
+    
     });
 
     mystatus_dialog_close.addEventListener('click', function(){
-        
 
-        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
-        const line = statusLines[currentStatusIndex];   
-        handelResume(line);
-        mystatus_play.style.display = "block";
-        mystatus_pause.style.display = "none";
-
+        handelResume();
         mystatus_dialog.style.display = 'none';
+    
     });
 
     mystatus_play.addEventListener('click', function(){
+        handlePause();
+    });
+
+    mystatus_pause.addEventListener('click', function(){        
+        handelResume();
+    });
+
+    function handlePause(){
         const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
         const line = statusLines[currentStatusIndex];
-        handlePause(line);
-        
-        mystatus_play.style.display = "none";
-        mystatus_pause.style.display = "block";
 
-    });
-
-    mystatus_pause.addEventListener('click', function(){
-        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
-        const line = statusLines[currentStatusIndex];   
-        handelResume(line);
-        mystatus_play.style.display = "block";
-        mystatus_pause.style.display = "none";
-    
-    });
-
-    function handlePause(line){
-        const computedStyle = getComputedStyle(line);
-        const currentWidth = parseFloat(computedStyle.width); 
-        const totalWidth = parseFloat(getComputedStyle(line.parentElement).width);
-        const currentWidthPercentage = (currentWidth / totalWidth) * 100;
-
-        if (statusVideoDisplay.style.display === 'block') {
-            statusVideoDisplay.pause(); 
+        if (!line) {
+            console.error('No line element found. Ensure currentStatusIndex is valid and the selector is correct.');
+            return; // Exit the function early if line is not found
         }
+
+        const computedStyle = getComputedStyle(line);
+        if(computedStyle){
+            const currentWidth = parseFloat(computedStyle.width); 
+            const totalWidth = parseFloat(getComputedStyle(line.parentElement).width);
+            const currentWidthPercentage = (currentWidth / totalWidth) * 100;
     
-        const totalDuration = statuses[currentStatusIndex].video_url
-        ? Math.ceil(statusVideoDisplay.duration * 1000) : 5000;
-        remainingTime = (100 - currentWidth) * (totalDuration / 100);
-
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-        clearTimeout(animationTimeout);
-        animationTimeout = null;
-
-        line.style.transition = 'none'; 
-        line.style.width = `${currentWidthPercentage}%`;
+            if (statusVideoDisplay.style.display === 'block') {
+                statusVideoDisplay.pause(); 
+            }
+        
+            const totalDuration = statuses[currentStatusIndex].video_url
+            ? Math.ceil(statusVideoDisplay.duration * 1000) : 5000;
+            remainingTime = (100 - currentWidth) * (totalDuration / 100);
+    
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+            clearTimeout(animationTimeout);
+            animationTimeout = null;
+    
+            line.style.transition = 'none'; 
+            line.style.width = `${currentWidthPercentage}%`;
+    
+            mystatus_play.style.display = "none";
+            mystatus_pause.style.display = "block";
+        }
+       
     }
 
-    function handelResume(line){
+    function handelResume(){
+        const statusLines = document.querySelectorAll('.status-viewBox-top-calculation-line-bottom-top');
+        const line = statusLines[currentStatusIndex];   
+
         if (statusVideoDisplay.style.display === 'block') {
             statusVideoDisplay.play(); // Resume video playback
         }
@@ -1081,6 +1082,10 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
             isPlaying = false;
             playAllStatuses();
         });
+
+        mystatus_play.style.display = "block";
+        mystatus_pause.style.display = "none";
+
     }
 
 
@@ -1097,7 +1102,44 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
         
     }
 
+    // status view reply input system   
+    if(window.djangoUserId !== current_statusview_user_id){
+         
+        statusview_input_reply.addEventListener('focus',()=>{
+            console.log('Input is focused!', currentStatusIndex);
+            type_reply_shadow.style.display = "block";
+            handlePause();
+            type_reply_input.style.backgroundColor = '#202c33';
+            type_reply_input.style.zindex = '2000';   
+            type_reply_input.style.borderRadius = '20px'; 
+            statusview_input_reply.style.backgroundColor = "#2a3942";
+        });
+
+        statusview_input_reply.addEventListener('blur', () => {
+            console.log('Input is not focused.', currentStatusIndex);
+            type_reply_shadow.style.display = "none";
+            handelResume();
+            type_reply_input.style.backgroundColor = '';
+            type_reply_input.style.zindex = '200';   
+            type_reply_input.style.borderRadius = ''; 
+            statusview_input_reply.style.backgroundColor = "rgba(11, 20, 26, .5)";
+        });
+    }
    
+    type_reply_sendButton.addEventListener('click', function(){
+        if(statusview_input_reply.value.trim() !== ""){
+            console.log("type reply send by viewer-=", statusview_input_reply.value);
+            chatSocket.send(JSON.stringify({
+                'action':'send_message',
+                'message': "type reply send by viewer {}"+statusview_input_reply.value,
+                'receiver_id': current_statusview_user_id,
+            }));
+            alert('successfully send reply by viewer status');
+            statusview_input_reply.value = "";
+        
+        }
+        
+    });
 
     topheaderProfile_Status_Second.addEventListener('click', function(){
         get_status_By_api(window.djangoUserId);
@@ -1121,13 +1163,9 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
            
             mystatus_profile_name.textContent = data.uploaded_status_user_name;
             mystatus_profile_img.src = data.uploaded_status_user_img;
-            console.log(`name==================${data.uploaded_status_user_name}==img==========${data.uploaded_status_user_img}`)
+           
         
-            if (statusViewBox_Calculation_lines.innerHTML.trim() === '') {
-                console.log('The element is empty.');
-            } else {
-                console.log('The element is not empty.');
-            }
+        
         
             statuses.forEach((element, index) => {
             
@@ -1163,6 +1201,7 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
         
     }
         
+ 
     async function   playAllStatuses(){
         
         if (isPlaying) return; // Prevent multiple playbacks
@@ -1176,6 +1215,8 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
         
         for (let i = currentStatusIndex; i < statuses.length; i++) {
             currentStatusIndex = i; 
+           
+            statusview_input_reply.value = "";
             
             
             if(!statusesViewed[currentStatusIndex] && statuses[i].is_viewed == false){
@@ -1200,8 +1241,10 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
 
             if(request_user_id === current_statusview_user_id){
                 type_reply_input.style.display = 'none';
+                
                 viewed_status_count_icon.style.display = 'flex';
                 mystatus_viewedCount.style = 'padding-bottom:10px';
+               
                 if(statuses[i].caption){
                     mystatus_viewedCount.style.background = 'rgba(0, 0, 0, .4)';
                     mystatus_viewedContent.style.display = 'flex';
@@ -1210,9 +1253,12 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
                     mystatus_viewedCount.style.background = 'none';
                     mystatus_viewedContent.style.display = 'none';
                 }
+            
             }else{
+               
                 viewed_status_count_icon.style.display = 'none';
-                type_reply_input.style.display = 'flow';
+                type_reply_input.style.display = 'block';
+               
                 if(statuses[i].caption){
                     mystatus_viewedCount.style.background = 'rgba(0, 0, 0, .4)';
                     mystatus_viewedCount.style = 'padding-bottom:80px';
@@ -1221,6 +1267,7 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
                 }else{
                     mystatus_viewedCount.style.display = "none";
                 }
+
             }
 
             
@@ -1302,7 +1349,7 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
         }
         isPlaying = false;
         
-        // close_status_view();
+        close_status_view();
         
     }
 
@@ -1368,7 +1415,7 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
         
         playAllStatuses();
 
-        console.log("this is working............... Leftside");
+        
     });
 
 
