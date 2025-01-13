@@ -180,14 +180,16 @@ def home(request):
             last_msg_time = format_date(local_timestamp)
             if last_msg_time == 'Today':
                 last_msg_time = local_timestamp.strftime('%H:%M')
-            if last_message.image:    
+            if last_message.image and last_message.video_duration is  None:    
                 last_msg = 'Photo'
-            elif last_message.video:
+            elif last_message.video and last_message.video_duration is  None:
                 last_msg = 'Video'
             else:
-                last_msg = last_message.content            
-       
-
+                if last_message.video_duration is not None:
+                    last_msg  = last_message.caption
+                else:    
+                    last_msg = last_message.content            
+         
         user_data.append({
             'id': contact_user.id,
             'username': contact_user.username,

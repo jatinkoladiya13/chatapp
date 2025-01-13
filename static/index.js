@@ -590,13 +590,13 @@ function handlePhotoAndVideoCapture(event){
     }
     
 
-    
+    console.log(`check_length===============${fileBlobs.length}`);
 
     const  statusMutipleFile  = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
     const statusCaptionInput = document.getElementById("status-caption-input");
     const statusCaptionClose = document.getElementById("status-caption-close");
     
-    statusMutipleFile.innerHTML = '';
+   
     const isFirstUpload = statusMutipleFile.innerHTML.trim() === '';
    
 
@@ -872,7 +872,8 @@ async function statusFileSenToApi(formatDate, index){
                 fileBlobs=[];
                 console.log(data.message.Upload_time);
                 topheaderProfile_Status_Second.style.display = 'flex';
-                topheader_Profile_Status.style.display = 'none';       
+                topheader_Profile_Status.style.display = 'none';  
+                document.querySelector('.status_preview_bottoms .send-images .status-multiple-files').innerHTML = '';     
             }
 
             profile_Status_Second_details.textContent = data.message['Upload_time']; 
@@ -988,6 +989,7 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
     let isPlaying = false;
     let animationTimeout = null;
     let statusesViewed = [];
+    let video_duration = 0; 
    
     let animationFrameId = null;
     let isPaused = false;
@@ -1131,8 +1133,11 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
             console.log("type reply send by viewer-=", statusview_input_reply.value);
             chatSocket.send(JSON.stringify({
                 'action':'send_message',
-                'message': "type reply send by viewer {}"+statusview_input_reply.value,
+                'message': '',
                 'receiver_id': current_statusview_user_id,
+                'status_id':statuses[currentStatusIndex].id,
+                'video_duration':video_duration,
+                'status_reply_caption':statusview_input_reply.value,
             }));
             alert('successfully send reply by viewer status');
             statusview_input_reply.value = "";
@@ -1215,6 +1220,7 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
         
         for (let i = currentStatusIndex; i < statuses.length; i++) {
             currentStatusIndex = i; 
+            video_duration = 0;
            
             statusview_input_reply.value = "";
             
@@ -1286,6 +1292,7 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
 
                 await new Promise(resolve => {
                     statusVideoDisplay.addEventListener('loadedmetadata', function handler() {
+                        video_duration = statusVideoDisplay.duration;
                         animationDuration = Math.ceil(statusVideoDisplay.duration * 1000); 
                         statusVideoDisplay.removeEventListener('loadedmetadata', handler);
                         resolve();
@@ -1344,7 +1351,7 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
                 mystatus_dialog_django_content.innerHTML = `<span>No Views Yet</span>`;
             }
             
-
+      
             await animateLine(statusLines[i],  animationDuration);
         }
         isPlaying = false;
@@ -2012,7 +2019,7 @@ chatSocket.onmessage = function(e){
             }else{
                 if(data.message['uploaded_user_id'] == djangoUserId){
 
-                    
+                    status_data_get_On_button();
                 }
             }
             
@@ -2029,12 +2036,18 @@ chatSocket.onmessage = function(e){
             const userElements = document.querySelector(emaplath);
             if(userElements){
                 const messagePElement = userElements.querySelector('.message_p p');
-                if (data.type_content == 'Photo'){
+                if (data.type_content == 'Photo' && data.video_duration===''){
                     messagePElement.textContent = 'Photo';
-                }else if(data.type_content == 'Video'){
+                }else if(data.type_content == 'Video' && data.video_duration===''){
                     messagePElement.textContent = 'Video';
                 }else{
-                    messagePElement.textContent = data.message;
+                    
+                    if(data.video_duration  === ''){
+                        messagePElement.textContent = data.message; 
+                    }else{
+                        messagePElement.textContent = data.caption;
+                    }
+                       
                 }
                 const times = userElements.querySelector('.listHead p');
                 times.textContent = data.timestamp;
@@ -2042,6 +2055,14 @@ chatSocket.onmessage = function(e){
                 }
        
 }
+
+function ensureMediaPrefix(imageUrl){
+    if(!imageUrl.startsWith("/media/")){
+        imageUrl = "/media/" + imageUrl;
+    }
+    return imageUrl;
+}
+
 
 // functions 
 function handleChathistory(data){
@@ -2100,20 +2121,48 @@ function appendMessage(message){
        
         let messageElement; 
         if(message.img){
+      
             messageElement = `
                 <div class="message my_message">
                     <div class="mainImage end_background">
-                        <div class="first_view" onclick="playVideo('media/${message.img}', '${true}');">
-                            <div class="innerImage">
-                                <img src="media/${message.img}" class="image" alt="Image">
+                        ${message.is_reply_status ?
+                            `<div class="status_part" style="background-color: #025144;">
+                                <span class="status_part_left-line"></span>
+                                <div class="status_part_conntent">
+                                    <div class="status_part_conntent_wrap">
+                                        <div class="status_part_conntent_title">
+                                            <span>${message.reciver_name} · Status</span>
+                                        </div>
+                                        <div class="status_part_conntent_title_bottom">
+                                            <div class="status_part_conntent_title_bottom_icon">
+                                                <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
+                                            </div>
+                                            <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
+                                        </div>
+                                    </div>
+                                </div> 
+                                <div class="status_part_img">
+                                    <div class="status_part_img_first">
+                                        <div class="status_part_img_second" >
+                                            <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.img)});"> </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div> 
-                            ${message.caption ?'':
-                                `<div class="videoBottom flex-end">
-                                    <span class="vide_timestamp">${message.timestamp}</span>
-                                </div>`}
-                        </div> 
-                        ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                        ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}
+                            <div class="caption">${message.caption}</div>
+                            <span class="caption_timestamp">${message.timestamp}</span>`
+                        :        
+                        `<div class="first_view" onclick="playVideo('media/${message.img}', '${true}');">
+                                <div class="innerImage">
+                                    <img src="media/${message.img}" class="image" alt="Image">
+                                </div> 
+                                ${message.caption ?'':
+                                    `<div class="videoBottom flex-end">
+                                        <span class="vide_timestamp">${message.timestamp}</span>
+                                    </div>`}
+                            </div> 
+                            ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
+                            ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}`}
                     </div> 
                 </div>`
             ;
@@ -2123,7 +2172,35 @@ function appendMessage(message){
             messageElement =`
             <div class="message my_message">
                 <div class="mainImage end_background">
-                    <div class="first_view" onclick="playVideo('${message.video}', '${false}')">
+                    ${message.is_reply_status ?
+                        `<div class="status_part" style="background-color: #025144;">
+                            <span class="status_part_left-line"></span>
+                            <div class="status_part_conntent">
+                                <div class="status_part_conntent_wrap">
+                                    <div class="status_part_conntent_title">
+                                        <span>${message.reciver_name} · Status</span>
+                                    </div>
+                                    <div class="status_part_conntent_title_bottom">
+                                        <div class="status_part_conntent_title_bottom_icon">
+                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                                        </div>
+                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${message.replied_video_duration}</span>
+                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                                    </div>
+                                </div>
+                            </div> 
+                            <div class="status_part_img">
+                                <div class="status_part_img_first">
+                                    <div class="status_part_img_second" >
+                                        <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.video)});"> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+                        <div class="caption">${message.caption}</div>
+                        <span class="caption_timestamp">${message.timestamp}</span>`
+                    :         
+                    `<div class="first_view" onclick="playVideo('${message.video}', '${false}')">
                         <div class="playButton" id="playButton" >
                             <!-- Play Icon -->
                             <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
@@ -2143,7 +2220,7 @@ function appendMessage(message){
                     </div>
                     ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
                     ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}
-                     
+                    `}
                 </div> 
                 
             </div>`;
@@ -2160,23 +2237,50 @@ function appendMessage(message){
     }
     if(selectedUserId == message.sender && djangoUserId == message.receiver){  
         if(message.sender != message.receiver){
-            
+           
             let messageElement;
             if(message.img){
                 messageElement = `
                     <div class="message frnd_message">
                         <div class="mainImage start_background">
-                            <div class="first_view" onclick="playVideo('media/${message.img}', '${true}')">
-                                <div class="innerImage">
-                                    <img src="media/${message.img}" class="image" alt="Image">
+                            ${message.is_reply_status ?
+                                `<div class="status_part" style="background-color: #1d282f;">
+                                    <span class="status_part_left-line"></span>
+                                    <div class="status_part_conntent">
+                                        <div class="status_part_conntent_wrap">
+                                            <div class="status_part_conntent_title">
+                                                <span>You · Status</span>
+                                            </div>
+                                            <div class="status_part_conntent_title_bottom">
+                                                <div class="status_part_conntent_title_bottom_icon">
+                                                    <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
+                                                </div>
+                                                <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    <div class="status_part_img">
+                                        <div class="status_part_img_first">
+                                            <div class="status_part_img_second" >
+                                                <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.img)});"> </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div> 
-                                ${message.caption ?'':
-                                    `<div class="videoBottom flex-end">
-                                        <span class="vide_timestamp">${message.timestamp}</span>
-                                    </div>`}
-                            </div> 
-                            ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                            ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}
+                                <div class="caption">${message.caption}</div>
+                                <span class="caption_timestamp">${message.timestamp}</span>`
+                              :        
+                               `<div class="first_view" onclick="playVideo('${message.img}', '${true}')">
+                                    <div class="innerImage">
+                                        <img src="media/${message.img}" class="image" alt="Image">
+                                    </div> 
+                                    ${message.caption ?'':
+                                        `<div class="videoBottom flex-end">
+                                            <span class="vide_timestamp">${message.timestamp}</span>
+                                        </div>`}
+                                </div> 
+                                ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
+                                ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}`}
                         </div> 
                     </div>`
                 ;
@@ -2187,7 +2291,35 @@ function appendMessage(message){
                 messageElement =`
                 <div class="message frnd_message">
                     <div class="mainImage start_background">
-                        <div class="first_view" onclick="playVideo('${message.video}', '${false}')">
+                        ${message.is_reply_status ?
+                            `<div class="status_part" style="background-color: #1d282f;">
+                                <span class="status_part_left-line"></span>
+                                <div class="status_part_conntent">
+                                    <div class="status_part_conntent_wrap">
+                                        <div class="status_part_conntent_title">
+                                            <span>You · Status</span>
+                                        </div>
+                                        <div class="status_part_conntent_title_bottom">
+                                            <div class="status_part_conntent_title_bottom_icon">
+                                                <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                                            </div>
+                                            <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${message.replied_video_duration}</span>
+                                            <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                                        </div>
+                                    </div>
+                                </div> 
+                                <div class="status_part_img">
+                                    <div class="status_part_img_first">
+                                        <div class="status_part_img_second" >
+                                            <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.video)});"> </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                            <div class="caption">${message.caption}</div>
+                            <span class="caption_timestamp">${message.timestamp}</span>`
+                        :   
+                        `<div class="first_view" onclick="playVideo('${message.video}', '${false}')">
                             <div class="playButton" id="playButton">
                                 <!-- Play Icon -->
                                 <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
@@ -2207,7 +2339,7 @@ function appendMessage(message){
                         </div>
                         ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
                         ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}
-                         
+                        `}
                     </div> 
                     
                 </div>`;
@@ -2255,10 +2387,38 @@ function handleChatMessage(data){
     
     if(data.sender_id == djangoUserId){
         if (data.type_content == 'Photo'){
+           
             const messageElement = `
                 <div class="message my_message">
                     <div class="mainImage end_background">
-                        <div class="first_view" onclick="playVideo('${data.url}', '${true}')">
+                        ${ data.is_reply_status ?
+                        `<div class="status_part" style="background-color: #025144;">
+                            <span class="status_part_left-line"></span>
+                            <div class="status_part_conntent">
+                                <div class="status_part_conntent_wrap">
+                                    <div class="status_part_conntent_title">
+                                        <span>${data.reciver_name} · Status</span>
+                                    </div>
+                                    
+                                    <div class="status_part_conntent_title_bottom">
+                                        <div class="status_part_conntent_title_bottom_icon">
+                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
+                                        </div>
+                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
+                                    </div>
+                                </div>
+                            </div> 
+                            <div class="status_part_img">
+                                <div class="status_part_img_first">
+                                    <div class="status_part_img_second" >
+                                        <div class="status_part_imgview" style="background-image: url(${data.url});"> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+                       <div class="caption">${data.caption}</div>
+                       <span class="caption_timestamp">${data.timestamp}</span> `:
+                       `<div class="first_view" onclick="playVideo('${data.url}', '${true}')">
                             <div class="innerImage">
                                 <img src="${data.url}" class="image" alt="Image">
                             </div> 
@@ -2268,7 +2428,9 @@ function handleChatMessage(data){
                                 </div>`}
                         </div> 
                         ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
-                        ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
+                        ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}` 
+                    }
+                    
                     </div> 
                 </div>`;
 
@@ -2281,7 +2443,35 @@ function handleChatMessage(data){
             const messageElement =`
             <div class="message my_message">
                 <div class="mainImage end_background">
-                    <div class="first_view" onclick="playVideo('${data.url}', '${false}')">
+                    ${data.is_reply_status ?
+                        `<div class="status_part" style="background-color: #025144;">
+                            <span class="status_part_left-line"></span>
+                            <div class="status_part_conntent">
+                                <div class="status_part_conntent_wrap">
+                                    <div class="status_part_conntent_title">
+                                        <span>${data.reciver_name} · Status</span>
+                                    </div>
+                                    <div class="status_part_conntent_title_bottom">
+                                        <div class="status_part_conntent_title_bottom_icon">
+                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>     
+                                        </div>
+                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${data.video_duration}</span>
+                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                                    </div>
+                                </div>
+                            </div> 
+                            <div class="status_part_img">
+                                <div class="status_part_img_first">
+                                    <div class="status_part_img_second" >
+                                        <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(data.url)});"> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+                        <div class="caption">${data.caption}</div>
+                        <span class="caption_timestamp">${data.timestamp}</span>`
+                    :        
+                    `<div class="first_view" onclick="playVideo('${data.url}', '${false}')">
                         <div class="playButton" id="playButton" >
                             <!-- Play Icon -->
                             <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
@@ -2301,7 +2491,7 @@ function handleChatMessage(data){
                     </div>
                     ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
                     ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
-                     
+                    `}
                 </div> 
                 
             </div>`;
@@ -2353,7 +2543,35 @@ function handleChatMessage(data){
                     const messageElement = `
                         <div class="message frnd_message">
                             <div class="mainImage start_background">
-                                <div class="first_view" onclick="playVideo('${data.url}', '${true}')">
+                                ${data.is_reply_status ?
+                                  `<div class="status_part" style="background-color: #1d282f;">
+                                        <span class="status_part_left-line"></span>
+                                        <div class="status_part_conntent">
+                                            <div class="status_part_conntent_wrap">
+                                                <div class="status_part_conntent_title">
+                                                    <span>You · Status</span>
+                                                </div>
+                                                
+                                                <div class="status_part_conntent_title_bottom">
+                                                    <div class="status_part_conntent_title_bottom_icon">
+                                                        <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
+                                                    </div>
+                                                    <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        <div class="status_part_img">
+                                            <div class="status_part_img_first">
+                                                <div class="status_part_img_second" >
+                                                    <div class="status_part_imgview" style="background-image: url(${data.url});"> </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                <div class="caption">${data.caption}</div>
+                                <span class="caption_timestamp">${data.timestamp}</span>`
+
+                                :`<div class="first_view" onclick="playVideo('${data.url}', '${true}')">
                                     <div class="innerImage">
                                         <img src="${data.url}" class="image" alt="Image">
                                     </div> 
@@ -2363,7 +2581,7 @@ function handleChatMessage(data){
                                         </div>`}
                                 </div> 
                                 ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
-                                ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
+                                ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}`}
                             </div> 
                         </div>`;
 
@@ -2376,7 +2594,37 @@ function handleChatMessage(data){
                     const messageElement =`
                         <div class="message frnd_message">
                             <div class="mainImage start_background">
-                                <div class="first_view">
+                                ${data.is_reply_status ?
+                                    `<div class="status_part" style="background-color: #1d282f;">
+                                        <span class="status_part_left-line"></span>
+                                        <div class="status_part_conntent">
+                                            <div class="status_part_conntent_wrap">
+                                                <div class="status_part_conntent_title">
+                                                    <span>You · Status</span>
+                                                </div>
+                                                
+                                                <div class="status_part_conntent_title_bottom">
+                                                    <div class="status_part_conntent_title_bottom_icon">
+                                                        <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                                                    </div>
+                                                    <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${data.video_duration}</span>
+                                                    <span dir="auto" style="min-height: 0px; line-height: 23px;">video</span>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        <div class="status_part_img">
+                                            <div class="status_part_img_first">
+                                                <div class="status_part_img_second" >
+                                                    <div class="status_part_imgview" style="background-image: url(${data.url});"> </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                <div class="caption">${data.caption}</div>
+                                <span class="caption_timestamp">${data.timestamp}</span>`
+
+                              : 
+                                `<div class="first_view">
                                     <div class="playButton" id="playButton" onclick="playVideo('${data.url}', '${false}')">
                                         <!-- Play Icon -->
                                         <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
@@ -2396,7 +2644,7 @@ function handleChatMessage(data){
                                 </div>
                                 ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
                                 ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
-                                
+                                `}
                             </div> 
                             
                         </div>`;
