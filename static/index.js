@@ -2027,33 +2027,48 @@ chatSocket.onmessage = function(e){
 
         
         if(data.type != 'user_status'){
-            let emaplath = `.chatlist .block[data-user-id="${selectedUserId}"]` 
+            let emaplath = ``; 
             if(djangoUserId == data.sender_id){
+                moveToTop(data.receiver_id);
                 emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
             }else if(djangoUserId == data.receiver_id){
+                moveToTop(data.sender_id);
                 emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
             }
-            const userElements = document.querySelector(emaplath);
-            if(userElements){
-                const messagePElement = userElements.querySelector('.message_p p');
-                if (data.type_content == 'Photo' && data.video_duration===''){
-                    messagePElement.textContent = 'Photo';
-                }else if(data.type_content == 'Video' && data.video_duration===''){
-                    messagePElement.textContent = 'Video';
-                }else{
-                    
-                    if(data.video_duration  === ''){
-                        messagePElement.textContent = data.message; 
+            if(emaplath !== ``){
+                const userElements = document.querySelector(emaplath);
+                if(userElements){
+                    const messagePElement = userElements.querySelector('.message_p p');
+                    if (data.type_content == 'Photo' && data.video_duration===''){
+                        messagePElement.textContent = 'Photo';
+                    }else if(data.type_content == 'Video' && data.video_duration===''){
+                        messagePElement.textContent = 'Video';
                     }else{
-                        messagePElement.textContent = data.caption;
+                        
+                        if(data.video_duration  === ''){
+                            messagePElement.textContent = data.message; 
+                        }else{
+                            messagePElement.textContent = data.caption;
+                        }
+                        
                     }
-                       
+                    const times = userElements.querySelector('.listHead p');
+                    times.textContent = data.timestamp;
                 }
-                const times = userElements.querySelector('.listHead p');
-                times.textContent = data.timestamp;
             }
-                }
+        }
        
+}
+
+function moveToTop(userId){
+    const chatList = document.getElementById('chatlist');
+    const targetBlock = document.querySelector(`.block[data-user-id="${userId}"]`);
+
+    if(chatList && targetBlock){
+        chatList.prepend(targetBlock);
+        targetBlock.style.transition = "background-color 0.5s ease"; 
+        
+    }
 }
 
 function ensureMediaPrefix(imageUrl){

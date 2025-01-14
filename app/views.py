@@ -16,6 +16,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
 from app.custom_time_filters import relative_time
 from django.utils import timezone
+from datetime import datetime
+from django.utils import timezone
 import json
 import uuid
 # Create your views here.
@@ -175,9 +177,16 @@ def home(request):
         
         last_msg_time = ''
         last_msg = ''
+        last_msg_timestamp = None
         if last_message:
             local_timestamp = localtime(last_message.timestamp)
+            
+            last_msg_timestamp = last_message.timestamp 
+            if timezone.is_naive(last_msg_timestamp):
+                last_msg_timestamp = timezone.make_aware(last_msg_timestamp)
+
             last_msg_time = format_date(local_timestamp)
+
             if last_msg_time == 'Today':
                 last_msg_time = local_timestamp.strftime('%H:%M')
             if last_message.image and last_message.video_duration is  None:    
@@ -198,7 +207,14 @@ def home(request):
             'toggle_count':message_reciver_count,
             'last_msg_time':last_msg_time,
             'last_msg': last_msg,
+            'last_msg_timestamp':last_msg_timestamp,
         })
+
+    user_data = sorted(
+        user_data,
+        key = lambda x : x['last_msg_timestamp'] or timezone.make_aware(datetime.min),
+        reverse=True
+    )
     return render(request, 'index.html', {'user_data':user_data})
 
 @csrf_exempt
