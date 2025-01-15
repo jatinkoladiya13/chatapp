@@ -12,7 +12,7 @@ class Useradmin(UserAdmin):
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     model = Message
-    list_display = ['id', 'sender', 'receiver', 'content', 'timestamp', 'is_read', 'image', 'video', 'caption']
+    list_display = ['id', 'sender', 'receiver', 'content', 'timestamp', 'is_read', 'image', 'video', 'video_duration', 'caption', 'replied_to']
     ordering = ['pk']
 
 @admin.register(Status)
@@ -24,6 +24,6 @@ class SatusAdmin(admin.ModelAdmin):
 @admin.register(StatusView)
 class StatusViewAdmin(admin.ModelAdmin):
     model = StatusView
-    list_display = ['id', 'viewer', 'viewed_at',]
+    list_display = ['id', 'status','viewer','viewed_at',]
     ordering = ['pk']
 

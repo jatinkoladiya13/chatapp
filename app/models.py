@@ -23,29 +23,6 @@ class User(AbstractUser):
         return f'{self.username}'
 
 
-    
-class Message(models.Model):
-    sender   = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
-    receiver = models.ForeignKey(User,related_name='received_messages', on_delete=models.CASCADE) 
-    content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False, blank=True, null=True)
-   
-
-    image = models.ImageField(upload_to='message_images/', blank=True, null=True)
-    video = models.FileField(upload_to='message_videos/', blank=True, null=True)
-    caption = models.CharField(max_length=255, blank=True, null=True) 
-   
-    def __str__(self) -> str:
-        if self.content:
-            return f'{self.sender.username} to {self.receiver.username}: {self.content[:20]}'   
-        elif self.image:
-            return f'{self.sender.username} sent an image to {self.receiver.username}'
-        elif self.video:
-            return f'{self.sender.username} sent a video to {self.receiver.username}'
-        else:
-            return f'{self.sender.username} to {self.receiver.username}: [Media]'
-
 
 class Status(models.Model):
     user = models.ForeignKey(User, related_name='statuses', on_delete=models.CASCADE)
@@ -82,5 +59,27 @@ class StatusView(models.Model):
         return f'{self.viewer.username} viewed {self.status.user.username}\'s status'
             
                 
+class Message(models.Model):
+    sender   = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User,related_name='received_messages', on_delete=models.CASCADE) 
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False, blank=True, null=True)
+   
 
+    image = models.ImageField(upload_to='message_images/', blank=True, null=True)
+    video = models.FileField(upload_to='message_videos/', blank=True, null=True)
+    video_duration = models.IntegerField(blank=True, null=True)
+    caption = models.CharField(max_length=255, blank=True, null=True) 
+    replied_to = models.ForeignKey(Status, related_name='status_replies', on_delete=models.CASCADE, blank=True,null=True)
+   
+    def __str__(self) -> str:
+        if self.content:
+            return f'{self.sender.username} to {self.receiver.username}: {self.content[:20]}'   
+        elif self.image:
+            return f'{self.sender.username} sent an image to {self.receiver.username}'
+        elif self.video:
+            return f'{self.sender.username} sent a video to {self.receiver.username}'
+        else:
+            return f'{self.sender.username} to {self.receiver.username}: [Media]'
 

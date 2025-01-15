@@ -16,6 +16,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
 from app.custom_time_filters import relative_time
 from django.utils import timezone
+from datetime import datetime
+from django.utils import timezone
 import json
 import uuid
 # Create your views here.
@@ -175,19 +177,28 @@ def home(request):
         
         last_msg_time = ''
         last_msg = ''
+        last_msg_timestamp = None
         if last_message:
             local_timestamp = localtime(last_message.timestamp)
+            
+            last_msg_timestamp = last_message.timestamp 
+            if timezone.is_naive(last_msg_timestamp):
+                last_msg_timestamp = timezone.make_aware(last_msg_timestamp)
+
             last_msg_time = format_date(local_timestamp)
+
             if last_msg_time == 'Today':
                 last_msg_time = local_timestamp.strftime('%H:%M')
-            if last_message.image:    
+            if last_message.image and last_message.video_duration is  None:    
                 last_msg = 'Photo'
-            elif last_message.video:
+            elif last_message.video and last_message.video_duration is  None:
                 last_msg = 'Video'
             else:
-                last_msg = last_message.content            
-       
-
+                if last_message.video_duration is not None:
+                    last_msg  = last_message.caption
+                else:    
+                    last_msg = last_message.content            
+         
         user_data.append({
             'id': contact_user.id,
             'username': contact_user.username,
@@ -196,7 +207,14 @@ def home(request):
             'toggle_count':message_reciver_count,
             'last_msg_time':last_msg_time,
             'last_msg': last_msg,
+            'last_msg_timestamp':last_msg_timestamp,
         })
+
+    user_data = sorted(
+        user_data,
+        key = lambda x : x['last_msg_timestamp'] or timezone.make_aware(datetime.min),
+        reverse=True
+    )
     return render(request, 'index.html', {'user_data':user_data})
 
 @csrf_exempt
@@ -259,12 +277,12 @@ def get_contacts(request):
    
     return JsonResponse({'status':'200', 'data':  contact_user_data}, status=200)
 
-def  delete_contact(request):
+def  delete_contact(request, contact_id):
     if request.method == 'GET':
         user_id = request.user.id
         user = get_object_or_404(User, id=user_id)
-
-        contact_id = request.GET.get('user_id')
+          
+       
         contact_users  = get_object_or_404(User, id=contact_id)
 
         if contact_id:
@@ -376,12 +394,12 @@ def edit_profile(request):
 @csrf_exempt
 def upload_status(request):
     if request.method == 'POST':
-        video = request.FILES.get('video')
         image = request.FILES.get('image')
+        video = request.FILES.get('video')
+        background_img = request.FILES.get('background_img')
         caption = request.POST.get('caption')
         user_id = request.user.id
 
-        print(f"{video}===={image}===={caption}===={user_id}")
         user = User.objects.get(id=user_id)
         send_data = {}
         type = ''
@@ -393,26 +411,27 @@ def upload_status(request):
         elif video:   
             new_filename = f"{uuid.uuid4()}.mp4" 
             video.name = new_filename
+            background_img.name = f"{uuid.uuid4()}.jpg"
+            image = background_img
             type = 'Video'
 
         status_instance = Status.objects.create(user=user, image=image, video=video, caption=caption, )   
         
         statuses = Status.objects.filter(user=user)
         status_count = statuses.count()
-        viewed_count = StatusView.objects.filter(viewer=user).count()
+        viewed_count = StatusView.objects.filter(viewer=user, status__user = user).count()
 
         unviewed_count = status_count - viewed_count 
 
         local_timestamps = localtime(status_instance.created_at)
         send_data = {'id':status_instance.id, 'type': type, 'Upload_time': relative_time(local_timestamps), 'total_count_status':status_count, 'unviewed_count':unviewed_count}
        
-        return JsonResponse({'status':'200', 'message': send_data}, status=200)
+        return JsonResponse({'status':'200', 'message': send_data, 'user_id':user_id, 'user_contacts':user.contacts}, status=200)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-def get_My_status(request):
+def get_My_status(request, user_id):
     if request.method == 'GET':
-        user_id = request.user.id
         user = User.objects.get(id=user_id)
         
         statuses = Status.objects.filter(user=user)
@@ -421,23 +440,53 @@ def get_My_status(request):
         send_status = []
 
         for status in statuses:
+            
+            has_been_viewed  = StatusView.objects.filter(status=status,  viewer=request.user,).exists()
+            
+
+            send_mystatus_viewers = []
+            status_viewer_count = 0
+            if request.user.id == user_id:
+                get_status_viewers = StatusView.objects.filter(status=status)
+                for get_status_viewer in get_status_viewers:
+                    if request.user.id is not get_status_viewer.viewer.id:
+                        unformate_time = localtime(get_status_viewer.viewed_at)
+                        send_mystatus_viewers.append({
+                            'viewer_name':get_status_viewer.viewer.username,
+                            'time':relative_time(unformate_time),
+                            'image_url':get_status_viewer.viewer.profile_image.url if get_status_viewer.viewer.profile_image.url else None,
+                        })
+
+                status_viewer_count = len(send_mystatus_viewers) 
+        
             send_status.append({
                 'image_url': status.image.url if status.image else None, 
                 'video_url':status.video.url if status.video else None, 
                 'caption':status.caption,
-                'id':status.id,})
+                'id':status.id,
+                'is_viewed': has_been_viewed,
+                'mystatus_viewers':send_mystatus_viewers,
+                'mystatus_viewers_count':status_viewer_count,
+                'time':relative_time(localtime(status.created_at))
+                })
             
         status_count = statuses.count()    
-        viewed_count = StatusView.objects.filter(viewer=user).count()
+        viewed_count = StatusView.objects.filter(viewer=user, status__user = user).count()
         unviewed_code = status_count - viewed_count
+        
+        upload_time = ''
+        if send_status:
+            last_status = Status.objects.filter(user=user).order_by('-created_at').first()
+            upload_time = localtime(last_status.created_at)
+            
 
-
-        return JsonResponse({'status':'200', 'message': send_status, 'total_status':status_count, 'unviewed_code':unviewed_code}, status=200)
+        return JsonResponse({'status':'200', 'message': send_status, 'total_status':status_count, 'unviewed_code':unviewed_code, 'Upload_time': relative_time(upload_time), 'uploaded_status_user_name':user.username, 'uploaded_status_user_img':user.profile_image.url}, status=200)
         
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @csrf_exempt
 def add_viewed_status(request):
+
     if request.method == 'POST':
         json_data=json.loads(request.body)
         status_id = json_data.get('status_id')
@@ -454,3 +503,71 @@ def add_viewed_status(request):
         
         return JsonResponse({'status':'200', 'message': 'status change successfully'}, status=200)
     return JsonResponse({'error': 'Invalid request'}, status=400)    
+
+
+def get_recent_status(request):
+    if request.method == 'GET':
+        user_contacts = request.user.contacts
+
+        user_id = request.user.id
+        user =  User.objects.get(id=user_id) 
+
+        show_contact_status = []         
+
+        for contact in user_contacts:
+            contact_user_id  = contact["user_id"]
+            
+            if contact_user_id != user_id:
+                contact_user = User.objects.get(id=contact_user_id)
+                contact_name = contact_user.username
+
+                contact_user_status = Status.objects.filter(user=contact_user)
+                status_count = contact_user_status.count()
+                
+
+        
+                viewed_count = StatusView.objects.filter(viewer=user, status__user = contact_user).count()
+                unviewed_count = status_count - viewed_count
+
+                last_status = contact_user_status.order_by('-created_at').first()
+                final_time = ''
+                if last_status:
+                    get_local_time = localtime(last_status.created_at)
+                    final_time = relative_time(get_local_time)
+                 
+                if   status_count > 0:  
+                     
+                    show_contact_status.append({
+                        'image_url': contact_user.profile_image.url if contact_user.profile_image else '',
+                        'name':contact_name,
+                        'totalStatus':status_count,
+                        'unviewed_count':unviewed_count,
+                        'time':final_time,
+                        'id':contact_user_id,
+                    })
+
+
+        # This my status uploaded check functionality
+        statuses = Status.objects.filter(user=user)
+        statuses_count =  statuses.count()
+        my_viewed_status_count = StatusView.objects.filter(viewer=user,status__user = user).count()
+        my_status_unviewed_counts = statuses_count - my_viewed_status_count
+       
+
+        my_status_upload_time = ''
+        if statuses:
+            my_last_status = statuses.order_by('-created_at').first()
+            get_localTime = localtime(my_last_status.created_at)
+            my_status_upload_time = relative_time(get_localTime)
+            
+        
+        mystatus_data = {
+            'mystatus_count':statuses_count, 
+            'mystatus_unviewed_count':my_status_unviewed_counts,
+            'my_status_upload_time':my_status_upload_time,
+        }
+         
+        
+        return JsonResponse({'status':'200', 'message': show_contact_status, 'mystatus_data':mystatus_data, }, status=200)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)

@@ -16,11 +16,13 @@ urlpatterns = [
        path('resendotp/', views.resendotp, name='resendotp'),
        path('create_contacts/',views.create_contacts),
        path('get_contacts/', views.get_contacts),
+       path('delete_contact/<int:contact_id>/',views.delete_contact),
        path('upload-video/',views.upload_videos),
        path('edit_profile/', views.edit_profile),
        path('upload_status/',views.upload_status),
-       path('get_My_status/', views.get_My_status),
+       path('get_My_status/<int:user_id>/', views.get_My_status),
        path('add_viewed_status/',views.add_viewed_status),
+       path('get_recent_status/',views.get_recent_status),
 ]
 
 if settings.DEBUG:

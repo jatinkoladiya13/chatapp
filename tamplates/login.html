@@ -1,34 +1,34 @@
 {% include "header.html" %}
     <section>
         <div class="form-main-div">
-            <div class="wrapper">
-              <h1 class="main-title">Sign In</h1>    
+          <div class="wrapper">
+            <h1 class="main-title">Sign In</h1>    
+            &nbsp;
+            <form method="post">
+              {% csrf_token %}
+  
+              <div class="field email">
+                <div class="input-area">
+                 <i class="fa-solid fa-envelope" style="color: #111b21;"></i>
+                 <input type="email" placeholder="Email Address" name="email" id="email" value="" required="">
+                </div>
+              </div>
+              <div class="field password">
+                <div class="input-area">
+                  <i class="fa-solid fa-lock" style="color: #111b21;"></i>
+                  <input type="password" placeholder="Password" name="password" id="password" value="" required="">
+                  <i class="fa-solid fa-eye fa-sm" id="showPassword" style="color: #111b21;"></i>
+                  <i class="fa-sharp fa-solid fa-eye-slash" id="hidePassword" style="color: #111b21;"></i>
+                </div>
+              </div>
+              <div class="pass-txt"><a href="/sendlink">Forgot password?</a></div>
               &nbsp;
-              <form method="post">
-                {% csrf_token %}
-    
-                <div class="field email">
-                  <div class="input-area">
-                   <i class="fa-solid fa-envelope" style="color: #000000;"></i>
-                   <input type="email" placeholder="Email Address" name="email" id="email" value="" required="">
-                  </div>
-                </div>
-                <div class="field password">
-                  <div class="input-area">
-                    <i class="fa-solid fa-lock" style="color: #000000;"></i>
-                    <input type="password" placeholder="Password" name="password" id="password" value="" required="">
-                    <i class="fa-solid fa-eye fa-sm" id="showPassword" style="color: #000000;"></i>
-                    <i class="fa-sharp fa-solid fa-eye-slash" id="hidePassword" style="color: #000000;"></i>
-                  </div>
-                </div>
-                <div class="pass-txt"><a href="/sendlink">Forgot password?</a></div>
-                &nbsp;
-                <input type="submit" value="Login">
-                &nbsp;
-                <div class="sign-txt">Not yet member? <a href="/register" id="login">Signup now</a></div>
-              </form>  
-    
-            </div>
+              <input type="submit" value="Login">
+              &nbsp;
+              <div class="sign-txt">Not yet member? <a href="/register" id="login">Signup now</a></div>
+            </form>  
+
+          </div>
     
         </div> 
     </section>

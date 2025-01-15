@@ -2,6 +2,7 @@ from django import template
 from datetime import  datetime, timedelta
 
 def relative_time(value):
+ 
     if not value:
         return ""
     
