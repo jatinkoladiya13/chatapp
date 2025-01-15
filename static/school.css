@@ -144,6 +144,7 @@ h1{
     background-size: cover;
     position: relative;
     z-index: 1;
+    background-color: #222e35;
 
 }
 
@@ -186,9 +187,9 @@ form input {
     padding: 14px 45px; 
     font-size: 18px; 
     background: none; 
-    caret-color: #1a1a1a;
+    caret-color: #111b21;
     border-radius: 5px;
-    border: 1px solid #1a1a1a;
+    border: 1px solid #111b21;
     border-bottom-width: 2px;
     transition: all 0.2s ease;
 }
@@ -212,7 +213,7 @@ form input[type="submit"], .success-btn, .signin-google-btn {
     color: #fff !important;
     padding: 0;
     border: none;
-    background: #1a1a1a;
+    background: #111b21;
     cursor: pointer;
     border-bottom: 2px solid rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
@@ -308,7 +309,7 @@ form .pass-txt {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0;
+   
     background-size: cover;
     position: relative;
     z-index: 1;

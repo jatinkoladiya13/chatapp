@@ -66,7 +66,7 @@ if(searchInput.value.trim() === ''){
 
 searchInput.addEventListener('input', () =>{
     const filter = searchInput.value.toLowerCase();
-    console.log("this working");
+    
     for (let i = 0; i < chatBlocks.length; i++) {
         const userNameElement = chatBlocks[i].querySelector('.listHead h4');
         const userName  = userNameElement.textContent || userNameElement.innerText;
@@ -124,14 +124,14 @@ cancelDialog.addEventListener('click',()=>{
 confirmDelete.addEventListener('click',()=>{
     const userId = deleteDialog.getAttribute('data-user-id');
     if(userId){
-        console.log(`confirm_click==${userId}`);
+        
         deleteContact(userId);
     }   
 });
 
 saveButton.addEventListener('click',()=>{
     if(draweEmailInput.value.trim() != ''){
-         console.log(draweEmailInput.value);
+        
          saveContactsApi(draweEmailInput.value);
     }
 });
@@ -209,7 +209,6 @@ function closeAllDrawers(){
 let status_drawer_isOpen = false;
 function toggleDrawer(drawerId, button){
     
-    console.log("this click left side button");
     closeAllDrawers();
     const drawer =  document.getElementById(drawerId);
     if(drawer){
@@ -273,7 +272,8 @@ function status_data_get_On_button(){
             profile_Status_Second_details.textContent = data.mystatus_data.my_status_upload_time;
             statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.mystatus_data.mystatus_count, data.mystatus_data.mystatus_unviewed_count);
         }
-        console.log(data.mystatus_data); 
+       
+        
 
         api_functionality_recent_viewed_status(data);
         
@@ -296,7 +296,7 @@ function api_functionality_recent_viewed_status(data){
     
 
     data.message.forEach((status)=>{
-        console.log(status);
+        
         if(status.unviewed_count > 0){
             recentContainer.innerHTML += createStatusBox(status);
         }else{
@@ -318,7 +318,6 @@ function api_functionality_recent_viewed_status(data){
     statusBoxes.forEach(box => {
         box.addEventListener('click', function() {
             const dataId = this.getAttribute('data-id');
-            console.log(`Status box with ID ${dataId} clicked!`);
             get_status_By_api(dataId);
             
         });
@@ -442,7 +441,6 @@ async function editProfileUrl(field, value){
          
         if(response.ok){
             const data = await response.json();
-            console.log('Status:', data);
             return true; 
         }else{
             console.error("Failed to update profile. Status:", response.status);
@@ -590,7 +588,7 @@ function handlePhotoAndVideoCapture(event){
     }
     
 
-    console.log(`check_length===============${fileBlobs.length}`);
+    
 
     const  statusMutipleFile  = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
     const statusCaptionInput = document.getElementById("status-caption-input");
@@ -824,7 +822,7 @@ const statusUploadSend = document.getElementById('status_upload_send');
 const profile_Status_Second_details = document.getElementById('profile_Status_Second_details');
 
 statusUploadSend.addEventListener('click', function(event){
-    console.log("send button is working........");
+ 
     if(fileBlobs.length > 0){
        
         fileBlobs.forEach( async (status_file, index) => {
@@ -847,7 +845,7 @@ statusUploadSend.addEventListener('click', function(event){
             await statusFileSenToApi(formDate, index);
 
         });
-          console.log(fileBlobs);
+          
     }
 });
 
@@ -863,14 +861,13 @@ async function statusFileSenToApi(formatDate, index){
             body: formatDate,
         });
         
-        // console.log("this is working with json data", response.json()); 
+    
         if(response.ok){
             const data = await response.json();
             let checking = fileBlobs.length-1;
             
             if(checking === index){
                 fileBlobs=[];
-                console.log(data.message.Upload_time);
                 topheaderProfile_Status_Second.style.display = 'flex';
                 topheader_Profile_Status.style.display = 'none';  
                 document.querySelector('.status_preview_bottoms .send-images .status-multiple-files').innerHTML = '';     
@@ -1108,7 +1105,6 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
     if(window.djangoUserId !== current_statusview_user_id){
          
         statusview_input_reply.addEventListener('focus',()=>{
-            console.log('Input is focused!', currentStatusIndex);
             type_reply_shadow.style.display = "block";
             handlePause();
             type_reply_input.style.backgroundColor = '#202c33';
@@ -1118,7 +1114,6 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
         });
 
         statusview_input_reply.addEventListener('blur', () => {
-            console.log('Input is not focused.', currentStatusIndex);
             type_reply_shadow.style.display = "none";
             handelResume();
             type_reply_input.style.backgroundColor = '';
@@ -1130,7 +1125,6 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
    
     type_reply_sendButton.addEventListener('click', function(){
         if(statusview_input_reply.value.trim() !== ""){
-            console.log("type reply send by viewer-=", statusview_input_reply.value);
             chatSocket.send(JSON.stringify({
                 'action':'send_message',
                 'message': '',
@@ -1443,7 +1437,6 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
  
 // create viewed status change in data base with api
 function add_Viewed_status(status_id){
-    console.log("api called")
     fetch('/add_viewed_status/',{
         method:'POST',
         headers:{
@@ -1566,7 +1559,6 @@ function handlePhotoCapture(event){
                 mutipleImg.insertAdjacentHTML('beforeend', imgTeg); 
                 if (index === files.length) {
                     stopLoading();
-                    console.log('All images loaded');
                 }
                 imageSave.push({
                     file: file,
@@ -1602,7 +1594,6 @@ function handlePhotoCapture(event){
 
                     const caption = this.getAttribute('data-caption');
                     captionInput.value = caption || '';
-                    console.log(this.getAttribute('data-index'));
                     captionInput.setAttribute('data-index', this.getAttribute('data-index'));
 
                 });
@@ -1720,8 +1711,7 @@ async function handleVideoCapture(event){
             captionInput.setAttribute('data-index', '0');
         }
         
-        console.log(files);
-    
+       
         for (let index = 0; index < files.length; index++) {
             
             await processFile(files[index], index, isFirstUpload);
@@ -1746,7 +1736,6 @@ function processFile(file, index, isFirstUpload) {
             video.src = videoBlob;
             video.muted = true;
             video.preload = 'metadata';
-            console.log(`check==2=====${index}`);
             
             video.addEventListener('loadeddata', () => {
                 if (video.readyState >= 2) {
@@ -1759,7 +1748,6 @@ function processFile(file, index, isFirstUpload) {
                         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
                         const thumbnailDataUrl = canvas.toDataURL('image/jpeg');
-                        console.log(typeof file); 
                         if (thumbnailDataUrl) {
                             const videoTag = `
                                 <button class="multipleImgBtn" data-src="${videoBlob}" data-file="${file}" data-index="${videoIndexCounter}" data-caption="">
@@ -1783,7 +1771,7 @@ function processFile(file, index, isFirstUpload) {
                                 previewVideo.src = videoBlob;
                                 previewVideo.load();
                             }
-                            console.log(index);
+                            
                         } else {
                             console.error('Failed to generate thumbnail for video:', file.name);
                         }
@@ -1905,11 +1893,11 @@ function send_images(){
 
         const formData = new FormData();
         formData.append('image', image.file);
-        console.log(image.index);
+       
         const imageBtn = document.querySelector(`.multipleImgBtn[data-index="${image.index}"]`);
   
         const caption = imageBtn ? imageBtn.getAttribute('data-caption') : '';
-        console.log(caption);
+       
         formData.append(`captions`, caption); 
         formData.append('receiver_usr',selectedUserId);
 
@@ -1932,7 +1920,6 @@ async function fileSendApi(formData){
         });
         
         const data = await  response.json();
-        console.log('Status:', data.message);
 
         chatSocket.send(JSON.stringify({
             'action': 'send_message',
@@ -1961,18 +1948,16 @@ fileViewClose.addEventListener('click',()=>{
 // file view in message
 function playVideo(url, checkings){
     fileView.style.display = 'flex';
-    console.log("this is working but");
     fileDiv.innerHTML = '';
-    console.log(typeof checkings);
+    
     if(checkings == 'true'){
-        console.log('Check is true:', checkings); 
         const imgTag = document.createElement('img');
         imgTag.src = url; 
         imgTag.alt = 'File Image';
     
         fileDiv.appendChild(imgTag);
     }else{
-        console.log('Check is false:', checkings);
+     
         const videoTag = document.createElement('video');
         videoTag.src = url; 
         videoTag.controls = true; 
@@ -2791,7 +2776,7 @@ function getContacts(query){
         
 
         data['data'].forEach(user =>{
-            console.log(user);
+            
             const userBlock = document.createElement('div');
             userBlock.className = 'drawer-block';
             userBlock.setAttribute('data-user-id', user.id);
@@ -2813,7 +2798,6 @@ function getContacts(query){
             if(deleteButton){
                 deleteButton.addEventListener('click',()=>{
                     deleteDialog.style.display = 'flex';
-                    console.log(`set==${user.id}`);
                     deleteDialog.setAttribute('data-user-id', user.id);
                 });    
             }

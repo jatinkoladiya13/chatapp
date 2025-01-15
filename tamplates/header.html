@@ -12,7 +12,7 @@
         }
     </style>
     </head>
-    <body>
+    <body style="background-color: #222e35;">
          <!-- Your alert messages loop -->
          {% for message in messages %}
          <div class="messages {% if message.tags == 'success' %} success {% elif message.tags == 'error' %} error {% endif %}" >
@@ -42,20 +42,7 @@
                 }
             });
             </script>
-        <section id="header">
-            <div class="space"><h1><i>Chatapp</i></h1></div> 
-            {% if user.is_authenticated %}
-            <a href="#" class="imagehover"><img src="/static/images/profile.png" width="35" height="35"  alt="" srcset=""></a>
-           
-             {% else %}
-             <div class="buttons">
-                <a href="/login" class="log_in">log in</a>  
-            </div>
-            {% endif %}
-          
-            
-
-        </section> 
+        
         {% comment %} 
 <div class="block unread">
                 <div class="imgbox">
