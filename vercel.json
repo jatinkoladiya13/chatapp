@@ -23,5 +23,8 @@
             "src":"/(.*)",
             "dest":"chatapp/wsgi.py"
         }
-    ]
+    ],
+    "env": {
+        "DJANGO_SETTINGS_MODULE": "chatapp.settings"
+    }
 }
