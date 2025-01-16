@@ -21,7 +21,7 @@
         },
         {
             "src":"/(.*)",
-            "dest":"chatapp/wsgi.py"
+            "dest":"chatapp.wsgi.application"
         }
     ],
     "env": {
