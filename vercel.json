@@ -25,6 +25,7 @@
         }
     ],
     "env": {
-        "DJANGO_SETTINGS_MODULE": "chatapp.settings"
+        "DJANGO_SETTINGS_MODULE": "chatapp.settings",
+        "PYTHON_VERSION": "3.9"
     }
 }
