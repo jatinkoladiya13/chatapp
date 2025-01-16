@@ -3,8 +3,6 @@
 import os
 import sys
 
-from django.apps import config
-
 def main():
     
     """Run administrative tasks."""
