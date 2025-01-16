@@ -12,8 +12,7 @@
             "config":{
                 "distDir":"staticfiles"
             }
-        },
-        { "src": "manage.py", "use": "@vercel/python" }
+        }
     ],
     "routes":[
         {
@@ -26,7 +25,6 @@
         }
     ],
     "env": {
-        "DJANGO_SETTINGS_MODULE": "chatapp.settings",
-        "PYTHON_VERSION": "3.9"
+        "DJANGO_SETTINGS_MODULE": "chatapp.settings"
     }
 }
