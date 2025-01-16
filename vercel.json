@@ -12,8 +12,10 @@
             "config":{
                 "distDir":"staticfiles"
             }
-        }
+        },
+        { "src": "manage.py", "use": "@vercel/python" }
     ],
+    "buildCommand": "pip install -r requirements.txt",
     "routes":[
         {
             "src":"/static/(.*)",
