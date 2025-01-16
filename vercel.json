@@ -4,7 +4,7 @@
         {
             "src":"chatapp/wsgi.py",
             "use":"@vercel/python",
-            "config":{"maxLambdaSize": "mb", "runtime":"python3.12"}
+            "config":{"maxLambdaSize": "10mb", "runtime":"python3.12"}
         },
         {
             "src":"build_files.sh",
