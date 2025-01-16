@@ -22,7 +22,6 @@ cryptography==43.0.0
 cycler==0.12.1
 daphne==4.1.2
 Django==5.0.7
-environs==14.1.0
 fonttools==4.55.3
 hyperlink==21.0.0
 idna==3.7
@@ -47,7 +46,6 @@ python-dotenv==1.0.1
 pytz==2024.2
 redis==5.0.8
 requests==2.32.3
-seaborn==0.13.2
 service-identity==24.1.0
 six==1.16.0
 sqlparse==0.5.1
