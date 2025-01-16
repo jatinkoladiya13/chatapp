@@ -12,9 +12,7 @@
             "config":{
                 "distDir":"staticfiles"
             }
-        },
-        { "src": "manage.py", "use": "@vercel/python" },
-        {"installCommand": "pip install --upgrade pip && pip install -r requirements.txt"}
+        }
     ],
     "routes":[
         {
