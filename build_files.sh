@@ -1,13 +1,6 @@
 echo "Python version:"
-python3.12 --version
-
-pip install setuptools
-pip install -r requirements.txt
-
+python3.9 --version
 echo "BUILD START"
-python manage.py makemigrations
-python manage.py migrate
-python manage.py tailwind install  
-python3.12 manage.py collectstatic --noinput 
-python manage.py tailwind start 
+python3.9 -m pip install -r requirements.txt
+python3.9 manage.py collectstatic --noinput --clear
 echo "BUILD END"
