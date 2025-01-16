@@ -2,12 +2,11 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from environs import Env
 
+from django.apps import config
 
 def main():
-    env = Env()
-    env.read_env()
+    
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chatapp.settings')
     try:
