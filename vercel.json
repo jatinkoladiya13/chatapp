@@ -26,10 +26,5 @@
     ],
     "env": {
         "DJANGO_SETTINGS_MODULE": "chatapp.settings"
-    },
-    "functions": {
-    "api/**": {
-      "excludeFiles": "{.next,*.cache,node_modules,public,app}/**"
     }
-  }
 }
