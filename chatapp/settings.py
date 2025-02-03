@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-ie3kh()0+&2hy(@@c)hg3c-^!k%e31#8ys1g+(46w05$dr2$**
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '127.0.0.1']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -51,7 +51,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'chatapp.urls'
@@ -124,8 +123,7 @@ USE_I18N = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS =[os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS =[BASE_DIR / "static"]
 
 MEDIA_ROOT = BASE_DIR /"media"
 
