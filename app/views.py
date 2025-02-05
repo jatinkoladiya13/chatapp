@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from app.models import User
 from django.contrib.auth import authenticate, login, logout
+from allauth.socialaccount.models import SocialAccount, SocialLogin
 from django.contrib import messages
 from app.email import send_otp_via_email
 from .untils import encrypt, decrypt
@@ -71,6 +72,7 @@ def loginpage(request):
 
 def logouts(request):
     logout(request)
+    request.session.flush() 
     messages.success(request,"Log out successfully..!")
     return redirect('login')
 

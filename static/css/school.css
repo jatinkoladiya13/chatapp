@@ -3293,3 +3293,40 @@ color: #008069;
     position: absolute;
     background-position: center;
 }
+
+.login_with_google_apple_div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.login_with_google_apple_div a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid #aaaaaa;
+    padding: 0.5rem 0.8rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    background-color:#ffffff;
+    transition: all 0.3s;
+    width: 100%;
+    
+}
+
+.login_with_google_apple_div:hover{
+    background-color: #f1f1f1;
+}
+
+.icon_img_div{
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.icon_img_div svg{
+    max-height: 100%;
+    max-width: 100%;
+}

@@ -34,14 +34,14 @@
             <div class="chat_header_bottom">
                 <div class="chat_header_userimg"  onclick="toggleDrawer('user_profile', this)">
                     {% if user.is_authenticated %}
-                            {% if user.profile_image %}
-                                <img src="{{ user.profile_image.url }}">
-                            {% else %}
-                                <img src="/static/images/profile.png">
-                            {% endif %}
-                        
-                        
-                        {% endif %}
+                    {% if user.profile_image %}
+                        <img src="{{user.profile_image.url}}" >
+                    {% elif user.google_profile_image %}
+                        <img src="{{user.google_profile_image }}" >
+                    {% else %}
+                        <img src="/static/images/profile.png" >
+                    {% endif %}
+                {% endif %}
                 </div>
             </div>
 
@@ -83,9 +83,11 @@
                     <div class="block" data-user-id="{{user.id}}">
                         <div class="imgbox">
                             {% if user.profile_image %}
-                            <img src=" {{user.profile_image}}" class="cover">
+                                <img src="{{user.profile_image}}" class="cover">
+                            {% elif user.google_profile_image %}
+                                <img src="{{user.google_profile_image }}" class="cover">
                             {% else %}
-                            <img src='/static/images/profile.png' class="cover">
+                                <img src="/static/images/profile.png" class="cover">
                             {% endif %}
                             
                         </div>    
@@ -206,10 +208,14 @@
                     <div class="status-box" id="topheader-profile-status" style="border-bottom: 10px solid #0C1317;">
                         <div class="status-imgbox" id="change-profile-first">
                             <div class="status-image-box">
-                                {% if user.profile_image %}
-                                <img src="/media/{{user.profile_image}}" class="cover">
-                                {% else %}
-                                <img src='/static/images/profile.png' class="cover">
+                                {% if user.is_authenticated %}
+                                    {% if user.profile_image %}
+                                        <img src="{{user.profile_image.url}}" class="cover">
+                                    {% elif user.google_profile_image %}
+                                        <img src="{{user.google_profile_image }}" class="cover">
+                                    {% else %}
+                                        <img src="/static/images/profile.png" class="cover">
+                                    {% endif %}
                                 {% endif %}
                                
                             </div>
@@ -284,16 +290,17 @@
                             <p>CHANGE</p>
                             <p>PROFILE PHOTO</p>
                         </div>
-                       
+
                         {% if user.is_authenticated %}
                             {% if user.profile_image %}
-                                <img id="drawer_profile_img" src="{{ user.profile_image.url }}" class="cover">
+                                <img id="drawer_profile_img" src="{{user.profile_image.url}}" class="cover">
+                            {% elif user.google_profile_image %}
+                                <img id="drawer_profile_img" src="{{user.google_profile_image }}" class="cover">
                             {% else %}
-                                <img id="drawer_profile_img" src="/static/images/profile.png" class="cover">
+                                <img  id="drawer_profile_img" src="/static/images/profile.png" class="cover">
                             {% endif %}
-                           
-                           
                         {% endif %}
+                    
                         <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="profikeImgTakenByDevice(event)">
                     </div>
 
@@ -703,7 +710,7 @@
     var djangoUserId = "{{ user.id }}";
     document.addEventListener("DOMContentLoaded", function(){
         const statusBox = document.getElementById("status-boxs-final-imag");
-        const userProfileImage = "{{ user.profile_image.url }}"; 
+        const userProfileImage = "{% if user.profile_image %}{{ user.profile_image.url }}{% elif user.google_profile_image %}{{ user.google_profile_image }}{% else %}/static/images/profile.png{% endif %}";
         const defaultImage = "/static/images/profile.png";
 
         if (userProfileImage) {

@@ -1,4 +1,5 @@
 {% include "header.html" %}
+{% load socialaccount %}
     <section>
         <div class="form-main-div">
           <div class="wrapper">
@@ -24,6 +25,23 @@
               <div class="pass-txt"><a href="/sendlink">Forgot password?</a></div>
               &nbsp;
               <input type="submit" value="Login">
+              &nbsp;
+              <div class="login_with_google_apple_div">
+                <a href="{% provider_login_url 'google' %}">
+                    <div class="icon_img_div">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="150pt" height="150pt" viewBox="0 0 150 150" version="1.1" class="iconadda"><!-- iconadda -->
+                          <g transform="rotate(0,75,75) translate(0,0) scale(1.0,1.0)">
+                          <path style=" stroke:none;fill-rule:nonzero;fill:rgb(91.764706%,26.27451%,20.784314%);fill-opacity:1;" d="M 32.914062 61.027344 C 38.742188 43.367188 55.339844 30.683594 75 30.683594 C 85.566406 30.683594 95.113281 34.433594 102.613281 40.566406 L 124.433594 18.75 C 111.136719 7.160156 94.089844 0 75 0 C 45.4375 0 19.984375 16.863281 7.75 41.5625 Z M 32.914062 61.027344 " data-original="#EA4335" class=""/>
+                          <path style=" stroke:none;fill-rule:nonzero;fill:rgb(20.392157%,65.882353%,32.54902%);fill-opacity:1;" d="M 100.253906 112.578125 C 93.441406 116.976562 84.789062 119.316406 75 119.316406 C 55.414062 119.316406 38.871094 106.730469 32.980469 89.175781 L 7.734375 108.34375 C 19.953125 133.085938 45.40625 150 75 150 C 93.332031 150 110.847656 143.484375 123.964844 131.246094 Z M 100.253906 112.578125 " data-original="#34A853"/>
+                          <path style=" stroke:none;fill-rule:nonzero;fill:rgb(29.019608%,56.470588%,88.627451%);fill-opacity:1;" d="M 123.964844 131.246094 C 137.683594 118.449219 146.589844 99.398438 146.589844 75 C 146.589844 70.566406 145.910156 65.796875 144.886719 61.363281 L 75 61.363281 L 75 90.339844 L 115.226562 90.339844 C 113.242188 100.085938 107.914062 107.632812 100.253906 112.578125 Z M 123.964844 131.246094 " data-original="#4A90E2" class=""/>
+                          <path style=" stroke:none;fill-rule:nonzero;fill:rgb(98.431373%,73.72549%,1.960784%);fill-opacity:1;" d="M 32.980469 89.175781 C 31.488281 84.726562 30.683594 79.960938 30.683594 75 C 30.683594 70.113281 31.464844 65.417969 32.914062 61.027344 L 7.75 41.5625 C 2.730469 51.628906 0 62.972656 0 75 C 0 86.996094 2.78125 98.3125 7.734375 108.34375 Z M 32.980469 89.175781 " data-original="#FBBC05"/>
+                          </g>
+                        </svg>
+                    </div>
+                    <span>Log In With Google</span>
+                </a>
+                
+            </div>
               &nbsp;
               <div class="sign-txt">Not yet member? <a href="/register" id="login">Signup now</a></div>
             </form>  

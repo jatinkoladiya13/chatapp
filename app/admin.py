@@ -6,7 +6,7 @@ from app.models import User, Message, Status, StatusView
 @admin.register(User)
 class Useradmin(UserAdmin):
     model = User
-    list_display = ['id', 'username', 'email', 'profile_image', 'contacts', 'deleted_contacts', 'verfy_otp', 'is_online']
+    list_display = ['id', 'username', 'email', 'profile_image', 'google_profile_image', 'contacts', 'deleted_contacts', 'verfy_otp', 'is_online']
     ordering = ['pk']
 
 @admin.register(Message)
