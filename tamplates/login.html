@@ -23,7 +23,8 @@
                 </div>
               </div>
               <div class="pass-txt"><a href="/sendlink">Forgot password?</a></div>
-              &nbsp;
+              <div class="g-recaptcha" data-sitekey="6Lc_BN0qAAAAAO8wdIUz6gQ_GUruR9pVLipQSUhz"></div>
+              <br/>
               <input type="submit" value="Login">
               &nbsp;
               <div class="login_with_google_apple_div">
@@ -53,30 +54,30 @@
        
         
 
-        
-        <script>
-            document.addEventListener("DOMContentLoaded", function(){
-                var passwordInput = document.getElementById("password");
-                var showPasswordIcon = document.getElementById("showPassword");
-                var hidePasswordIcon = document.getElementById("hidePassword");
-                       
-                passwordInput.type = "password"; 
-                showPasswordIcon.style.display = "none";
-                hidePasswordIcon.style.display = "block";   
+      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+      <script>
+          document.addEventListener("DOMContentLoaded", function(){
+              var passwordInput = document.getElementById("password");
+              var showPasswordIcon = document.getElementById("showPassword");
+              var hidePasswordIcon = document.getElementById("hidePassword");
+                      
+              passwordInput.type = "password"; 
+              showPasswordIcon.style.display = "none";
+              hidePasswordIcon.style.display = "block";   
 
-                showPasswordIcon.addEventListener("click", function(){
-                   passwordInput.type = "password";
-                   showPasswordIcon.style.display  = "none";
-                   hidePasswordIcon.style.display  = "block";
-                });
+              showPasswordIcon.addEventListener("click", function(){
+                  passwordInput.type = "password";
+                  showPasswordIcon.style.display  = "none";
+                  hidePasswordIcon.style.display  = "block";
+              });
 
-                hidePasswordIcon.addEventListener("click", function(){
-                    passwordInput.type = "text";
-                    showPasswordIcon.style.display = "block";
-                    hidePasswordIcon.style.display = "none";
-                })
-            });
-        </script>
+              hidePasswordIcon.addEventListener("click", function(){
+                  passwordInput.type = "text";
+                  showPasswordIcon.style.display = "block";
+                  hidePasswordIcon.style.display = "none";
+              })
+          });
+      </script>
     </body>
     
       </section>

@@ -19,8 +19,9 @@ from app.custom_time_filters import relative_time
 from django.utils import timezone
 from datetime import datetime
 from django.utils import timezone
-import json
+import json, os
 import uuid
+import requests
 # Create your views here.
 
 def register(request):
@@ -56,8 +57,24 @@ def loginpage(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
+
+        # reCAPTCHA Stuff
+        clientkey = request.POST['g-recaptcha-response']
+        secretkey = os.getenv('CAPTCHA_SECRET_KEY'),
+
+        captchaData ={
+            'secret':secretkey,
+            'response':clientkey
+        }
+
+        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=captchaData)
+        response = json.loads(r.text)
+        verify = response['success']
+    
+        if True is not verify:
+            messages.error(request, "Please fill the CAPTCHA")
+            return render(request, 'login.html')
         
-        print(f"email=={email}==password==={password}")
         if User.objects.filter(email=email).exists():
             user = authenticate(request,  email=email, password=password)
             if user is not None:
