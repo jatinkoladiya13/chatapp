@@ -928,7 +928,56 @@ form .pass-txt {
     margin: 5px 0; 
 }
 
+.my_message{
+    justify-content: flex-end;
+}
 
+.message .message_back{
+    position: relative;
+    right: 0;
+    max-width: 65%;
+    padding: 6px 8px 6px 8px;
+    background: #005c4b;
+    border-radius: 10px;
+    word-wrap: break-word;
+    margin: 0;
+}
+.message .message_back::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -12px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #005c4b 0%, #005c4b 50%, transparent 50%, transparent);
+
+}
+
+.message .message_back .top-content{
+    font-size: 14.2px;
+    color: #e9edef;
+    font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;
+}
+.message .message_back .bottom-content{
+       z-index: 10;
+       position: relative;
+       float: right;
+       margin-right: 0;
+       height: 15px;
+       white-space: nowrap;
+       display: flex;
+       align-items: center;
+       line-height: 15px;
+       color: rgba(255, 255, 255, .6);
+       font-size: .6875rem;
+}
+
+.message .message_back .bottom-content .time{
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 2px;
+
+}
 
 .message p{
     position: relative;
@@ -962,6 +1011,23 @@ form .pass-txt {
 }
 .start_background{
     background-color: #202c33;
+}
+.message p::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -12px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #005c4b 0%, #005c4b 50%, transparent 50%, transparent);
+}
+.message p span{
+    display: flex;
+    justify-content: end;
+    font-size: 0.75em;
+    font-weight: 500;
+    color: #FFFFFF99;
+    opacity: 0.7;
 }
 
 .first_view{
@@ -1065,6 +1131,29 @@ form .pass-txt {
     cursor: pointer;
 }
 
+.videoBottom .vide_timestamp{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
+}
+
+.videoBottom .status-tick{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
+    margin-left: 2px;
+    margin-top: -1px;
+}
+
+.videoBottom .last-time{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
+}
+
 .space-between{
     justify-content: space-between;
 }
@@ -1073,6 +1162,7 @@ form .pass-txt {
     justify-content: end;   
 }
 
+
 .video-duration {
     color: white;
     border-radius: 4px;
@@ -1080,13 +1170,7 @@ form .pass-txt {
     opacity: 0.9;
 }
 
-.videoBottom .vide_timestamp{
-    font-size: .6875rem;
-    opacity: 0.9;
-    text-align: right;
-    color: #fff;
 
-}
 
 .caption_timestamp{
     font-size: .6875rem;
@@ -1124,26 +1208,34 @@ form .pass-txt {
     word-wrap: break-word;
 }
 
-.message p::before{
-    content: '';
-    position: absolute;
-    top: 0;
-    right: -12px;
-    width: 20px;
-    height: 20px;
-    background: linear-gradient(135deg, #005c4b 0%, #005c4b 50%, transparent 50%, transparent);
-}
-.message p span{
-    display: block;
-    font-size: 0.75em;
-    font-weight: 500;
-    color: #FFFFFF99;
-    opacity: 0.7;
+.caption-bottom{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: end;
+    bottom: 3px;
+    left: 3px;
+    right: 3px;
+    padding: 0px 10px 0px 0px;
+    cursor: pointer;
 }
 
-.my_message{
-    justify-content: flex-end;
+.caption-bottom .vide_timestamp{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
 }
+
+.caption-bottom .status-tick{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
+    margin-left: 2px;
+    margin-top: -1px;
+}
+
 
 .frnd_message{
     justify-content: flex-start;
@@ -3292,6 +3384,29 @@ color: #008069;
     background-size: cover;
     position: absolute;
     background-position: center;
+}
+
+.status_reply_bottom {
+    display: flex;
+    justify-content: end;
+}
+
+.status_reply_bottom .caption_timestamp{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
+    margin-right: 5px;
+    margin-bottom: 2px;
+}
+
+.status_reply_bottom .status-tick{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
+    margin-right: 5px;
+    margin-top: -1px;
 }
 
 .login_with_google_apple_div{

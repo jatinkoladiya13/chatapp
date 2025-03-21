@@ -34,7 +34,6 @@ const chat_box_input    = document.getElementById('chatbox_input');
 const topheader_Profile_Status = document.getElementById('topheader-profile-status');
 const topheaderProfile_Status_Second = document.getElementById('topheader-profile-status-second');
 
-
 // WebSocket  initialization
 const roomName = 'chat_consumer'; 
 const chatSocket = new WebSocket(
@@ -971,6 +970,8 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
     const mystatus_for_dialog = document.querySelector('.dialog');
     const mystatus_pause = document.getElementById('mystatus_pause');
     const mystatus_play =  document.getElementById('mystatus_play');
+    const mystatus_mute = document.getElementById('mystatus_mute');
+    const mystatus_unmute = document.getElementById('mystatus_unmute');
     const mystatus_profile_time = document.getElementById('mystatus_profile_time');
     const mystatus_profile_name = document.getElementById('mystatus_profile_name');
     const mystatus_profile_img = document.getElementById('mystatus_profile_img');
@@ -1028,6 +1029,24 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
 
     mystatus_pause.addEventListener('click', function(){        
         handelResume();
+    });
+
+    mystatus_mute.addEventListener('click', function(){
+        console.log("video_is---------------mute");
+        
+        if (statusVideoDisplay.style.display === 'block') {
+            mystatus_mute.style.display = "none";
+            mystatus_unmute.style.display = "block";
+            statusVideoDisplay.muted = !statusVideoDisplay.muted;
+        }
+    });
+
+    mystatus_unmute.addEventListener('click', function(){
+        if (statusVideoDisplay.style.display === 'block') {
+            mystatus_unmute.style.display = "none";
+            mystatus_mute.style.display = "block";
+            statusVideoDisplay.muted = !statusVideoDisplay.muted;
+        }
     });
 
     function handlePause(){
@@ -1345,6 +1364,10 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
                 mystatus_dialog_django_content.innerHTML = `<span>No Views Yet</span>`;
             }
             
+            // this is some video mute functionality
+            mystatus_unmute.style.display = "none";
+            mystatus_mute.style.display = "block";
+            statusVideoDisplay.muted = !statusVideoDisplay.muted;
       
             await animateLine(statusLines[i],  animationDuration);
         }
@@ -2008,6 +2031,10 @@ chatSocket.onmessage = function(e){
                 }
             }
             
+        }else if(data.type  == 'receiver_message_delivered' && selectedUserId == data.receiver_id){
+            let messageElement = document.querySelector(`[message="message_${data.message_id}"]`);
+            messageElement.innerHTML = '';
+            messageElement.innerHTML = '<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>';
         }
 
         
@@ -2116,64 +2143,20 @@ function handleChathistory(data){
 }
 
 function appendMessage(message){
+    console.log("message",message)
     const chatboxs  = document.querySelector('.rightside .chatBox');
     if(message.sender == djangoUserId){
-       
-        let messageElement; 
+        
+        console.log("message-------------------------",message.img);
         if(message.img){
-      
+            let messageElement; 
             messageElement = `
-                <div class="message my_message">
-                    <div class="mainImage end_background">
-                        ${message.is_reply_status ?
-                            `<div class="status_part" style="background-color: #025144;">
-                                <span class="status_part_left-line"></span>
-                                <div class="status_part_conntent">
-                                    <div class="status_part_conntent_wrap">
-                                        <div class="status_part_conntent_title">
-                                            <span>${message.reciver_name} · Status</span>
-                                        </div>
-                                        <div class="status_part_conntent_title_bottom">
-                                            <div class="status_part_conntent_title_bottom_icon">
-                                                <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
-                                            </div>
-                                            <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                                        </div>
-                                    </div>
-                                </div> 
-                                <div class="status_part_img">
-                                    <div class="status_part_img_first">
-                                        <div class="status_part_img_second" >
-                                            <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.img)});"> </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> 
-                            <div class="caption">${message.caption}</div>
-                            <span class="caption_timestamp">${message.timestamp}</span>`
-                        :        
-                        `<div class="first_view" onclick="playVideo('media/${message.img}', '${true}');">
-                                <div class="innerImage">
-                                    <img src="media/${message.img}" class="image" alt="Image">
-                                </div> 
-                                ${message.caption ?'':
-                                    `<div class="videoBottom flex-end">
-                                        <span class="vide_timestamp">${message.timestamp}</span>
-                                    </div>`}
-                            </div> 
-                            ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                            ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}`}
-                    </div> 
-                </div>`
-            ;
-        }else if(message.video){
-            const uniqueId = `video_${message.video.substring(message.video.lastIndexOf('/') + 1)}`;
-
-            messageElement =`
             <div class="message my_message">
                 <div class="mainImage end_background">
-                    ${message.is_reply_status ?
-                        `<div class="status_part" style="background-color: #025144;">
+            `
+            if(message.is_reply_status){
+                messageElement +=            
+                `<div class="status_part" style="background-color: #025144;">
                             <span class="status_part_left-line"></span>
                             <div class="status_part_conntent">
                                 <div class="status_part_conntent_wrap">
@@ -2182,190 +2165,322 @@ function appendMessage(message){
                                     </div>
                                     <div class="status_part_conntent_title_bottom">
                                         <div class="status_part_conntent_title_bottom_icon">
-                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
                                         </div>
-                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${message.replied_video_duration}</span>
-                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
                                     </div>
                                 </div>
                             </div> 
                             <div class="status_part_img">
                                 <div class="status_part_img_first">
                                     <div class="status_part_img_second" >
-                                        <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.video)});"> </div>
+                                        <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.img)});"> </div>
                                     </div>
                                 </div>
                             </div>
                         </div> 
                         <div class="caption">${message.caption}</div>
-                        <span class="caption_timestamp">${message.timestamp}</span>`
-                    :         
-                    `<div class="first_view" onclick="playVideo('${message.video}', '${false}')">
-                        <div class="playButton" id="playButton" >
-                            <!-- Play Icon -->
-                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-                        </div>
-                        <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                            <source id="MyDuration_${uniqueId}" src="${message.video}" type="video/mp4">
-                        </video>  
-                        <div class="media-loader">
-                            <div class="loader"></div>
-                        </div>
-
-                        <div class="videoBottom space-between">
-                            <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                            ${message.caption ?'':`<span class="vide_timestamp">${message.timestamp}</span>`}
-                        </div> 
-
-                    </div>
-                    ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                    ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}
-                    `}
-                </div> 
+                        <div class="status_reply_bottom">
+                            <span class="caption_timestamp">${message.timestamp}</span>
+                            <span class="status-tick" message="message_${message.message_id}"> `
+                            if(message.receiver_message_view == 'sent'){ 
+                                messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                            }else if(message.receiver_message_view == 'delivered'){
+                                messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                            } 
+                            messageElement+=`</span>
+                        </div>`    
+            }else{
+                messageElement +=
+                `<div class="first_view" onclick="playVideo('media/${message.img}', '${true}');">
+                    <div class="innerImage">
+                        <img src="media/${message.img}" class="image" alt="Image">
+                    </div> `
+                if(!message.caption){
+                    messageElement +=
+                    `<div class="videoBottom flex-end">
+                        <span class="vide_timestamp">${message.timestamp}</span>
+                        <span class="status-tick" message="message_${message.message_id}">`
+                        if(message.receiver_message_view == 'sent'){ 
+                            messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                        }else if(message.receiver_message_view == 'delivered'){
+                            messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                        } 
+                        messageElement+=`</span>
+                    </div>` 
+                } 
+                messageElement +=`</div> 
+                    ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}`  
+                    if(message.caption ){
+                       messageElement += 
+                       `<div class="caption-bottom">
+                                    <span class="vide_timestamp">${message.timestamp}</span>
+                                    <span class="status-tick" message="message_${message.message_id}">`
+                                    if(message.receiver_message_view == 'sent'){ 
+                                        messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                                    }else if(message.receiver_message_view == 'delivered'){
+                                        messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                                    } 
+                            messageElement +=`</span>
+                        </div>`
+                                    
                 
-            </div>`;
+                    } 
+
+            }
+            messageElement += `</div> 
+                </div>`  
+            chatboxs.insertAdjacentHTML('beforeend', messageElement);        
+
+        }else if(message.video){
+            // const uniqueId = `video_${message.video.substring(message.video.lastIndexOf('/') + 1)}`;
+            // messageElement += `
+            // <div class="message my_message">
+            //     <div class="mainImage end_background">
+            // `
+            // if(message.is_reply_status){
+            //     messageElement +=    `<div class="status_part" style="background-color: #025144;">
+            //                 <span class="status_part_left-line"></span>
+            //                 <div class="status_part_conntent">
+            //                     <div class="status_part_conntent_wrap">
+            //                         <div class="status_part_conntent_title">
+            //                             <span>${message.reciver_name} · Status</span>
+            //                         </div>
+            //                         <div class="status_part_conntent_title_bottom">
+            //                             <div class="status_part_conntent_title_bottom_icon">
+            //                                 <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+            //                             </div>
+            //                             <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${message.replied_video_duration}</span>
+            //                             <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+            //                         </div>
+            //                     </div>
+            //                 </div>
+            //                 <div class="status_part_img">
+            //                     <div class="status_part_img_first">
+            //                         <div class="status_part_img_second" >
+            //                             <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.video)});"> </div>
+            //                         </div>
+            //                     </div>
+            //                 </div>
+            //             </div>
+            //             <div class="caption">${message.caption}</div>
+            //             <div class="status_reply_bottom">
+            //                 <span class="caption_timestamp">${message.timestamp}</span>
+            //                 <span class="status-tick" message="message_${message.message_id}">`
+            //                     if(message.receiver_message_view == 'sent'){ 
+            //                         messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+            //                     }else if(message.receiver_message_view == 'delivered'){
+            //                         messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+            //                     } 
+            // messageElement+=`</span>
+            //             </div>`    
+            // }else{
+
+            //     messageElement += `<div class="first_view" onclick="playVideo('${message.video}', '${false}')">
+            //     <div class="playButton" id="playButton" >
+            //         <!-- Play Icon -->
+            //         <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
+            //     </div>
+            //     <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
+            //         <source id="MyDuration_${uniqueId}" src="${message.video}" type="video/mp4">
+            //     </video>  
+            //     <div class="media-loader">
+            //         <div class="loader"></div>
+            //     </div>
+
+
+            //     <div class="videoBottom space-between">
+            //         <span id="videoDuration_${uniqueId}" class="video-duration"></span>`
+            //         if(!message.caption ){
+            //             messageElement += `
+            //             <div  class="last-time">
+            //                 <span class="vide_timestamp">${message.timestamp}</span>
+            //                 <span class="status-tick" message="message_${message.message_id}">`
+            //                 if(message.receiver_message_view == 'sent'){ 
+            //                     messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+            //                 }else if(message.receiver_message_view == 'delivered'){
+            //                     messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+            //                 } 
+            //             messageElement+=` </span>
+            //                 </div>`
+            //         }
+            //     messageElement +=`</div>
+            //         </div>
+            //     ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}`
+            //     if(message.caption){
+            //         messageElement += `<div class="caption-bottom">
+            //                 <span class="vide_timestamp">${message.timestamp}</span>
+            //                 <span class="status-tick" message="message_${message.message_id}">`
+            //                     if(message.receiver_message_view == 'sent'){ 
+            //                         messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+            //                     }else if(message.receiver_message_view == 'delivered'){
+            //                         messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+            //                     } 
+            //         messageElement+=` </span>
+            //                 </div>`
+                    
+            //     }    
+                    
+            // }
+            // messageElement +=`</div>
+               
+            // </div>`
+         
         }else{
+            let messageElement;
             messageElement = `
                 <div class="message my_message">
-                    <p>${message.content} <span>${message.timestamp}</span></p>
+                    <div class="message_back">
+                          <div class="top-content">
+                            <span>${message.content}</span>
+                          </div>
+                          <div class="bottom-content">
+                            <span class="time">${message.timestamp}</span>
+                            <span message="message_${message.message_id}">`
+                        
+                            if(message.receiver_message_view == 'sent'){ 
+                                messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                            }else if(message.receiver_message_view == 'delivered'){
+                                messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                            } 
+                                
+            messageElement +=`</span>
+                          </div>
+                     </div>
                 </div>
-            `;
+            `;  
+            chatboxs.insertAdjacentHTML('beforeend', messageElement);
         }
        
-        chatboxs.insertAdjacentHTML('beforeend', messageElement);
+        
           
     }
-    if(selectedUserId == message.sender && djangoUserId == message.receiver){  
-        if(message.sender != message.receiver){
+    // if(selectedUserId == message.sender && djangoUserId == message.receiver){  
+    //     if(message.sender != message.receiver){
            
-            let messageElement;
-            if(message.img){
-                messageElement = `
-                    <div class="message frnd_message">
-                        <div class="mainImage start_background">
-                            ${message.is_reply_status ?
-                                `<div class="status_part" style="background-color: #1d282f;">
-                                    <span class="status_part_left-line"></span>
-                                    <div class="status_part_conntent">
-                                        <div class="status_part_conntent_wrap">
-                                            <div class="status_part_conntent_title">
-                                                <span>You · Status</span>
-                                            </div>
-                                            <div class="status_part_conntent_title_bottom">
-                                                <div class="status_part_conntent_title_bottom_icon">
-                                                    <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
-                                                </div>
-                                                <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                                            </div>
-                                        </div>
-                                    </div> 
-                                    <div class="status_part_img">
-                                        <div class="status_part_img_first">
-                                            <div class="status_part_img_second" >
-                                                <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.img)});"> </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> 
-                                <div class="caption">${message.caption}</div>
-                                <span class="caption_timestamp">${message.timestamp}</span>`
-                              :        
-                               `<div class="first_view" onclick="playVideo('${message.img}', '${true}')">
-                                    <div class="innerImage">
-                                        <img src="media/${message.img}" class="image" alt="Image">
-                                    </div> 
-                                    ${message.caption ?'':
-                                        `<div class="videoBottom flex-end">
-                                            <span class="vide_timestamp">${message.timestamp}</span>
-                                        </div>`}
-                                </div> 
-                                ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                                ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}`}
-                        </div> 
-                    </div>`
-                ;
+            // let messageElement;
+            // if(message.img){
+                // messageElement = `
+                //     <div class="message frnd_message">
+                //         <div class="mainImage start_background">
+                //             ${message.is_reply_status ?
+                //                 `<div class="status_part" style="background-color: #1d282f;">
+                //                     <span class="status_part_left-line"></span>
+                //                     <div class="status_part_conntent">
+                //                         <div class="status_part_conntent_wrap">
+                //                             <div class="status_part_conntent_title">
+                //                                 <span>You · Status</span>
+                //                             </div>
+                //                             <div class="status_part_conntent_title_bottom">
+                //                                 <div class="status_part_conntent_title_bottom_icon">
+                //                                     <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
+                //                                 </div>
+                //                                 <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
+                //                             </div>
+                //                         </div>
+                //                     </div> 
+                //                     <div class="status_part_img">
+                //                         <div class="status_part_img_first">
+                //                             <div class="status_part_img_second" >
+                //                                 <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.img)});"> </div>
+                //                             </div>
+                //                         </div>
+                //                     </div>
+                //                 </div> 
+                //                 <div class="caption">${message.caption}</div>
+                //                 <span class="caption_timestamp">${message.timestamp}</span>`
+                //               :        
+                //                `<div class="first_view" onclick="playVideo('${message.img}', '${true}')">
+                //                     <div class="innerImage">
+                //                         <img src="media/${message.img}" class="image" alt="Image">
+                //                     </div> 
+                //                     ${message.caption ?'':
+                //                         `<div class="videoBottom flex-end">
+                //                             <span class="vide_timestamp">${message.timestamp}</span>
+                //                         </div>`}
+                //                 </div> 
+                //                 ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
+                //                 ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}`}
+                //         </div> 
+                //     </div>`
+                // ;
                 
-            }else if(message.video){
-                const uniqueId = `video_${message.video.substring(message.video.lastIndexOf('/') + 1)}`;
+            // }else if(message.video){
+                // const uniqueId = `video_${message.video.substring(message.video.lastIndexOf('/') + 1)}`;
 
-                messageElement =`
-                <div class="message frnd_message">
-                    <div class="mainImage start_background">
-                        ${message.is_reply_status ?
-                            `<div class="status_part" style="background-color: #1d282f;">
-                                <span class="status_part_left-line"></span>
-                                <div class="status_part_conntent">
-                                    <div class="status_part_conntent_wrap">
-                                        <div class="status_part_conntent_title">
-                                            <span>You · Status</span>
-                                        </div>
-                                        <div class="status_part_conntent_title_bottom">
-                                            <div class="status_part_conntent_title_bottom_icon">
-                                                <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
-                                            </div>
-                                            <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${message.replied_video_duration}</span>
-                                            <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
-                                        </div>
-                                    </div>
-                                </div> 
-                                <div class="status_part_img">
-                                    <div class="status_part_img_first">
-                                        <div class="status_part_img_second" >
-                                            <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.video)});"> </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> 
-                            <div class="caption">${message.caption}</div>
-                            <span class="caption_timestamp">${message.timestamp}</span>`
-                        :   
-                        `<div class="first_view" onclick="playVideo('${message.video}', '${false}')">
-                            <div class="playButton" id="playButton">
-                                <!-- Play Icon -->
-                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-                            </div>
-                            <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                                <source id="MyDuration_${uniqueId}" src="${message.video}" type="video/mp4">
-                            </video>  
-                            <div class="media-loader">
-                                <div class="loader"></div>
-                            </div>
+                // messageElement =`
+                // <div class="message frnd_message">
+                //     <div class="mainImage start_background">
+                //         ${message.is_reply_status ?
+                //             `<div class="status_part" style="background-color: #1d282f;">
+                //                 <span class="status_part_left-line"></span>
+                //                 <div class="status_part_conntent">
+                //                     <div class="status_part_conntent_wrap">
+                //                         <div class="status_part_conntent_title">
+                //                             <span>You · Status</span>
+                //                         </div>
+                //                         <div class="status_part_conntent_title_bottom">
+                //                             <div class="status_part_conntent_title_bottom_icon">
+                //                                 <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                //                             </div>
+                //                             <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${message.replied_video_duration}</span>
+                //                             <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                //                         </div>
+                //                     </div>
+                //                 </div> 
+                //                 <div class="status_part_img">
+                //                     <div class="status_part_img_first">
+                //                         <div class="status_part_img_second" >
+                //                             <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.video)});"> </div>
+                //                         </div>
+                //                     </div>
+                //                 </div>
+                //             </div> 
+                //             <div class="caption">${message.caption}</div>
+                //             <span class="caption_timestamp">${message.timestamp}</span>`
+                //         :   
+                //         `<div class="first_view" onclick="playVideo('${message.video}', '${false}')">
+                //             <div class="playButton" id="playButton">
+                //                 <!-- Play Icon -->
+                //                 <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
+                //             </div>
+                //             <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
+                //                 <source id="MyDuration_${uniqueId}" src="${message.video}" type="video/mp4">
+                //             </video>  
+                //             <div class="media-loader">
+                //                 <div class="loader"></div>
+                //             </div>
     
-                           <div class="videoBottom space-between">
-                                <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                                ${message.caption ?'':`<span class="vide_timestamp">${message.timestamp}</span>`}
-                            </div> 
+                //            <div class="videoBottom space-between">
+                //                 <span id="videoDuration_${uniqueId}" class="video-duration"></span>
+                //                 ${message.caption ?'':`<span class="vide_timestamp">${message.timestamp}</span>`}
+                //             </div> 
     
-                        </div>
-                        ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                        ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}
-                        `}
-                    </div> 
+                //         </div>
+                //         ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
+                //         ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}
+                //         `}
+                //     </div> 
                     
-                </div>`;
-            }else{
-                messageElement = `
-                    <div class="message frnd_message">
-                        <p>${message.content} <span>${message.timestamp}</span></p>
-                    </div>
-                `;
-            }
-            if(message.content){
-                
-            }else{
-                
-            }
+                // </div>`;
+            // }else{
+                // messageElement = `
+                //     <div class="message frnd_message">
+                //         <p>${message.content} <span>${message.timestamp}</span></p>
+                //     </div>
+                // `;
+            // }
             
-            chatboxs.insertAdjacentHTML('beforeend', messageElement);
+            
+            // chatboxs.insertAdjacentHTML('beforeend', messageElement);
            
-        }
-    }
+    //     }
+    // }
 } 
 
 function handleChatMessage(data){
     const currentDate = data.label_time;
     const chatBoxs = document.querySelector('.rightside .chatBox');
-    
     if(lastDate == ''){
         const dateLabel = `
         <div class="date-label">
@@ -2387,76 +2502,25 @@ function handleChatMessage(data){
     
     if(data.sender_id == djangoUserId){
         if (data.type_content == 'Photo'){
-           
-            const messageElement = `
-                <div class="message my_message">
-                    <div class="mainImage end_background">
-                        ${ data.is_reply_status ?
-                        `<div class="status_part" style="background-color: #025144;">
+            let messageElement;
+            messageElement += `
+            <div class="message my_message">
+                <div class="mainImage end_background">
+            `
+            if(data.is_reply_status){
+                messageElement +=            
+                `<div class="status_part" style="background-color: #025144;">
                             <span class="status_part_left-line"></span>
                             <div class="status_part_conntent">
                                 <div class="status_part_conntent_wrap">
                                     <div class="status_part_conntent_title">
                                         <span>${data.reciver_name} · Status</span>
                                     </div>
-                                    
                                     <div class="status_part_conntent_title_bottom">
                                         <div class="status_part_conntent_title_bottom_icon">
                                             <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
                                         </div>
                                         <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                                    </div>
-                                </div>
-                            </div> 
-                            <div class="status_part_img">
-                                <div class="status_part_img_first">
-                                    <div class="status_part_img_second" >
-                                        <div class="status_part_imgview" style="background-image: url(${data.url});"> </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
-                       <div class="caption">${data.caption}</div>
-                       <span class="caption_timestamp">${data.timestamp}</span> `:
-                       `<div class="first_view" onclick="playVideo('${data.url}', '${true}')">
-                            <div class="innerImage">
-                                <img src="${data.url}" class="image" alt="Image">
-                            </div> 
-                            ${data.caption ?'':
-                                `<div class="videoBottom flex-end">
-                                    <span class="vide_timestamp">${data.timestamp}</span>
-                                </div>`}
-                        </div> 
-                        ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
-                        ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}` 
-                    }
-                    
-                    </div> 
-                </div>`;
-
-            chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-        
-        }else if(data.type_content == 'Video'){
-            
-            const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
-
-            const messageElement =`
-            <div class="message my_message">
-                <div class="mainImage end_background">
-                    ${data.is_reply_status ?
-                        `<div class="status_part" style="background-color: #025144;">
-                            <span class="status_part_left-line"></span>
-                            <div class="status_part_conntent">
-                                <div class="status_part_conntent_wrap">
-                                    <div class="status_part_conntent_title">
-                                        <span>${data.reciver_name} · Status</span>
-                                    </div>
-                                    <div class="status_part_conntent_title_bottom">
-                                        <div class="status_part_conntent_title_bottom_icon">
-                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>     
-                                        </div>
-                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${data.video_duration}</span>
-                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
                                     </div>
                                 </div>
                             </div> 
@@ -2469,39 +2533,177 @@ function handleChatMessage(data){
                             </div>
                         </div> 
                         <div class="caption">${data.caption}</div>
-                        <span class="caption_timestamp">${data.timestamp}</span>`
-                    :        
-                    `<div class="first_view" onclick="playVideo('${data.url}', '${false}')">
-                        <div class="playButton" id="playButton" >
-                            <!-- Play Icon -->
-                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-                        </div>
-                        <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                            <source id="MyDuration_${uniqueId}" src="${data.url}" type="video/mp4">
-                        </video>  
-                        <div class="media-loader">
-                            <div class="loader"></div>
-                        </div>
-
-                        <div class="videoBottom space-between">
-                            <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                            ${data.caption ?'':`<span class="vide_timestamp">${data.timestamp}</span>`}
-                        </div> 
-
-                    </div>
-                    ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
-                    ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
-                    `}
-                </div> 
+                        <div class="status_reply_bottom">
+                            <span class="caption_timestamp">${data.timestamp}</span>
+                            <span class="status-tick" message="message_${data.message_id}"> `
+                            if(data.receiver_message_view == 'sent'){ 
+                                messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                            }else if(data.receiver_message_view == 'delivered'){
+                                messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                            } 
+                            messageElement+=`</span>
+                        </div>`    
+            }else{
+                messageElement +=
+                `<div class="first_view" onclick="playVideo('${data.url}', '${true}');">
+                    <div class="innerImage">
+                        <img src="${data.url}" class="image" alt="Image">
+                    </div> `
+                if(!data.caption){
+                    messageElement +=
+                    `<div class="videoBottom flex-end">
+                        <span class="vide_timestamp">${data.timestamp}</span>
+                        <span class="status-tick"  message="message_${data.message_id}">`
+                        if(data.receiver_message_view == 'sent'){ 
+                            messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                        }else if(data.receiver_message_view == 'delivered'){
+                            messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                        } 
+                        messageElement+=`</span>
+                    </div>` 
+                } 
+                messageElement +=`</div> 
+                    ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}`  
+                    if(data.caption ){
+                       messageElement += 
+                       `<div class="caption-bottom">
+                                    <span class="vide_timestamp">${data.timestamp}</span>
+                                    <span class="status-tick"  message="message_${data.message_id}">`
+                                    if(data.receiver_message_view == 'sent'){ 
+                                        messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                                    }else if(data.receiver_message_view == 'delivered'){
+                                        messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                                    } 
+                            messageElement +=`</span>
+                        </div>`
+                                    
                 
-            </div>`;
+                    } 
+
+            }
+            messageElement += `</div> 
+                </div>`    
+
+            chatBoxs.insertAdjacentHTML('beforeend', messageElement);
+        
+        }else if(data.type_content == 'Video'){
+            
+            const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
+            let messageElement;
+            messageElement += `
+            <div class="message my_message">
+                <div class="mainImage end_background">
+            `
+            if(data.is_reply_status){
+                messageElement +=    `<div class="status_part" style="background-color: #025144;">
+                            <span class="status_part_left-line"></span>
+                            <div class="status_part_conntent">
+                                <div class="status_part_conntent_wrap">
+                                    <div class="status_part_conntent_title">
+                                        <span>${data.reciver_name} · Status</span>
+                                    </div>
+                                    <div class="status_part_conntent_title_bottom">
+                                        <div class="status_part_conntent_title_bottom_icon">
+                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                                        </div>
+                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${data.replied_video_duration}</span>
+                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="status_part_img">
+                                <div class="status_part_img_first">
+                                    <div class="status_part_img_second" >
+                                        <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(data.url)});"> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="caption">${data.caption}</div>
+                        <div class="status_reply_bottom">
+                            <span class="caption_timestamp">${data.timestamp}</span>
+                            <span class="status-tick"  message="message_${data.message_id}">`
+                                if(data.receiver_message_view == 'sent'){ 
+                                    messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                                }else if(data.receiver_message_view == 'delivered'){
+                                    messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                                } 
+            messageElement+=`</span>
+                        </div>`    
+            }else{
+
+                messageElement += `<div class="first_view" onclick="playVideo('${data.url}', '${false}')">
+                <div class="playButton" id="playButton" >
+                    <!-- Play Icon -->
+                    <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
+                </div>
+                <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
+                    <source id="MyDuration_${uniqueId}" src="${data.url}" type="video/mp4">
+                </video>  
+                <div class="media-loader">
+                    <div class="loader"></div>
+                </div>
+
+
+                <div class="videoBottom space-between">
+                    <span id="videoDuration_${uniqueId}" class="video-duration"></span>`
+                    if(!data.caption ){
+                        messageElement += `
+                        <div  class="last-time">
+                            <span class="vide_timestamp">${data.timestamp}</span>
+                            <span class="status-tick"  message="message_${data.message_id}">`
+                            if(data.receiver_message_view == 'sent'){ 
+                                messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                            }else if(data.receiver_message_view == 'delivered'){
+                                messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                            } 
+                        messageElement+=` </span>
+                            </div>`
+                    }
+                messageElement +=`</div>
+                    </div>
+                ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}`
+                if(data.caption){
+                    messageElement += `<div class="caption-bottom">
+                            <span class="vide_timestamp">${data.timestamp}</span>
+                            <span class="status-tick"  message="message_${data.message_id}">`
+                                if(data.receiver_message_view == 'sent'){ 
+                                    messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                                }else if(data.receiver_message_view == 'delivered'){
+                                    messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                                } 
+                    messageElement+=` </span>
+                            </div>`
+                    
+                }    
+                    
+            }
+            messageElement +=`</div>
+               
+            </div>` 
             chatBoxs.insertAdjacentHTML('beforeend', messageElement);
             chatBoxs.scrollTop = chatBoxs.scrollHeight;
 
         }else{
-            const messageElement = `
+            let messageElement;
+            messageElement += `
                 <div class="message my_message">
-                    <p>${data.message} <span>${data.timestamp}</span></p>
+                    <div class="message_back">
+                          <div class="top-content">
+                            <span>${data.message}</span>
+                          </div>
+                          <div class="bottom-content">
+                            <span class="time">${data.timestamp}</span>
+                            <span  message="message_${data.message_id}">`
+                            if(data.receiver_message_view == 'sent'){ 
+                                messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
+                            }else if(data.receiver_message_view == 'delivered'){
+                                messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
+                            } 
+                                
+            messageElement +=`</span>
+                          </div>
+                     </div>
                 </div>
             `;
             chatBoxs.insertAdjacentHTML('beforeend', messageElement);
@@ -2662,7 +2864,6 @@ function handleChatMessage(data){
                 
                 
                 chatBoxs.scrollTop = chatBoxs.scrollHeight;
-                
                 chatSocket.send(JSON.stringify({
                     'action':'send_message_toggle_true',
                     'receiver_id': data.receiver_id,
@@ -2694,6 +2895,7 @@ function handleChatMessage(data){
         chatBoxs.scrollTop = chatBoxs.scrollHeight;
     }, 100);   
 }
+
     
 function commenInput(){
     const message = messageInput.value;

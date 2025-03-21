@@ -174,7 +174,7 @@ def home(request):
     contact_users = User.objects.filter(id__in=contact_ids) 
     user_data = []
     for contact_user in contact_users:
-        message_reciver_count = Message.objects.filter(sender_id=contact_user.id,receiver_id=login_user.id, is_read=False).count()
+        message_reciver_count = Message.objects.filter(sender_id=contact_user.id,receiver_id=login_user.id, is_read_toggle=False).count()
         
         if contact_user.id == login_user.id:
             message_reciver_count = 0

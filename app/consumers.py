@@ -15,7 +15,7 @@ import uuid
 
 @database_sync_to_async
 def get_message_receiver_count(sender_id, receiver_id):
-    return Message.objects.filter(sender_id=sender_id, receiver_id=receiver_id, is_read=False).count()
+    return Message.objects.filter(sender_id=sender_id, receiver_id=receiver_id, is_read_toggle=False).count()
 
 @sync_to_async
 def get_chat_history(sender_id, receiver_id, deletetion_time_str=None):
@@ -30,14 +30,32 @@ def get_chat_history(sender_id, receiver_id, deletetion_time_str=None):
                     (Q(sender_id=receiver_id) & Q(receiver_id=sender_id))).order_by('timestamp')) 
 
 @sync_to_async
-def mark_messages_as_read(sender_id, receiver_id):
-    return Message.objects.filter(sender_id=receiver_id, receiver_id=sender_id).update(is_read=True)
+def toggle_messages_as_read(sender_id, receiver_id):
+    return Message.objects.filter(sender_id=receiver_id, receiver_id=sender_id).update(is_read_toggle=True)
 
 @sync_to_async
-def mark_messages_bothsame_read(sender_id, receiver_id):
-    return Message.objects.filter(sender_id=sender_id, receiver_id=receiver_id).update(is_read=True)
+def toggle_messages_bothsame_read(sender_id, receiver_id):
+    return Message.objects.filter(sender_id=sender_id, receiver_id=receiver_id).update(is_read_toggle=True)
 
 
+
+# Mark all 'sent' messages to this user as 'delivered'
+
+async def mark_change_delivere(user):
+    messages = await sync_to_async(list)(Message.objects.filter(receiver=user, status_view='sent'))
+    # messages.update(status_view='delivered')
+    for message in messages:
+        if message.sender_id in user_connections:
+            for connection in user_connections[message.sender_id]:
+                await connection.send(text_data=json.dumps({
+                    'type': 'receiver_message_delivered',
+                    'receiver_id':message.receiver_id,
+                    'sender_id':message.sender_id,
+                    'message_id':message.id, 
+                }))
+    
+    
+    return  messages
 
 @database_sync_to_async
 def get_reciver_name(message):
@@ -58,9 +76,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             user_connections[id] = []
         user_connections[id].append(self)
 
+
+        # marke histroy change function call
+        await  mark_change_delivere(self.scope['user'])
         
-        
-       
         # join group 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -78,8 +97,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             user_connections[id].remove(self)
             if not user_connections[id]:
                 del user_connections[id]  
-
-       
         
         await self.channel_layer.group_discard(
             self.room_group_name,
@@ -149,7 +166,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if action == 'send_message_toggle_true':
             receiver_id = text_data_json['receiver_id']
             sender_id = text_data_json['sender_id']
-            await mark_messages_bothsame_read(sender_id, receiver_id)
+            await toggle_messages_bothsame_read(sender_id, receiver_id)
 
         if action == 'send_message':
             message = text_data_json['message']
@@ -219,17 +236,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             else:    
                 msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
-                   
-
-
+            
             if sender_id == int(receiver_id):
-                msg_instance.is_read = True
+                msg_instance.is_read_toggle = True
                 await database_sync_to_async(msg_instance.save)()
-
 
             message_reciver_count = await get_message_receiver_count(sender_id=sender_id,receiver_id=receiver_id,)
             
-
             local_timestamps = localtime(msg_instance.timestamp)  
             formate_msg_time = format_date(local_timestamps)
 
@@ -239,7 +252,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 last_msg_time = local_timestamps.strftime('%H:%M')
             else:
                 last_msg_time = formate_msg_time
-            
+
+            receiver_message_view = 'sent'
+            if int(receiver_id) in user_connections:
+                msg_instance.status_view = 'delivered'
+                await database_sync_to_async(msg_instance.save)()
+                receiver_message_view = 'delivered'
+
             await self.channel_layer.group_send(
                 self.room_group_name,
                 { 
@@ -249,7 +268,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'timestamp':local_timestamps.strftime('%H:%M'),
                 'receiver_id':receiver_id,
                 'sender_id':sender_id,
-                'is_read':False,
                 'toggle_count':message_reciver_count,
                 'last_msg_time':last_msg_time,
                 'label_time':formate_msg_time,
@@ -261,6 +279,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'is_reply_status':is_reply_status ,
                 'reciver_name':receiver.username,
                 'video_duration':video_duration,
+                'receiver_message_view':receiver_message_view,
+                'message_id':msg_instance.id,
                 }
             )
             video_duration = ''
@@ -271,8 +291,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender = event['sender']
         timestamp = event['timestamp']
         receiver_id = event['receiver_id']
-        sender_id = event['sender_id']
-        is_read = event['is_read'] 
+        sender_id = event['sender_id'] 
         toggle_count = event['toggle_count']
         last_msg_time = event['last_msg_time']
         type = event['type']
@@ -285,6 +304,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         is_reply_status = event['is_reply_status']
         reciver_name = event['reciver_name']
         video_duration = event['video_duration']
+        receiver_message_view = event['receiver_message_view']
+        message_id = event['message_id']
 
         await self.send(text_data=json.dumps({
             'message':message,
@@ -292,7 +313,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'timestamp': timestamp,
             'receiver_id':receiver_id,
             'sender_id':sender_id,
-            'is_read':is_read,
             'toggle_count':toggle_count,
             'last_msg_time':last_msg_time,
             'type':type,
@@ -305,6 +325,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'is_reply_status':is_reply_status,
             'reciver_name':reciver_name,
             'video_duration':video_duration,
+            'receiver_message_view':receiver_message_view,
+            'message_id':message_id,
         }))
 
 
@@ -318,7 +340,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         messages =  await get_chat_history(sender_id=sender_id,receiver_id=receiver_id, deletetion_time_str=deletetion_time_str)
         
-        await mark_messages_as_read(sender_id, receiver_id)
+        await toggle_messages_as_read(sender_id, receiver_id) 
+
         is_reply_status = False
         grouped_messages = {}
         for message in messages:
@@ -352,7 +375,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
            
            
             reciver_username = await get_reciver_name(message)
-
         
             grouped_messages[date_key]['messages'].append({
                 'content':message.content,
@@ -365,6 +387,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'is_reply_status':is_reply_status,
                 'reciver_name':reciver_username,
                 'replied_video_duration':replied_video_duration,
+                'receiver_message_view':message.status_view,
+                'message_id':message.id,
             })
              
             image  = ''
