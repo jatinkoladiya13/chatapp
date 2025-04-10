@@ -22,7 +22,6 @@ const drwerChatlist  = document.querySelector('.drwer-chatlist');
 const drawerSearchInput = document.getElementById('drawer-search-input');
 const drwerSearchClose = document.getElementById('drawer-search-close');
 const plusUpload = document.getElementById('plusUpload');
-const plusUploadClose = document.getElementById('plusUploadClose');
 const plusDropdown = document.getElementById('plus-dropdown-menu');
 const imageViewer = document.getElementById('imageViewer');
 const imagePreviewContainer = document.getElementById('imagePreviewContainer');
@@ -71,7 +70,7 @@ searchInput.addEventListener('input', () =>{
         const userName  = userNameElement.textContent || userNameElement.innerText;
         chatBlocks[i].style.display = userName.toLowerCase().includes(filter) ? '' : 'none';   
     }
-    searchClose.style.display = searchInput.value.trim() === '' ? 'none' : 'block';   
+    searchClose.style.display = searchInput.value.trim() === '' ? 'none' : 'flex';   
 });
 
 searchClose.addEventListener('click', () => {
@@ -145,7 +144,7 @@ drawerSearchInput.addEventListener('input', () =>{
         drwerSearchClose.style.display = 'none';  
     } else {
         getContacts(drawerSearchInput.value);
-        drwerSearchClose.style.display = 'block'; 
+        drwerSearchClose.style.display = 'flex'; 
     } 
 });
 
@@ -156,35 +155,38 @@ drwerSearchClose.addEventListener('click', () => {
 }); 
 
 
+let rotated = false;
 plusUpload.addEventListener('click', ()=>{
-    plusUpload.style.display = 'none';
-    plusUploadClose.style.display = 'block';
-    plusDropdown.style.cssText = `
-        display: block;
-        transform: translateY(0);
-        opacity: 1;
-    `;  
-});
-
-plusUploadClose.addEventListener('click', ()=>{
-    plusUpload.style.display = 'block';
-    plusUploadClose.style.display = 'none';
-    plusDropdown.style.cssText = `
-        display: none;
-        transform: translateY(0);
-        opacity: 1;
-    `; 
-});
-
-document.addEventListener('click',function(event){
-    if(!plusDropdown.contains(event.target) && !plusUpload.contains(event.target)){
+ 
+    plusUpload.style.transition = 'transform 0.5s ease-in-out';
+    rotated = !rotated;
+    if(rotated){
+        plusUpload.style.transform = 'rotate(45deg)';
+        plusDropdown.style.cssText = `
+            display: block;
+            transform: translateY(0);
+            opacity: 1; 
+        `;  
+    }else{
+        plusUpload.style.transform = 'rotate(0deg)';
         plusDropdown.style.cssText = `
             display: none;
             transform: translateY(0);
             opacity: 1;
-        `;
-        plusUpload.style.display = 'block';
-        plusUploadClose.style.display = 'none';
+        `; 
+    }
+});
+
+
+
+document.addEventListener('click',function(event){
+    if(!plusDropdown.contains(event.target) && !plusUpload.contains(event.target)){
+        plusUpload.style.transform = 'rotate(0deg)';
+        plusDropdown.style.cssText = `
+            display: none;
+            transform: translateY(0);
+            opacity: 1;
+        `; 
 
     } 
 });
@@ -464,15 +466,23 @@ logout_button.addEventListener('click', function(){
 const topheaderAddStatus = document.getElementById('topheader-add-status');
 const smallDrawerStatus = document.getElementById('small-drawer-status');
 const scrollableContent = document.getElementById('scrollable-content');
-
+let isDrawerOpen_status = false;
 topheaderAddStatus.addEventListener('click', function(event){
-    topheaderAddStatus.style.background = "rgba(255, 255, 255, .1)";
-    smallDrawerStatus.style.cssText = `transform-origin: right top;
-    right: 74px;
-    top: 56.5px;
-    transform: scale(1);
-    display:flex;`;
-    scrollableContent.style.overflowY = "hidden";
+    isDrawerOpen_status = !isDrawerOpen_status; 
+    if(isDrawerOpen_status){
+        topheaderAddStatus.style.background = "rgba(255, 255, 255, .1)";
+        smallDrawerStatus.style.cssText = `transform-origin: right top;
+        right: 74px;
+        top: 56.5px;
+        transform: scale(1);
+        display:flex;
+        border-radius: 18px;`;
+        scrollableContent.style.overflowY = "hidden";
+    }else{
+        topheaderAddStatus.style.background = "";
+        smallDrawerStatus.style.cssText = "display: none;";
+        scrollableContent.style.overflowY = "auto";
+    }
     event.stopPropagation();
    
 });
@@ -494,7 +504,8 @@ topheader_Profile_Status.addEventListener('click', function(event){
     left: 44px;
     top: 103.5px;
     transform: scale(1);
-    display:flex;`;
+    display:flex;
+    border-radius: 18px;`;
     scrollableContent.style.overflowY = "hidden";
     event.stopPropagation();
 });
@@ -1648,8 +1659,13 @@ function handlePhotoCapture(event){
                         imagePreviewContainer.style.display = 'none';
                         chat_box.style.display = 'block';
                         chat_box_input.style.display = 'flex';
-                        plusUpload.style.display = 'block';
-                        plusUploadClose.style.display = 'none';
+                       
+                        plusUpload.style.transform = 'rotate(0deg)';
+                        plusDropdown.style.cssText = `
+                            display: none;
+                            transform: translateY(0);
+                            opacity: 1;
+                        `; 
 
                    }
                 });
@@ -1865,8 +1881,13 @@ function attachThumbnailListeners(){
                     imagePreviewContainer.style.display = 'none';
                     chat_box.style.display = 'block';
                     chat_box_input.style.display = 'flex';
-                    plusUpload.style.display = 'block';
-                    plusUploadClose.style.display = 'none';
+
+                    plusUpload.style.transform = 'rotate(0deg)';
+                    plusDropdown.style.cssText = `
+                        display: none;
+                        transform: translateY(0);
+                        opacity: 1;
+                    `; 
 
                 }
             });
@@ -1931,32 +1952,32 @@ function send_images(){
 }
 
 // send file to api
-async function fileSendApi(formData){
-    try{
-        const response = await fetch('/upload-video/', {
-            method: 'POST',
-            header:{
-                'Content-Type':'application/json',
-                'X-CSRFToken':getCookie('csrftoken')
-            },
-            body: formData,
-        });
+// async function fileSendApi(formData){
+//     try{
+//         const response = await fetch('/upload-video/', {
+//             method: 'POST',
+//             header:{
+//                 'Content-Type':'application/json',
+//                 'X-CSRFToken':getCookie('csrftoken')
+//             },
+//             body: formData,
+//         });
         
-        const data = await  response.json();
+//         const data = await  response.json();
 
-        chatSocket.send(JSON.stringify({
-            'action': 'send_message',
-            'message': '',
-            'receiver_id': selectedUserId,
-            'Send_Data': data.message,
-        })); 
+//         chatSocket.send(JSON.stringify({
+//             'action': 'send_message',
+//             'message': '',
+//             'receiver_id': selectedUserId,
+//             'Send_Data': data.message,
+//         })); 
 
-        videoBlobs = [];
-    }catch(error){
-        console.error("Error:",error);
-    }
+//         videoBlobs = [];
+//     }catch(error){
+//         console.error("Error:",error);
+//     }
    
-}
+// }
 
 // file view close icon
 const fileViewClose = document.getElementById('file_view_close');
@@ -1968,7 +1989,7 @@ fileViewClose.addEventListener('click',()=>{
    fileDiv.innerHTML = ''; 
 });
 
-// file view in message
+// file view in message click open view image and video
 function playVideo(url, checkings){
     fileView.style.display = 'flex';
     fileDiv.innerHTML = '';
@@ -1992,16 +2013,24 @@ function playVideo(url, checkings){
 }
 
 // Websocket event handlers
-
+let chat_history_search_MSG;
 chatSocket.onmessage = function(e){
         const data = JSON.parse(e.data);
         console.log(data);
         
         if(data.type == 'chat_history'){
-            handleChathistory(data);
+
+            if(selectedUserId === data.receiver_id){
+                chat_history_search_MSG = data;
+                handleChathistory(data);   
+            }
+           
         }else if(data.type == 'chat_message'){
+
             handleChatMessage(data);
-        }else if(data.type  == 'user_status' && selectedUserId == data.user_id){
+        
+        }
+        else if(data.type  == 'user_status' && selectedUserId == data.user_id){
             
             is_online = data.is_online
             
@@ -2035,50 +2064,32 @@ chatSocket.onmessage = function(e){
             let messageElement = document.querySelector(`[message="message_${data.message_id}"]`);
             messageElement.innerHTML = '';
             messageElement.innerHTML = '<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>';
-        }
-
         
-        if(data.type != 'user_status'){
-            let emaplath = ``; 
-            if(djangoUserId == data.sender_id){
-                moveToTop(data.receiver_id);
-                emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
-            }else if(djangoUserId == data.receiver_id){
-                moveToTop(data.sender_id);
-                emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
-            }
-            if(emaplath !== ``){
-                const userElements = document.querySelector(emaplath);
-                if(userElements){
-                    const messagePElement = userElements.querySelector('.message_p p');
-                    if (data.type_content == 'Photo' && data.video_duration===''){
-                        messagePElement.textContent = 'Photo';
-                    }else if(data.type_content == 'Video' && data.video_duration===''){
-                        messagePElement.textContent = 'Video';
-                    }else{
-                        
-                        if(data.video_duration  === ''){
-                            messagePElement.textContent = data.message; 
-                        }else{
-                            messagePElement.textContent = data.caption;
-                        }
-                        
-                    }
-                    const times = userElements.querySelector('.listHead p');
-                    times.textContent = data.timestamp;
+        }else if(data.type == 'change_message_status_by_receiver'){
+            if(window.djangoUserId == data.sender_id && selectedUserId == data.receiver_id && data.receiver_message_view == 'seen'){
+                let messageElement = document.querySelector(`.message_${data.message_id}`);
+                   
+                if(messageElement){
+                    messageElement.innerHTML = '';
+                    messageElement.innerHTML = '<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>';
+                    messageElement.style.color = '#53bdeb'; 
                 }
+            
             }
+
         }
-       
 }
 
 function moveToTop(userId){
     const chatList = document.getElementById('chatlist');
-    const targetBlock = document.querySelector(`.block[data-user-id="${userId}"]`);
+    const targetInside = document.querySelector(`.inside[data-user-id="${userId}"]`);
 
-    if(chatList && targetBlock){
-        chatList.prepend(targetBlock);
-        targetBlock.style.transition = "background-color 0.5s ease"; 
+    if(chatList && targetInside){
+        const block = targetInside.closest('.block');
+        if (block) {
+            chatList.prepend(block);
+        }
+        
         
     }
 }
@@ -2114,789 +2125,269 @@ function handleChathistory(data){
             day.messages.forEach((message) => {
                 appendMessage(message);
             });
-           
-            const userElements = document.querySelector(`.chatlist .block[data-user-id="${selectedUserId}"]`);
-            const messagePElement = userElements.querySelector('.message_p');
-            let toggleCountElement = messagePElement.querySelector('.toggle-count');
-            if(toggleCountElement){
-                toggleCountElement.remove();
-            }
+        
+    
             setTimeout(() => {
                 rightChatbox.scrollTop = rightChatbox.scrollHeight;
             }, 100);
-        
         });
     }
  }     
 
  function setDuration(videoElement) {
     var uniqueId = videoElement.getAttribute('data-unique-id');
-    var duration = videoElement.duration;
-    var durationElement = document.getElementById(`videoDuration_${uniqueId}`);
-    if(durationElement){
-        const totalMinutes = Math.floor(duration / 60);
-        const totalSeconds = Math.floor(duration % 60);
-        const formattedTotal = `${totalMinutes}:${totalSeconds < 10 ? '0' : ''}${totalSeconds}`;
-        durationElement.innerHTML = formattedTotal;
-
-    }
+        var duration = videoElement.duration;
+        var durationElement = document.getElementById(`videoDuration_${uniqueId}`);
+        if(durationElement){
+            const totalMinutes = Math.floor(duration / 60);
+            const totalSeconds = Math.floor(duration % 60);
+            const formattedTotal = `${totalMinutes}:${totalSeconds < 10 ? '0' : ''}${totalSeconds}`;
+            durationElement.innerHTML = formattedTotal;
+    
+        }
 }
 
-function appendMessage(message){
-    console.log("message",message)
-    const chatboxs  = document.querySelector('.rightside .chatBox');
-    if(message.sender == djangoUserId){
-        
-        console.log("message-------------------------",message.img);
-        if(message.img){
-            let messageElement; 
-            messageElement = `
-            <div class="message my_message">
-                <div class="mainImage end_background">
-            `
-            if(message.is_reply_status){
-                messageElement +=            
-                `<div class="status_part" style="background-color: #025144;">
-                            <span class="status_part_left-line"></span>
-                            <div class="status_part_conntent">
-                                <div class="status_part_conntent_wrap">
-                                    <div class="status_part_conntent_title">
-                                        <span>${message.reciver_name} · Status</span>
-                                    </div>
-                                    <div class="status_part_conntent_title_bottom">
-                                        <div class="status_part_conntent_title_bottom_icon">
-                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
-                                        </div>
-                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                                    </div>
-                                </div>
-                            </div> 
-                            <div class="status_part_img">
-                                <div class="status_part_img_first">
-                                    <div class="status_part_img_second" >
-                                        <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.img)});"> </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
-                        <div class="caption">${message.caption}</div>
-                        <div class="status_reply_bottom">
-                            <span class="caption_timestamp">${message.timestamp}</span>
-                            <span class="status-tick" message="message_${message.message_id}"> `
-                            if(message.receiver_message_view == 'sent'){ 
-                                messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                            }else if(message.receiver_message_view == 'delivered'){
-                                messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                            } 
-                            messageElement+=`</span>
-                        </div>`    
-            }else{
-                messageElement +=
-                `<div class="first_view" onclick="playVideo('media/${message.img}', '${true}');">
-                    <div class="innerImage">
-                        <img src="media/${message.img}" class="image" alt="Image">
-                    </div> `
-                if(!message.caption){
-                    messageElement +=
-                    `<div class="videoBottom flex-end">
-                        <span class="vide_timestamp">${message.timestamp}</span>
-                        <span class="status-tick" message="message_${message.message_id}">`
-                        if(message.receiver_message_view == 'sent'){ 
-                            messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                        }else if(message.receiver_message_view == 'delivered'){
-                            messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                        } 
-                        messageElement+=`</span>
-                    </div>` 
-                } 
-                messageElement +=`</div> 
-                    ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}`  
-                    if(message.caption ){
-                       messageElement += 
-                       `<div class="caption-bottom">
-                                    <span class="vide_timestamp">${message.timestamp}</span>
-                                    <span class="status-tick" message="message_${message.message_id}">`
-                                    if(message.receiver_message_view == 'sent'){ 
-                                        messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                                    }else if(message.receiver_message_view == 'delivered'){
-                                        messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                                    } 
-                            messageElement +=`</span>
-                        </div>`
-                                    
-                
-                    } 
+function appendMessage(data){
+    const isCheck_user = data.sender_id === Number(djangoUserId);
 
-            }
-            messageElement += `</div> 
-                </div>`  
-            chatboxs.insertAdjacentHTML('beforeend', messageElement);        
-
-        }else if(message.video){
-            // const uniqueId = `video_${message.video.substring(message.video.lastIndexOf('/') + 1)}`;
-            // messageElement += `
-            // <div class="message my_message">
-            //     <div class="mainImage end_background">
-            // `
-            // if(message.is_reply_status){
-            //     messageElement +=    `<div class="status_part" style="background-color: #025144;">
-            //                 <span class="status_part_left-line"></span>
-            //                 <div class="status_part_conntent">
-            //                     <div class="status_part_conntent_wrap">
-            //                         <div class="status_part_conntent_title">
-            //                             <span>${message.reciver_name} · Status</span>
-            //                         </div>
-            //                         <div class="status_part_conntent_title_bottom">
-            //                             <div class="status_part_conntent_title_bottom_icon">
-            //                                 <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
-            //                             </div>
-            //                             <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${message.replied_video_duration}</span>
-            //                             <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
-            //                         </div>
-            //                     </div>
-            //                 </div>
-            //                 <div class="status_part_img">
-            //                     <div class="status_part_img_first">
-            //                         <div class="status_part_img_second" >
-            //                             <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.video)});"> </div>
-            //                         </div>
-            //                     </div>
-            //                 </div>
-            //             </div>
-            //             <div class="caption">${message.caption}</div>
-            //             <div class="status_reply_bottom">
-            //                 <span class="caption_timestamp">${message.timestamp}</span>
-            //                 <span class="status-tick" message="message_${message.message_id}">`
-            //                     if(message.receiver_message_view == 'sent'){ 
-            //                         messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-            //                     }else if(message.receiver_message_view == 'delivered'){
-            //                         messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-            //                     } 
-            // messageElement+=`</span>
-            //             </div>`    
-            // }else{
-
-            //     messageElement += `<div class="first_view" onclick="playVideo('${message.video}', '${false}')">
-            //     <div class="playButton" id="playButton" >
-            //         <!-- Play Icon -->
-            //         <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-            //     </div>
-            //     <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-            //         <source id="MyDuration_${uniqueId}" src="${message.video}" type="video/mp4">
-            //     </video>  
-            //     <div class="media-loader">
-            //         <div class="loader"></div>
-            //     </div>
-
-
-            //     <div class="videoBottom space-between">
-            //         <span id="videoDuration_${uniqueId}" class="video-duration"></span>`
-            //         if(!message.caption ){
-            //             messageElement += `
-            //             <div  class="last-time">
-            //                 <span class="vide_timestamp">${message.timestamp}</span>
-            //                 <span class="status-tick" message="message_${message.message_id}">`
-            //                 if(message.receiver_message_view == 'sent'){ 
-            //                     messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-            //                 }else if(message.receiver_message_view == 'delivered'){
-            //                     messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-            //                 } 
-            //             messageElement+=` </span>
-            //                 </div>`
-            //         }
-            //     messageElement +=`</div>
-            //         </div>
-            //     ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}`
-            //     if(message.caption){
-            //         messageElement += `<div class="caption-bottom">
-            //                 <span class="vide_timestamp">${message.timestamp}</span>
-            //                 <span class="status-tick" message="message_${message.message_id}">`
-            //                     if(message.receiver_message_view == 'sent'){ 
-            //                         messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-            //                     }else if(message.receiver_message_view == 'delivered'){
-            //                         messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-            //                     } 
-            //         messageElement+=` </span>
-            //                 </div>`
-                    
-            //     }    
-                    
-            // }
-            // messageElement +=`</div>
-               
-            // </div>`
-         
-        }else{
-            let messageElement;
-            messageElement = `
-                <div class="message my_message">
-                    <div class="message_back">
-                          <div class="top-content">
-                            <span>${message.content}</span>
-                          </div>
-                          <div class="bottom-content">
-                            <span class="time">${message.timestamp}</span>
-                            <span message="message_${message.message_id}">`
-                        
-                            if(message.receiver_message_view == 'sent'){ 
-                                messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                            }else if(message.receiver_message_view == 'delivered'){
-                                messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                            } 
-                                
-            messageElement +=`</span>
-                          </div>
-                     </div>
-                </div>
-            `;  
-            chatboxs.insertAdjacentHTML('beforeend', messageElement);
-        }
-       
-        
-          
-    }
-    // if(selectedUserId == message.sender && djangoUserId == message.receiver){  
-    //     if(message.sender != message.receiver){
-           
-            // let messageElement;
-            // if(message.img){
-                // messageElement = `
-                //     <div class="message frnd_message">
-                //         <div class="mainImage start_background">
-                //             ${message.is_reply_status ?
-                //                 `<div class="status_part" style="background-color: #1d282f;">
-                //                     <span class="status_part_left-line"></span>
-                //                     <div class="status_part_conntent">
-                //                         <div class="status_part_conntent_wrap">
-                //                             <div class="status_part_conntent_title">
-                //                                 <span>You · Status</span>
-                //                             </div>
-                //                             <div class="status_part_conntent_title_bottom">
-                //                                 <div class="status_part_conntent_title_bottom_icon">
-                //                                     <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
-                //                                 </div>
-                //                                 <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                //                             </div>
-                //                         </div>
-                //                     </div> 
-                //                     <div class="status_part_img">
-                //                         <div class="status_part_img_first">
-                //                             <div class="status_part_img_second" >
-                //                                 <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.img)});"> </div>
-                //                             </div>
-                //                         </div>
-                //                     </div>
-                //                 </div> 
-                //                 <div class="caption">${message.caption}</div>
-                //                 <span class="caption_timestamp">${message.timestamp}</span>`
-                //               :        
-                //                `<div class="first_view" onclick="playVideo('${message.img}', '${true}')">
-                //                     <div class="innerImage">
-                //                         <img src="media/${message.img}" class="image" alt="Image">
-                //                     </div> 
-                //                     ${message.caption ?'':
-                //                         `<div class="videoBottom flex-end">
-                //                             <span class="vide_timestamp">${message.timestamp}</span>
-                //                         </div>`}
-                //                 </div> 
-                //                 ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                //                 ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}`}
-                //         </div> 
-                //     </div>`
-                // ;
-                
-            // }else if(message.video){
-                // const uniqueId = `video_${message.video.substring(message.video.lastIndexOf('/') + 1)}`;
-
-                // messageElement =`
-                // <div class="message frnd_message">
-                //     <div class="mainImage start_background">
-                //         ${message.is_reply_status ?
-                //             `<div class="status_part" style="background-color: #1d282f;">
-                //                 <span class="status_part_left-line"></span>
-                //                 <div class="status_part_conntent">
-                //                     <div class="status_part_conntent_wrap">
-                //                         <div class="status_part_conntent_title">
-                //                             <span>You · Status</span>
-                //                         </div>
-                //                         <div class="status_part_conntent_title_bottom">
-                //                             <div class="status_part_conntent_title_bottom_icon">
-                //                                 <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
-                //                             </div>
-                //                             <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${message.replied_video_duration}</span>
-                //                             <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
-                //                         </div>
-                //                     </div>
-                //                 </div> 
-                //                 <div class="status_part_img">
-                //                     <div class="status_part_img_first">
-                //                         <div class="status_part_img_second" >
-                //                             <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.video)});"> </div>
-                //                         </div>
-                //                     </div>
-                //                 </div>
-                //             </div> 
-                //             <div class="caption">${message.caption}</div>
-                //             <span class="caption_timestamp">${message.timestamp}</span>`
-                //         :   
-                //         `<div class="first_view" onclick="playVideo('${message.video}', '${false}')">
-                //             <div class="playButton" id="playButton">
-                //                 <!-- Play Icon -->
-                //                 <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-                //             </div>
-                //             <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                //                 <source id="MyDuration_${uniqueId}" src="${message.video}" type="video/mp4">
-                //             </video>  
-                //             <div class="media-loader">
-                //                 <div class="loader"></div>
-                //             </div>
     
-                //            <div class="videoBottom space-between">
-                //                 <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                //                 ${message.caption ?'':`<span class="vide_timestamp">${message.timestamp}</span>`}
-                //             </div> 
-    
-                //         </div>
-                //         ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                //         ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}
-                //         `}
-                //     </div> 
-                    
-                // </div>`;
-            // }else{
-                // messageElement = `
-                //     <div class="message frnd_message">
-                //         <p>${message.content} <span>${message.timestamp}</span></p>
-                //     </div>
-                // `;
-            // }
-            
-            
-            // chatboxs.insertAdjacentHTML('beforeend', messageElement);
-           
-    //     }
-    // }
-} 
+    let messageClass = isCheck_user ? 'sender' : 'receiver';
+    let file_message_class = isCheck_user ? 'end_background' : 'start_background';
+   
+    let status_reply_deeper = isCheck_user? 'status_part_sender': 'status_part_reciver';
+    let status_reply_line_color = isCheck_user ? 'status_part_left-line-sender' : 'status_part_left-line-reciver';
+    let status_reply_text_color = isCheck_user ? 'span-text-sender' : 'span-text-reciver';
 
-function handleChatMessage(data){
-    const currentDate = data.label_time;
+    let status_reply_name = isCheck_user ? `${data.reciver_name}` : 'You';
+   
     const chatBoxs = document.querySelector('.rightside .chatBox');
-    if(lastDate == ''){
-        const dateLabel = `
-        <div class="date-label">
-            <p>${currentDate}</p>
-        </div>
-       `;
-       chatBoxs.insertAdjacentHTML('beforeend', dateLabel);
-        lastDate = currentDate; 
+    let messageElement = '';
+
+   
+
+    let messageStatusIcon = '';
+    if(data.receiver_message_view == 'sent' && isCheck_user){ 
+        messageStatusIcon =        
+        `<span style="    display: flex;
+                          color: white; 
+                          margin-top: 2px;"class="message_${data.message_id}">
+            <svg   viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>  
+        </span>`
+
+    }else if(data.receiver_message_view == 'delivered' && isCheck_user){
+        messageStatusIcon =
+        `<span style="    display: flex;
+                          color: white; margin-top: 2px;" class="message_${data.message_id}">
+            <svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>
+        </span>`
+    } else if(data.receiver_message_view == 'seen' && isCheck_user){
+       
+        messageStatusIcon =
+        `<span style="    display: flex;
+                          color: #53bdeb; margin-top: 2px;" class="message_${data.message_id}">
+            <svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>
+        </span>`
+       
     }
-    if(lastDate !== currentDate){
-        const dateLabel = `
-            <div class="date-label">
-                <p>${currentDate}</p>
-            </div>
-        `;
-        chatBoxs.insertAdjacentHTML('beforeend', dateLabel);
-        lastDate = currentDate;  // Update thelastDate to the current date
-    } 
     
-    if(data.sender_id == djangoUserId){
-        if (data.type_content == 'Photo'){
-            let messageElement;
-            messageElement += `
-            <div class="message my_message">
-                <div class="mainImage end_background">
-            `
-            if(data.is_reply_status){
-                messageElement +=            
-                `<div class="status_part" style="background-color: #025144;">
-                            <span class="status_part_left-line"></span>
-                            <div class="status_part_conntent">
-                                <div class="status_part_conntent_wrap">
-                                    <div class="status_part_conntent_title">
-                                        <span>${data.reciver_name} · Status</span>
-                                    </div>
-                                    <div class="status_part_conntent_title_bottom">
-                                        <div class="status_part_conntent_title_bottom_icon">
-                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
-                                        </div>
-                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                                    </div>
-                                </div>
-                            </div> 
-                            <div class="status_part_img">
-                                <div class="status_part_img_first">
-                                    <div class="status_part_img_second" >
-                                        <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(data.url)});"> </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
-                        <div class="caption">${data.caption}</div>
-                        <div class="status_reply_bottom">
-                            <span class="caption_timestamp">${data.timestamp}</span>
-                            <span class="status-tick" message="message_${data.message_id}"> `
-                            if(data.receiver_message_view == 'sent'){ 
-                                messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                            }else if(data.receiver_message_view == 'delivered'){
-                                messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                            } 
-                            messageElement+=`</span>
-                        </div>`    
-            }else{
-                messageElement +=
-                `<div class="first_view" onclick="playVideo('${data.url}', '${true}');">
-                    <div class="innerImage">
-                        <img src="${data.url}" class="image" alt="Image">
-                    </div> `
-                if(!data.caption){
-                    messageElement +=
-                    `<div class="videoBottom flex-end">
-                        <span class="vide_timestamp">${data.timestamp}</span>
-                        <span class="status-tick"  message="message_${data.message_id}">`
-                        if(data.receiver_message_view == 'sent'){ 
-                            messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                        }else if(data.receiver_message_view == 'delivered'){
-                            messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                        } 
-                        messageElement+=`</span>
-                    </div>` 
-                } 
-                messageElement +=`</div> 
-                    ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}`  
-                    if(data.caption ){
-                       messageElement += 
-                       `<div class="caption-bottom">
-                                    <span class="vide_timestamp">${data.timestamp}</span>
-                                    <span class="status-tick"  message="message_${data.message_id}">`
-                                    if(data.receiver_message_view == 'sent'){ 
-                                        messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                                    }else if(data.receiver_message_view == 'delivered'){
-                                        messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                                    } 
-                            messageElement +=`</span>
-                        </div>`
-                                    
-                
-                    } 
-
-            }
-            messageElement += `</div> 
-                </div>`    
-
-            chatBoxs.insertAdjacentHTML('beforeend', messageElement);
+    if(data.type_content == 'Photo'){
         
-        }else if(data.type_content == 'Video'){
-            
-            const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
-            let messageElement;
-            messageElement += `
-            <div class="message my_message">
-                <div class="mainImage end_background">
-            `
-            if(data.is_reply_status){
-                messageElement +=    `<div class="status_part" style="background-color: #025144;">
-                            <span class="status_part_left-line"></span>
+        let image_url = data.url;  
+
+        messageElement = `<div class="message ${messageClass}" id="${data.message_id}" data="${data.receiver_message_view}">
+            <div class="mainImage ${file_message_class}">
+            ${data.is_reply_status ?
+                `<div class="status_part ${status_reply_deeper}">
+                    <span class="status_part_left-line ${status_reply_line_color}"></span>
+                    <div class="status_part_conntent">
+                        <div class="status_part_conntent_wrap">
+                            <div class="status_part_conntent_title">
+                                <span class="${status_reply_text_color}">${status_reply_name} · Status</span>
+                            </div>
+                            <div class="status_part_conntent_title_bottom">
+                                <div class="status_part_conntent_title_bottom_icon">
+                                    <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
+                                </div>
+                                <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status_part_img">
+                        <div class="status_part_img_first">
+                            <div class="status_part_img_second" ><div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(data.url)});"> </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>` 
+                 
+                :`<div class="first_view" onclick="playVideo('${image_url}', '${true}');">
+                    <div class="innerImage">
+                        <img src="${image_url}" class="image" alt="Image">
+                    </div> 
+                    ${!data.caption ?
+                    `<div class="bottomContent">
+                        <span class="vide_timestamp">${data.timestamp}</span>
+                        ${messageStatusIcon}
+                    </div>` : ''}
+                </div>`}
+                 
+                ${data.caption ? 
+                `<div class="caption">${data.caption}</div>  
+                <div class="caption-bottom">
+                            <span class="vide_timestamp">${data.timestamp}</span>
+                            ${messageStatusIcon}
+                </div>`: '' }          
+            </div> 
+        </div>`;
+    }else if(data.type_content == 'Video'){
+        
+        const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
+       
+        messageElement =   
+        `<div class="message ${messageClass}" id="${data.message_id}" data="${data.receiver_message_view}">
+                    <div class="mainImage ${file_message_class}"">
+                        ${data.is_reply_status ?
+                        `<div class="status_part ${status_reply_deeper}">
+                            <span class="status_part_left-line ${status_reply_line_color}"></span>
                             <div class="status_part_conntent">
                                 <div class="status_part_conntent_wrap">
                                     <div class="status_part_conntent_title">
-                                        <span>${data.reciver_name} · Status</span>
+                                        <span class="${status_reply_text_color}">${status_reply_name} · Status</span>
                                     </div>
                                     <div class="status_part_conntent_title_bottom">
                                         <div class="status_part_conntent_title_bottom_icon">
                                             <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
                                         </div>
-                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${data.replied_video_duration}</span>
+                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:32</span>
                                         <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="status_part_img">
                                 <div class="status_part_img_first">
-                                    <div class="status_part_img_second" >
-                                        <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(data.url)});"> </div>
+                                    <div class="status_part_img_second" ><div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(data.url)});"> </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="caption">${data.caption}</div>
-                        <div class="status_reply_bottom">
-                            <span class="caption_timestamp">${data.timestamp}</span>
-                            <span class="status-tick"  message="message_${data.message_id}">`
-                                if(data.receiver_message_view == 'sent'){ 
-                                    messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                                }else if(data.receiver_message_view == 'delivered'){
-                                    messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                                } 
-            messageElement+=`</span>
-                        </div>`    
-            }else{
+                        </div>` 
+                        :`<div class="first_view" onclick="playVideo('${data.url}', '${false}')">
+                            <div class="playButton" id="playButton" >
+                                <!-- Play Icon -->
+                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
+                            </div>
+                            <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
+                                <source id="MyDuration_${uniqueId}" src="${data.url}" type="video/mp4">
+                            </video>  
+                            <div class="media-loader">
+                                <div class="loader"></div>
+                            </div>
+                            <div class="videoBottom space-between">
+                            <span id="videoDuration_${uniqueId}" class="video-duration"></span>
+                                ${!data.caption ?
+                                    `<div  class="last-time">
+                                        <span class="vide_timestamp">${data.timestamp}</span>
+                                        ${messageStatusIcon}   
+                                    </div>`:''}   
+                            </div>
+                    
+                        </div>`}
 
-                messageElement += `<div class="first_view" onclick="playVideo('${data.url}', '${false}')">
-                <div class="playButton" id="playButton" >
-                    <!-- Play Icon -->
-                    <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-                </div>
-                <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                    <source id="MyDuration_${uniqueId}" src="${data.url}" type="video/mp4">
-                </video>  
-                <div class="media-loader">
-                    <div class="loader"></div>
-                </div>
-
-
-                <div class="videoBottom space-between">
-                    <span id="videoDuration_${uniqueId}" class="video-duration"></span>`
-                    if(!data.caption ){
-                        messageElement += `
-                        <div  class="last-time">
+                        ${data.caption ?
+                        `<div class="caption">${data.caption}</div> 
+                        <div class="caption-bottom">
                             <span class="vide_timestamp">${data.timestamp}</span>
-                            <span class="status-tick"  message="message_${data.message_id}">`
-                            if(data.receiver_message_view == 'sent'){ 
-                                messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                            }else if(data.receiver_message_view == 'delivered'){
-                                messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                            } 
-                        messageElement+=` </span>
-                            </div>`
-                    }
-                messageElement +=`</div>
+                            ${messageStatusIcon}
+                        </div>` : ''}
                     </div>
-                ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}`
-                if(data.caption){
-                    messageElement += `<div class="caption-bottom">
-                            <span class="vide_timestamp">${data.timestamp}</span>
-                            <span class="status-tick"  message="message_${data.message_id}">`
-                                if(data.receiver_message_view == 'sent'){ 
-                                    messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                                }else if(data.receiver_message_view == 'delivered'){
-                                    messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                                } 
-                    messageElement+=` </span>
-                            </div>`
-                    
-                }    
-                    
-            }
-            messageElement +=`</div>
-               
-            </div>` 
-            chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-            chatBoxs.scrollTop = chatBoxs.scrollHeight;
+                </div>`;
 
-        }else{
-            let messageElement;
-            messageElement += `
-                <div class="message my_message">
-                    <div class="message_back">
-                          <div class="top-content">
-                            <span>${data.message}</span>
-                          </div>
-                          <div class="bottom-content">
-                            <span class="time">${data.timestamp}</span>
-                            <span  message="message_${data.message_id}">`
-                            if(data.receiver_message_view == 'sent'){ 
-                                messageElement += `<svg  viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>`
-                            }else if(data.receiver_message_view == 'delivered'){
-                                messageElement += `<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>`
-                            } 
-                                
-            messageElement +=`</span>
-                          </div>
-                     </div>
-                </div>
-            `;
-            chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-        }
-        
-    
-      
     }else{
-        if(data.check_contacts == false && djangoUserId == data.receiver_id){
-            
-            const userlist =  document.querySelector('.chatlist')
-            const userBlock = document.createElement('div');
-            userBlock.className = 'block';
-            userBlock.setAttribute('data-user-id', data.sender_id);
-            userBlock.innerHTML = `
-                <div class="imgbox">
-                   <img src="${data.img != null ? data.img : '/static/images/profile.png'}" class="cover"> 
+        messageElement = 
+        `<div class="message ${messageClass}"  id="${data.message_id}" data="${data.receiver_message_view}">
+            <div class="message_back">
+                <div class="top-content">
+                    <span>${data.content}</span>
                 </div>
-                <div class="details">
-                    <div class="listHead">
-                        <h4>${data.sender}</h4>
-                       <p class="time">${data.last_msg_time}</p>
-                    </div>
-                    <div class="message_p">
-                        <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
-                        <b class="toggle-count">0</b>
-                    </div>
+                <div class="bottom-content">
+                    <span class="time">${data.timestamp}</span>
+                    ${messageStatusIcon}
                 </div>
-            `;
-            
-            userlist.appendChild(userBlock);
-            clickopenbox();
+            </div>
+        </div>`;
+    }    
+
+
+    chatBoxs.insertAdjacentHTML('beforeend', messageElement); 
+} 
+
+function handleChatMessage(data){
+    const chatBoxs = document.querySelector('.rightside .chatBox');
+    const currentDate = data.label_time;
+    const isCheck_user = data.sender_id === Number(djangoUserId);
+
+    if(selectedUserId === data.receiver_id || selectedUserId == data.sender_id){
+        if (lastDate !== currentDate) {
+            chatBoxs.insertAdjacentHTML('beforeend', `
+                <div class="date-label">
+                    <p>${currentDate}</p>
+                </div>
+            `);
+            lastDate = currentDate;  
         }
-        if(selectedUserId == data.sender_id && djangoUserId == data.receiver_id){  
-            
-            if(data.sender_id != data.receiver_id){
-                if (data.type_content == 'Photo'){
+        appendMessage(data);    
+    }
 
-                    const messageElement = `
-                        <div class="message frnd_message">
-                            <div class="mainImage start_background">
-                                ${data.is_reply_status ?
-                                  `<div class="status_part" style="background-color: #1d282f;">
-                                        <span class="status_part_left-line"></span>
-                                        <div class="status_part_conntent">
-                                            <div class="status_part_conntent_wrap">
-                                                <div class="status_part_conntent_title">
-                                                    <span>You · Status</span>
-                                                </div>
-                                                
-                                                <div class="status_part_conntent_title_bottom">
-                                                    <div class="status_part_conntent_title_bottom_icon">
-                                                        <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
-                                                    </div>
-                                                    <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                                                </div>
-                                            </div>
-                                        </div> 
-                                        <div class="status_part_img">
-                                            <div class="status_part_img_first">
-                                                <div class="status_part_img_second" >
-                                                    <div class="status_part_imgview" style="background-image: url(${data.url});"> </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> 
-                                <div class="caption">${data.caption}</div>
-                                <span class="caption_timestamp">${data.timestamp}</span>`
+    let emaplath = ''; 
+    if(isCheck_user){
+        moveToTop(data.receiver_id);
+        emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
+    }else{
+        moveToTop(data.sender_id);
+        emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
+    }
 
-                                :`<div class="first_view" onclick="playVideo('${data.url}', '${true}')">
-                                    <div class="innerImage">
-                                        <img src="${data.url}" class="image" alt="Image">
-                                    </div> 
-                                    ${data.caption ?'':
-                                        `<div class="videoBottom flex-end">
-                                            <span class="vide_timestamp">${data.timestamp}</span>
-                                        </div>`}
-                                </div> 
-                                ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
-                                ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}`}
-                            </div> 
-                        </div>`;
-
-                    chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-                        
-                }else if(data.type_content == 'Video'){
-                    
-                    const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
-
-                    const messageElement =`
-                        <div class="message frnd_message">
-                            <div class="mainImage start_background">
-                                ${data.is_reply_status ?
-                                    `<div class="status_part" style="background-color: #1d282f;">
-                                        <span class="status_part_left-line"></span>
-                                        <div class="status_part_conntent">
-                                            <div class="status_part_conntent_wrap">
-                                                <div class="status_part_conntent_title">
-                                                    <span>You · Status</span>
-                                                </div>
-                                                
-                                                <div class="status_part_conntent_title_bottom">
-                                                    <div class="status_part_conntent_title_bottom_icon">
-                                                        <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
-                                                    </div>
-                                                    <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${data.video_duration}</span>
-                                                    <span dir="auto" style="min-height: 0px; line-height: 23px;">video</span>
-                                                </div>
-                                            </div>
-                                        </div> 
-                                        <div class="status_part_img">
-                                            <div class="status_part_img_first">
-                                                <div class="status_part_img_second" >
-                                                    <div class="status_part_imgview" style="background-image: url(${data.url});"> </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> 
-                                <div class="caption">${data.caption}</div>
-                                <span class="caption_timestamp">${data.timestamp}</span>`
-
-                              : 
-                                `<div class="first_view">
-                                    <div class="playButton" id="playButton" onclick="playVideo('${data.url}', '${false}')">
-                                        <!-- Play Icon -->
-                                        <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-                                    </div>
-                                    <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                                        <source id="MyDuration_${uniqueId}" src="${data.url}" type="video/mp4">
-                                    </video>  
-                                    <div class="media-loader">
-                                        <div class="loader"></div>
-                                    </div>
-            
-                                    <div class="videoBottom flex-end">
-                                        <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                                        ${data.caption ?'':`<span class="vide_timestamp">${data.timestamp}</span>`}
-                                    </div> 
-            
-                                </div>
-                                ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
-                                ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
-                                `}
-                            </div> 
-                            
-                        </div>`;
-                    chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-                    chatBoxs.scrollTop = chatBoxs.scrollHeight;
+    if(emaplath !== ''){
+        const userElements = document.querySelector(emaplath);
+        if(userElements){
+            const messagePElement = userElements.querySelector('.message_p p');
+            if (data.type_content == 'Photo' && data.video_duration===''){
+                messagePElement.textContent = 'Photo';
+            }else if(data.type_content == 'Video' && data.video_duration===''){
+                messagePElement.textContent = 'Video';
+            }else{
+                
+                if(data.video_duration  === ''){
+                    messagePElement.textContent = data.content; 
                 }else{
-                    const messageElement = `
-                        <div class="message frnd_message">
-                            <p>${data.message} <span>${data.timestamp}</span></p>
-                        </div>
-                    `;
-                    chatBoxs.insertAdjacentHTML('beforeend', messageElement);
+                    messagePElement.textContent = data.caption;
                 }
-                
-                
-                
-                chatBoxs.scrollTop = chatBoxs.scrollHeight;
-                chatSocket.send(JSON.stringify({
-                    'action':'send_message_toggle_true',
-                    'receiver_id': data.receiver_id,
-                    'sender_id':data.sender_id,
-                }));
-               
-            }
-                
-        }else{
-            if(djangoUserId == data.receiver_id){
-                const userElements = document.querySelector(`.chatlist .block[data-user-id="${data.sender_id}"]`);
-                if(userElements){
-                    const messagePElement = userElements.querySelector('.message_p');
-                    let toggleCountElement = messagePElement.querySelector('.toggle-count');
-
-                    if(toggleCountElement){
-                        toggleCountElement.textContent = data.toggle_count;
-                    }else{
-                        messagePElement.innerHTML += `<b class="toggle-count">${data.toggle_count}</b>`;
-                    }
-
-                    
-                }
-            }
+            } 
+            const times = userElements.querySelector('.listHead p');
+            times.textContent = data.timestamp;   
         }
     }
-    
+
+    if(!isCheck_user && Number(selectedUserId) !== data.sender_id){
+        const userElements = document.querySelector(`.chatlist .block .inside[data-user-id="${data.sender_id}"]`);   
+        if(userElements){
+            const messagePElement = userElements.querySelector('.message_p');
+            let toggleCountElement = messagePElement.querySelector('.toggle-count');
+            
+            if(toggleCountElement){
+                toggleCountElement.textContent = data.toggle_count;
+            }else{
+                messagePElement.innerHTML += `<b class="toggle-count">${data.toggle_count}</b>`;
+            }
+
+        }
+    }
+
     setTimeout(() => {
         chatBoxs.scrollTop = chatBoxs.scrollHeight;
-    }, 100);   
+    }, 100); 
+ 
 }
-
-    
+  
 function commenInput(){
     const message = messageInput.value;
 
@@ -2908,7 +2399,71 @@ function commenInput(){
 
     messageInput.value = '';
     toggleSendIcon();
-}
+}   
+
+// bluse tick 
+
+const observerReceiveMessage  = new IntersectionObserver((enteries) => {
+    enteries.forEach(entry=>{
+        if(entry.isIntersecting){
+            const messageElement = entry.target;
+            const data  = messageElement.getAttribute('data');
+            const message_id = messageElement.getAttribute('id');
+            if(data === 'delivered'){
+                messageElement.setAttribute('data', 'seen');
+                chatSocket.send(JSON.stringify({
+                    'action': 'change_message_status_by_receiver',
+                    'message_id':message_id,
+                    'receiver_id': window.djangoUserId,
+                }));
+
+
+                const userElements = document.querySelector(`.chatlist .block .inside[data-user-id="${selectedUserId}"]`);   
+                if(userElements){
+                    const messagePElement = userElements.querySelector('.message_p');
+                    let toggleCountElement = messagePElement.querySelector('.toggle-count');
+                    
+                    if(toggleCountElement){
+                        toggleCountElement.textContent = toggleCountElement.textContent - 1;
+                        if(toggleCountElement.textContent == 0){
+                            toggleCountElement.style.display = 'none';
+                        }
+                    }
+        
+                }
+
+                console.log("✅ Blue ticked for sender", messageElement.getAttribute('data'));
+                observerReceiveMessage.unobserve(messageElement);
+            }
+        }
+    });
+}, {
+    threshold:0.8,
+});
+
+
+
+const chatBox = document.getElementById('chatBox');
+const observedMessages = new Set();
+const mutationObserver = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+            if(node.nodeType === 1 && node.classList.contains('message') && node.classList.contains('receiver')){
+                const data = node.getAttribute('data');
+                if(data === 'delivered'){
+                    observerReceiveMessage.observe(node);
+                    console.log("🆕 New message added. Observing now...",data);
+                }
+                                           
+            }
+        });
+    });
+});
+
+mutationObserver.observe(chatBox, {
+    childList: true,
+    subtree: true
+});
 
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -2989,7 +2544,8 @@ function getContacts(query){
                 <div class="details">
                     <div class="listHead">
                         <h4>${user.username}</h4>
-                        <ion-icon name="trash-outline" class="deleteButton" id="deleteButton"></ion-icon>
+                        <span class="deleteButton" id="deleteButton" ><svg viewBox="0 0 24 25" height="25" width="24" preserveAspectRatio="xMidYMid meet" class=""><title>delete</title><path d="M7 21.5C6.45 21.5 5.97917 21.3042 5.5875 20.9125C5.19583 20.5208 5 20.05 5 19.5V6.5C4.71667 6.5 4.47917 6.40417 4.2875 6.2125C4.09583 6.02083 4 5.78333 4 5.5C4 5.21667 4.09583 4.97917 4.2875 4.7875C4.47917 4.59583 4.71667 4.5 5 4.5H9C9 4.21667 9.09583 3.97917 9.2875 3.7875C9.47917 3.59583 9.71667 3.5 10 3.5H14C14.2833 3.5 14.5208 3.59583 14.7125 3.7875C14.9042 3.97917 15 4.21667 15 4.5H19C19.2833 4.5 19.5208 4.59583 19.7125 4.7875C19.9042 4.97917 20 5.21667 20 5.5C20 5.78333 19.9042 6.02083 19.7125 6.2125C19.5208 6.40417 19.2833 6.5 19 6.5V19.5C19 20.05 18.8042 20.5208 18.4125 20.9125C18.0208 21.3042 17.55 21.5 17 21.5H7ZM17 6.5H7V19.5H17V6.5ZM10 17.5C10.2833 17.5 10.5208 17.4042 10.7125 17.2125C10.9042 17.0208 11 16.7833 11 16.5V9.5C11 9.21667 10.9042 8.97917 10.7125 8.7875C10.5208 8.59583 10.2833 8.5 10 8.5C9.71667 8.5 9.47917 8.59583 9.2875 8.7875C9.09583 8.97917 9 9.21667 9 9.5V16.5C9 16.7833 9.09583 17.0208 9.2875 17.2125C9.47917 17.4042 9.71667 17.5 10 17.5ZM14 17.5C14.2833 17.5 14.5208 17.4042 14.7125 17.2125C14.9042 17.0208 15 16.7833 15 16.5V9.5C15 9.21667 14.9042 8.97917 14.7125 8.7875C14.5208 8.59583 14.2833 8.5 14 8.5C13.7167 8.5 13.4792 8.59583 13.2875 8.7875C13.0958 8.97917 13 9.21667 13 9.5V16.5C13 16.7833 13.0958 17.0208 13.2875 17.2125C13.4792 17.4042 13.7167 17.5 14 17.5Z" fill="currentColor"></path></svg></span>
+                       
                     </div>
                 </div>
             `;
@@ -3036,16 +2592,16 @@ function deleteContact(id){
 
 
 function clickopenbox(){
-    const chatBlocksClick = document.querySelectorAll('.block');
+    const chatBlocksClick = document.querySelectorAll('.block .inside');
     chatBlocksClick.forEach(block=>{
         block.addEventListener('click', function(){
         
             clearImages();   
-            document.querySelectorAll('.chatlist .block').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.chatlist .block .inside').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-
+           
             if(selectedUserId == null){
-                rightSide.style.display = 'inline';
+                rightSide.style.display = 'flex';
                 introRight.style.display = 'none';
             }
             selectedUserId = this.getAttribute('data-user-id');
@@ -3155,3 +2711,122 @@ function  removeStatusById(statusId){
         close_status_view();
     }
 }
+
+const search_messages = document.getElementById('search_messages');
+const message_search_side = document.getElementById('message_search_side');
+const message_side_close = document.getElementById('message_side_close');
+
+const message_search_icon = document.getElementById('message_search_icon');
+const message_search_right_arrow = document.getElementById('message_search_right_arrow');
+const message_search_input = document.getElementById('message_search_input');
+const message_search_close = document.getElementById('message_search_close');
+
+const search_data = document.getElementById('search_data');
+
+search_messages.addEventListener('click', function(){
+    message_search_side.style.display = 'block';
+    message_search_icon.style.display = 'none';
+    if(message_search_input){
+        message_search_input.focus();
+    }
+    message_search_close.style.display = 'none';
+    
+});
+
+message_side_close.addEventListener('click', function(){
+    message_search_side.style.display = 'none';
+});
+
+message_search_input.addEventListener('input', function(){
+    
+    message_search_close.style.display = '';
+    message_search_right_arrow.style.display = '';
+    message_search_icon.style.display =  'none';
+    if(message_search_input.value.trim() === ''){
+        message_search_close.style.display = 'none';
+    }
+
+    const filter = message_search_input.value.toLowerCase();
+    search_data.innerHTML = '';
+
+    if(message_search_input.value.trim() !== ''){
+        chat_history_search_MSG['history'].slice().reverse().forEach(chat=>{
+            chat.messages.slice().reverse().forEach(message => {
+                
+                const date = chat.date;
+                const content = message.content ? message.content.toLowerCase() : "";
+                const caption = message.caption ? message.caption.toLowerCase() : "";
+                
+                if (content.includes(filter) || caption.includes(filter)) {
+
+                    const highlightedContent = message.content 
+                    ? message.content.replace(new RegExp(filter, 'gi'), match => `<span class="content_span_highlight">${match}</span>`) 
+                    : "";
+                    const highlightedCaption = message.caption 
+                        ? message.caption.replace(new RegExp(filter, 'gi'), match => `<span class="content_span_highlight">${match}</span>`) 
+                        : "";
+
+                    search_data.innerHTML += `
+                    <div class="blocks">
+                       <div class="block_inside">
+                            <div class="date">
+                                <span>${date}</span>
+                            </div>
+                            <div class="content">
+                            ${highlightedContent !== "" ? highlightedContent :highlightedCaption}
+                            </div>
+                        </div>
+                        
+                    </div>`;
+                }
+
+            });
+        });
+    }
+   
+
+
+});
+
+message_search_input.addEventListener('focus', function(){
+    message_search_right_arrow.style.display = '';
+    message_search_icon.style.display =  'none';
+    
+});
+
+message_search_input.addEventListener('focusout',function(){
+    if(message_search_input.value.trim() === ''){
+        message_search_close.style.display = 'none';
+        message_search_right_arrow.style.display = 'none';
+        message_search_icon.style.display =  '';
+    }
+});
+
+message_search_close.addEventListener('click', function(){    
+    message_search_input.value = '';
+    message_search_close.style.display = 'none';
+    if(message_search_input){
+        message_search_input.focus();
+    }
+});
+
+
+let calender = document.getElementById("calender");
+let toggle_Calendar = document.getElementById("toggle_Calendar");
+
+toggle_Calendar.addEventListener("click", function(event){
+    if(calender.classList.contains("show")){
+        calender.classList.remove("show");  
+    }else{
+        calender.classList.add("show");
+    }
+    event.stopPropagation();
+});
+
+document.addEventListener("click", function (event) {
+    if (!calender.contains(event.target) && event.target !== toggle_Calendar) {
+        calender.classList.remove("show");
+    }
+});
+
+

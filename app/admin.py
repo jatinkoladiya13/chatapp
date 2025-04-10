@@ -12,7 +12,7 @@ class Useradmin(UserAdmin):
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     model = Message
-    list_display = ['id', 'sender', 'receiver', 'content', 'timestamp', 'is_read_toggle', 'image', 'video', 'video_duration', 'caption', 'replied_to', 'status_view']
+    list_display = ['id', 'sender', 'receiver', 'content', 'caption',  'image', 'video', 'video_duration', 'replied_to', 'status_view', 'timestamp',]
     ordering = ['pk']
 
 @admin.register(Status)

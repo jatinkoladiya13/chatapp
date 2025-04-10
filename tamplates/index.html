@@ -18,7 +18,7 @@
 <body class="chat_body">
    <div class="chat-container">
        
-       <div class="chat_header">
+       <div class="chat_header border_right">
 
             <div class="chat_header_top">
 
@@ -54,13 +54,15 @@
                 <!-- chat header -->
                 <div class="chat-header">
                     
-                    <h1>Chats</h1>
+                    <div class="chat_header_text">
+                        <h1>Chats</h1>
+                    </div>
                 
 
                     <ul class="nav_icons">
-                        <li><ion-icon name="scan-circle-outline"></ion-icon></li>
-                        <li><ion-icon name="duplicate-outline" id="createfriend"></ion-icon></li>
-                        <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
+
+                        <li><span id="createfriend"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>new-chat-outline</title><path d="M9.53277 12.9911H11.5086V14.9671C11.5086 15.3999 11.7634 15.8175 12.1762 15.9488C12.8608 16.1661 13.4909 15.6613 13.4909 15.009V12.9911H15.4672C15.9005 12.9911 16.3181 12.7358 16.449 12.3226C16.6659 11.6381 16.1606 11.0089 15.5086 11.0089H13.4909V9.03332C13.4909 8.60007 13.2361 8.18252 12.8233 8.05119C12.1391 7.83391 11.5086 8.33872 11.5086 8.991V11.0089H9.49088C8.83941 11.0089 8.33411 11.6381 8.55097 12.3226C8.68144 12.7358 9.09947 12.9911 9.53277 12.9911Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M0.944298 5.52617L2.99998 8.84848V17.3333C2.99998 18.8061 4.19389 20 5.66665 20H19.3333C20.8061 20 22 18.8061 22 17.3333V6.66667C22 5.19391 20.8061 4 19.3333 4H1.79468C1.01126 4 0.532088 4.85997 0.944298 5.52617ZM4.99998 8.27977V17.3333C4.99998 17.7015 5.29845 18 5.66665 18H19.3333C19.7015 18 20 17.7015 20 17.3333V6.66667C20 6.29848 19.7015 6 19.3333 6H3.58937L4.99998 8.27977Z" fill="currentColor"></path></svg></span></li>
+                        <li style="margin-left: 20px;"><span><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>more-refreshed</title><path d="M12 20C11.45 20 10.9792 19.8042 10.5875 19.4125C10.1958 19.0208 10 18.55 10 18C10 17.45 10.1958 16.9792 10.5875 16.5875C10.9792 16.1958 11.45 16 12 16C12.55 16 13.0208 16.1958 13.4125 16.5875C13.8042 16.9792 14 17.45 14 18C14 18.55 13.8042 19.0208 13.4125 19.4125C13.0208 19.8042 12.55 20 12 20ZM12 14C11.45 14 10.9792 13.8042 10.5875 13.4125C10.1958 13.0208 10 12.55 10 12C10 11.45 10.1958 10.9792 10.5875 10.5875C10.9792 10.1958 11.45 10 12 10C12.55 10 13.0208 10.1958 13.4125 10.5875C13.8042 10.9792 14 11.45 14 12C14 12.55 13.8042 13.0208 13.4125 13.4125C13.0208 13.8042 12.55 14 12 14ZM12 8C11.45 8 10.9792 7.80417 10.5875 7.4125C10.1958 7.02083 10 6.55 10 6C10 5.45 10.1958 4.97917 10.5875 4.5875C10.9792 4.19583 11.45 4 12 4C12.55 4 13.0208 4.19583 13.4125 4.5875C13.8042 4.97917 14 5.45 14 6C14 6.55 13.8042 7.02083 13.4125 7.4125C13.0208 7.80417 12.55 8 12 8Z" fill="currentColor"></path></svg></span></li>
                     </ul>
 
 
@@ -69,10 +71,11 @@
                 <!-- search -->
                 <div class="search_chat">
                     <div>
-                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                        <input type="text" id="search-input" placeholder="Search or start new chat">
-                        <ion-icon name="close-outline" class="search-close" id="search-close"></ion-icon>
-                    
+
+                        <span class="search_icon"><svg  viewBox="0 0 20 20" height="20" width="20" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>search-refreshed-thin</title><path fill-rule="evenodd" clip-rule="evenodd" d="M4.36653 4.3664C5.36341 3.36953 6.57714 2.87 8.00012 2.87C9.42309 2.87 10.6368 3.36953 11.6337 4.3664C12.6306 5.36329 13.1301 6.57724 13.1301 8.00062C13.1301 8.57523 13.0412 9.11883 12.8624 9.63057C12.6972 10.1038 12.4733 10.5419 12.1909 10.9444L16.5712 15.3247C16.7454 15.4989 16.8385 15.7046 16.8385 15.9375C16.8385 16.1704 16.7454 16.3761 16.5712 16.5503C16.396 16.7254 16.1866 16.8175 15.948 16.8175C15.7095 16.8175 15.5001 16.7254 15.3249 16.5503L10.9448 12.1906C10.5421 12.4731 10.104 12.697 9.63069 12.8623C9.11895 13.041 8.57535 13.13 8.00074 13.13C6.57736 13.13 5.36341 12.6305 4.36653 11.6336C3.36965 10.6367 2.87012 9.42297 2.87012 8C2.87012 6.57702 3.36965 5.36328 4.36653 4.3664ZM8.00012 4.63C7.06198 4.63 6.26877 4.95685 5.61287 5.61275C4.95698 6.26865 4.63012 7.06186 4.63012 8C4.63012 8.93813 4.95698 9.73134 5.61287 10.3872C6.26877 11.0431 7.06198 11.37 8.00012 11.37C8.93826 11.37 9.73146 11.0431 10.3874 10.3872C11.0433 9.73134 11.3701 8.93813 11.3701 8C11.3701 7.06186 11.0433 6.26865 10.3874 5.61275C9.73146 4.95685 8.93826 4.63 8.00012 4.63Z" fill="currentColor"></path></svg></span>
+                        <input type="text" id="search-input" placeholder="Search or start new chat">        
+                        <span class="search-close" id="search-close"><svg viewBox="0 0 24 24" height="20" width="20" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>close-refreshed</title><path d="M11.9998 13.4L7.0998 18.3C6.91647 18.4833 6.68314 18.575 6.3998 18.575C6.11647 18.575 5.88314 18.4833 5.6998 18.3C5.51647 18.1167 5.4248 17.8833 5.4248 17.6C5.4248 17.3167 5.51647 17.0833 5.6998 16.9L10.5998 12L5.6998 7.09999C5.51647 6.91665 5.4248 6.68332 5.4248 6.39999C5.4248 6.11665 5.51647 5.88332 5.6998 5.69999C5.88314 5.51665 6.11647 5.42499 6.3998 5.42499C6.68314 5.42499 6.91647 5.51665 7.0998 5.69999L11.9998 10.6L16.8998 5.69999C17.0831 5.51665 17.3165 5.42499 17.5998 5.42499C17.8831 5.42499 18.1165 5.51665 18.2998 5.69999C18.4831 5.88332 18.5748 6.11665 18.5748 6.39999C18.5748 6.68332 18.4831 6.91665 18.2998 7.09999L13.3998 12L18.2998 16.9C18.4831 17.0833 18.5748 17.3167 18.5748 17.6C18.5748 17.8833 18.4831 18.1167 18.2998 18.3C18.1165 18.4833 17.8831 18.575 17.5998 18.575C17.3165 18.575 17.0831 18.4833 16.8998 18.3L11.9998 13.4Z" fill="currentColor"></path></svg></span>
+                
                     </div>
                 </div>
 
@@ -80,35 +83,37 @@
                 <div class="chatlist" id="chatlist">
                     {% for user in  user_data %}
                     {{ user_data|json_script:"user-data" }}
-                    <div class="block" data-user-id="{{user.id}}">
-                        <div class="imgbox">
-                            {% if user.profile_image %}
-                                <img src="{{user.profile_image}}" class="cover">
-                            {% elif user.google_profile_image %}
-                                <img src="{{user.google_profile_image }}" class="cover">
-                            {% else %}
-                                <img src="/static/images/profile.png" class="cover">
-                            {% endif %}
-                            
-                        </div>    
-                        <div class="details">
-                            <div class="listHead">
-                                <h4>{{user.username}}</h4>
-                                <p class="time">{{user.last_msg_time}}</p>
-                            </div>
-                            <div class="message_p">
-                                {% if user.last_msg != '' %}
-                                    <p>{{user.last_msg}}</p>
+                    <div class="block" >
+                        <div class="inside" data-user-id="{{user.id}}">
+                            <div class="imgbox">
+                                {% if user.profile_image %}
+                                    <img src="{{user.profile_image}}" class="cover">
+                                {% elif user.google_profile_image %}
+                                    <img src="{{user.google_profile_image }}" class="cover">
                                 {% else %}
-                                    <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
+                                    <img src="/static/images/profile.png" class="cover">
                                 {% endif %}
                                 
-                                {% if user.toggle_count > 0 %}
-                                    <b class="toggle-count">{{user.toggle_count}}</b>
-                                {% endif %}
-                                
-                            </div>
-                        </div>                        
+                            </div>    
+                            <div class="details">
+                                <div class="listHead">
+                                    <h4>{{user.username}}</h4>
+                                    <p class="time">{{user.last_msg_time}}</p>
+                                </div>
+                                <div class="message_p">
+                                    {% if user.last_msg != '' %}
+                                        <p>{{user.last_msg}}</p>
+                                    {% else %}
+                                        <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
+                                    {% endif %}
+                                    
+                                    {% if user.toggle_count > 0 %}
+                                        <b class="toggle-count">{{user.toggle_count}}</b>
+                                    {% endif %}
+                                    
+                                </div>
+                            </div>                        
+                        </div>
                     </div>
                     
                     {% endfor %}
@@ -118,18 +123,18 @@
             </div>
 
             <!-- New Drawer for contacts/Settings -->
-            <div class="leftside-drawer" id="leftsideDrawer">
+            <div class="leftside-drawer border_left" id="leftsideDrawer">
                 
                 <div class="drawer-header">
-                    <ion-icon name="arrow-back-outline" id="drawer-close"></ion-icon>
+                    <span id="drawer-close" ><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>back-refreshed</title><path d="M7.8248 13L12.7248 17.9C12.9248 18.1 13.0206 18.3333 13.0123 18.6C13.004 18.8667 12.8998 19.1 12.6998 19.3C12.4998 19.4833 12.2665 19.5792 11.9998 19.5875C11.7331 19.5958 11.4998 19.5 11.2998 19.3L4.6998 12.7C4.5998 12.6 4.52897 12.4917 4.4873 12.375C4.44564 12.2583 4.4248 12.1333 4.4248 12C4.4248 11.8667 4.44564 11.7417 4.4873 11.625C4.52897 11.5083 4.5998 11.4 4.6998 11.3L11.2998 4.69999C11.4831 4.51665 11.7123 4.42499 11.9873 4.42499C12.2623 4.42499 12.4998 4.51665 12.6998 4.69999C12.8998 4.89999 12.9998 5.13749 12.9998 5.41249C12.9998 5.68749 12.8998 5.92499 12.6998 6.12499L7.8248 11H18.9998C19.2831 11 19.5206 11.0958 19.7123 11.2875C19.904 11.4792 19.9998 11.7167 19.9998 12C19.9998 12.2833 19.904 12.5208 19.7123 12.7125C19.5206 12.9042 19.2831 13 18.9998 13H7.8248Z" fill="currentColor"></path></svg></span>
                     <h1>Receive User</h1>
                 </div>
 
                 <div class="search_chat">
                     <div>
-                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                        <span class="search_icon"><svg viewBox="0 0 20 20" height="20" width="20" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>search-refreshed-thin</title><path fill-rule="evenodd" clip-rule="evenodd" d="M4.36653 4.3664C5.36341 3.36953 6.57714 2.87 8.00012 2.87C9.42309 2.87 10.6368 3.36953 11.6337 4.3664C12.6306 5.36329 13.1301 6.57724 13.1301 8.00062C13.1301 8.57523 13.0412 9.11883 12.8624 9.63057C12.6972 10.1038 12.4733 10.5419 12.1909 10.9444L16.5712 15.3247C16.7454 15.4989 16.8385 15.7046 16.8385 15.9375C16.8385 16.1704 16.7454 16.3761 16.5712 16.5503C16.396 16.7254 16.1866 16.8175 15.948 16.8175C15.7095 16.8175 15.5001 16.7254 15.3249 16.5503L10.9448 12.1906C10.5421 12.4731 10.104 12.697 9.63069 12.8623C9.11895 13.041 8.57535 13.13 8.00074 13.13C6.57736 13.13 5.36341 12.6305 4.36653 11.6336C3.36965 10.6367 2.87012 9.42297 2.87012 8C2.87012 6.57702 3.36965 5.36328 4.36653 4.3664ZM8.00012 4.63C7.06198 4.63 6.26877 4.95685 5.61287 5.61275C4.95698 6.26865 4.63012 7.06186 4.63012 8C4.63012 8.93813 4.95698 9.73134 5.61287 10.3872C6.26877 11.0431 7.06198 11.37 8.00012 11.37C8.93826 11.37 9.73146 11.0431 10.3874 10.3872C11.0433 9.73134 11.3701 8.93813 11.3701 8C11.3701 7.06186 11.0433 6.26865 10.3874 5.61275C9.73146 4.95685 8.93826 4.63 8.00012 4.63Z" fill="currentColor"></path></svg></span>
                         <input type="text" id="drawer-search-input" placeholder="Search or start new chat">
-                        <ion-icon name="close-outline" class="search-close" id="drawer-search-close"></ion-icon>
+                        <span class="search-close" id="drawer-search-close"><svg viewBox="0 0 24 24" height="20" width="20" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>close-refreshed</title><path d="M11.9998 13.4L7.0998 18.3C6.91647 18.4833 6.68314 18.575 6.3998 18.575C6.11647 18.575 5.88314 18.4833 5.6998 18.3C5.51647 18.1167 5.4248 17.8833 5.4248 17.6C5.4248 17.3167 5.51647 17.0833 5.6998 16.9L10.5998 12L5.6998 7.09999C5.51647 6.91665 5.4248 6.68332 5.4248 6.39999C5.4248 6.11665 5.51647 5.88332 5.6998 5.69999C5.88314 5.51665 6.11647 5.42499 6.3998 5.42499C6.68314 5.42499 6.91647 5.51665 7.0998 5.69999L11.9998 10.6L16.8998 5.69999C17.0831 5.51665 17.3165 5.42499 17.5998 5.42499C17.8831 5.42499 18.1165 5.51665 18.2998 5.69999C18.4831 5.88332 18.5748 6.11665 18.5748 6.39999C18.5748 6.68332 18.4831 6.91665 18.2998 7.09999L13.3998 12L18.2998 16.9C18.4831 17.0833 18.5748 17.3167 18.5748 17.6C18.5748 17.8833 18.4831 18.1167 18.2998 18.3C18.1165 18.4833 17.8831 18.575 17.5998 18.575C17.3165 18.575 17.0831 18.4833 16.8998 18.3L11.9998 13.4Z" fill="currentColor"></path></svg></span>
                     </div>
                 </div>
 
@@ -142,10 +147,10 @@
             </div>
 
             <!-- New Drawer for create new contact -->
-            <div class="leftside-drawer" id="adduserDrawer">
+            <div class="leftside-drawer border_left" id="adduserDrawer">
 
                 <div class="drawer-header">
-                    <ion-icon name="arrow-back-outline" id="adduser-drawer-close"></ion-icon>
+                    <span id="adduser-drawer-close"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>back-refreshed</title><path d="M7.8248 13L12.7248 17.9C12.9248 18.1 13.0206 18.3333 13.0123 18.6C13.004 18.8667 12.8998 19.1 12.6998 19.3C12.4998 19.4833 12.2665 19.5792 11.9998 19.5875C11.7331 19.5958 11.4998 19.5 11.2998 19.3L4.6998 12.7C4.5998 12.6 4.52897 12.4917 4.4873 12.375C4.44564 12.2583 4.4248 12.1333 4.4248 12C4.4248 11.8667 4.44564 11.7417 4.4873 11.625C4.52897 11.5083 4.5998 11.4 4.6998 11.3L11.2998 4.69999C11.4831 4.51665 11.7123 4.42499 11.9873 4.42499C12.2623 4.42499 12.4998 4.51665 12.6998 4.69999C12.8998 4.89999 12.9998 5.13749 12.9998 5.41249C12.9998 5.68749 12.8998 5.92499 12.6998 6.12499L7.8248 11H18.9998C19.2831 11 19.5206 11.0958 19.7123 11.2875C19.904 11.4792 19.9998 11.7167 19.9998 12C19.9998 12.2833 19.904 12.5208 19.7123 12.7125C19.5206 12.9042 19.2831 13 18.9998 13H7.8248Z" fill="currentColor"></path></svg></span>
                     <h1>Add User</h1>
                 </div>
 
@@ -166,21 +171,26 @@
 
 
               <!-- New Drawer for Status -->
-            <div class="leftside-drawer" id="status_story">
+            <div class="leftside-drawer border_left" id="status_story">
                 
                 <div class="status-drawer-header">
                     <h1>Status</h1>
                     <ul class="drawer-header_nav_icons">
-                        <li id="topheader-add-status"><ion-icon name="add-outline"></ion-icon></li>
-                        <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
+                        <li id="topheader-add-status">
+                            <span>
+                                <svg viewBox="0 0 24 24" width="30" preserveAspectRatio="xMidYMid meet" class="x11xpdln x1d8287x x1h4ghdb"><title>plus</title><path fill="currentColor" d="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6V13z"></path></svg>
+                            </span>
+                        </li>
+                        <li>
+                            <span aria-hidden="true" data-icon="more-refreshed" class=""><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>more-refreshed</title><path d="M12 20C11.45 20 10.9792 19.8042 10.5875 19.4125C10.1958 19.0208 10 18.55 10 18C10 17.45 10.1958 16.9792 10.5875 16.5875C10.9792 16.1958 11.45 16 12 16C12.55 16 13.0208 16.1958 13.4125 16.5875C13.8042 16.9792 14 17.45 14 18C14 18.55 13.8042 19.0208 13.4125 19.4125C13.0208 19.8042 12.55 20 12 20ZM12 14C11.45 14 10.9792 13.8042 10.5875 13.4125C10.1958 13.0208 10 12.55 10 12C10 11.45 10.1958 10.9792 10.5875 10.5875C10.9792 10.1958 11.45 10 12 10C12.55 10 13.0208 10.1958 13.4125 10.5875C13.8042 10.9792 14 11.45 14 12C14 12.55 13.8042 13.0208 13.4125 13.4125C13.0208 13.8042 12.55 14 12 14ZM12 8C11.45 8 10.9792 7.80417 10.5875 7.4125C10.1958 7.02083 10 6.55 10 6C10 5.45 10.1958 4.97917 10.5875 4.5875C10.9792 4.19583 11.45 4 12 4C12.55 4 13.0208 4.19583 13.4125 4.5875C13.8042 4.97917 14 5.45 14 6C14 6.55 13.8042 7.02083 13.4125 7.4125C13.0208 7.80417 12.55 8 12 8Z" fill="currentColor"></path></svg></span>
+                        </li>
                     </ul>
                 </div>
 
                 <div class="small-drawer-status" id="small-drawer-status">
                     <ul style="margin-bottom: 0;">
 
-                        <li style="opacity: 1;">
-
+                        <li>         
                             <label for="pho-vid-input">
                                 <div class="small-drawer-status-box">
                                     <div class="small-drawer-status-icon">
@@ -192,7 +202,7 @@
                             <input type="file" id="pho-vid-input" accept="image/*,video/mp4,video/3gpp,video/quicktime" multiple="" style="display: none;" onchange="handlePhotoAndVideoCapture(event);">
                         </li>
 
-                        <li  style="opacity: 1;">
+                        <li>
                             <div class="small-drawer-status-box">
                                     <div class="small-drawer-status-icon">
                                             <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>video-call</title><path d="M3.27096 7.31042C3 7.82381 3 8.49587 3 9.84V14.16C3 15.5041 3 16.1762 3.27096 16.6896C3.5093 17.1412 3.88961 17.5083 4.35738 17.7384C4.88916 18 5.58531 18 6.9776 18H13.1097C14.502 18 15.1982 18 15.7299 17.7384C16.1977 17.5083 16.578 17.1412 16.8164 16.6896C17.0873 16.1762 17.0873 15.5041 17.0873 14.16V9.84C17.0873 8.49587 17.0873 7.82381 16.8164 7.31042C16.578 6.85883 16.1977 6.49168 15.7299 6.26158C15.1982 6 14.502 6 13.1097 6H6.9776C5.58531 6 4.88916 6 4.35738 6.26158C3.88961 6.49168 3.5093 6.85883 3.27096 7.31042Z" fill="currentColor"></path><path d="M18.7308 9.60844C18.5601 9.75994 18.4629 9.97355 18.4629 10.1974V13.8026C18.4629 14.0264 18.5601 14.2401 18.7308 14.3916L20.9567 16.3669C21.4879 16.8384 22.3462 16.4746 22.3462 15.778V8.22203C22.3462 7.52542 21.4879 7.16163 20.9567 7.63306L18.7308 9.60844Z" fill="currentColor"></path></svg>
@@ -205,7 +215,7 @@
                 </div>
 
                 <div class="scrollable-content" id="scrollable-content">
-                    <div class="status-box" id="topheader-profile-status" style="border-bottom: 10px solid #0C1317;">
+                    <div class="status-box" id="topheader-profile-status" >
                         <div class="status-imgbox" id="change-profile-first">
                             <div class="status-image-box">
                                 {% if user.is_authenticated %}
@@ -230,7 +240,7 @@
                         </div>
                     </div>
 
-                    <div class="status-box" id="topheader-profile-status-second"   style="border-bottom: 10px solid #0C1317; display:none;">
+                    <div class="status-box" id="topheader-profile-status-second">
                         <div class="status-boxs-image" style="margin-right: 30px;">
                             <svg width="48" height="48" viewBox="0 0 104 104">
                                 <circle cx="52" cy="52" r="50" fill="none" stroke-linecap="round" stroke-dashoffset="50" 
@@ -276,7 +286,7 @@
             </div>
 
             <!-- New Drawer for Profile -->
-            <div class="leftside-drawer" id="user_profile">
+            <div class="leftside-drawer border_left" id="user_profile">
                 <div class="drawer-header">
                     <h1>Profile</h1>
                 </div>
@@ -559,7 +569,7 @@
 
         
        <!-- This is right side intro part --> 
-       <div class="intro-right">
+       <div class="intro-right border_left">
             <div class="intro-img">
                 <img src="/static/images/Group Chat-cuate.svg" alt="">
             </div>
@@ -567,7 +577,7 @@
        </div>
 
 
-       <div class="rightside">
+       <div class="rightside border_left">
            <div class="chat-header">
                 <div class="imgText">
                     <div class="userimg">
@@ -575,28 +585,91 @@
                     </div> 
                     <h4>jatin koladiya<br><span id="statusText">online</span></h4>
                 </div>
-                <ul class="nav_icons">
+                <ul class="nav_icons" style="gap: 20px;">
                     <li><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>video-call</title><path d="M3.27096 7.31042C3 7.82381 3 8.49587 3 9.84V14.16C3 15.5041 3 16.1762 3.27096 16.6896C3.5093 17.1412 3.88961 17.5083 4.35738 17.7384C4.88916 18 5.58531 18 6.9776 18H13.1097C14.502 18 15.1982 18 15.7299 17.7384C16.1977 17.5083 16.578 17.1412 16.8164 16.6896C17.0873 16.1762 17.0873 15.5041 17.0873 14.16V9.84C17.0873 8.49587 17.0873 7.82381 16.8164 7.31042C16.578 6.85883 16.1977 6.49168 15.7299 6.26158C15.1982 6 14.502 6 13.1097 6H6.9776C5.58531 6 4.88916 6 4.35738 6.26158C3.88961 6.49168 3.5093 6.85883 3.27096 7.31042Z" fill="currentColor"></path><path d="M18.7308 9.60844C18.5601 9.75994 18.4629 9.97355 18.4629 10.1974V13.8026C18.4629 14.0264 18.5601 14.2401 18.7308 14.3916L20.9567 16.3669C21.4879 16.8384 22.3462 16.4746 22.3462 15.778V8.22203C22.3462 7.52542 21.4879 7.16163 20.9567 7.63306L18.7308 9.60844Z" fill="currentColor"></path></svg></li>
-                    <li><ion-icon name="search-outline"></ion-icon></li> 
-                    <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
+                    <li><svg id="search_messages" viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>search-alt</title><path fill="currentColor" d="M15.9,14.3H15L14.7,14c1-1.1,1.6-2.7,1.6-4.3c0-3.7-3-6.7-6.7-6.7S3,6,3,9.7 s3,6.7,6.7,6.7c1.6,0,3.2-0.6,4.3-1.6l0.3,0.3v0.8l5.1,5.1l1.5-1.5L15.9,14.3z M9.7,14.3c-2.6,0-4.6-2.1-4.6-4.6s2.1-4.6,4.6-4.6 s4.6,2.1,4.6,4.6S12.3,14.3,9.7,14.3z"></path></svg></li>
+                    <li><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>menu</title><path fill="currentColor" d="M12,7c1.104,0,2-0.896,2-2c0-1.105-0.895-2-2-2c-1.104,0-2,0.894-2,2 C10,6.105,10.895,7,12,7z M12,9c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,9.895,13.104,9,12,9z M12,15 c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,15.894,13.104,15,12,15z"></path></svg></ion-icon></li>
                 </ul> 
            </div>
            
           
            <!-- chatbox -->
             <div class="chatBox" id="chatBox">
+                <div class="message sender">
+                    <div class="mainImage end_background">
+                        <div class="status_part" style="background-color: #025144;">
+                            <span class="status_part_left-line status_part_left-line-sender"></span>
+                            <div class="status_part_conntent">
+                                <div class="status_part_conntent_wrap">
+                                    <div class="status_part_conntent_title">
+                                        <span class="span-text-sender">jatin · Status</span>
+                                    </div>
+                                    <div class="status_part_conntent_title_bottom">
+                                        <div class="status_part_conntent_title_bottom_icon">
+                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                                        </div>
+                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:32</span>
+                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="status_part_img">
+                                <div class="status_part_img_first">
+                                    <div class="status_part_img_second" ><div class="status_part_imgview" style="background-image: url(http://127.0.0.1:8000/media/message_images/d7d2c61f-7c1c-4c43-9aa6-fe1d907aa70f.jpg);"> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                    </div>
+                </div>  
                 
-                
+                <div class="message receiver">
+                    <div class="mainImage start_background">
+                        <div class="status_part" style="background-color: rgba(0, 0, 0, .2);">
+                            <span class="status_part_left-line status_part_left-line-reciver"></span>
+                            <div class="status_part_conntent">
+                                <div class="status_part_conntent_wrap">
+                                    <div class="status_part_conntent_title">
+                                        <span class="span-text-reciver">jatin · Status</span>
+                                    </div>
+                                    <div class="status_part_conntent_title_bottom">
+                                        <div class="status_part_conntent_title_bottom_icon">
+                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                                        </div>
+                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:32</span>
+                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="status_part_img">
+                                <div class="status_part_img_first">
+                                    <div class="status_part_img_second" ><div class="status_part_imgview" style="background-image: url(http://127.0.0.1:8000/media/message_images/d7d2c61f-7c1c-4c43-9aa6-fe1d907aa70f.jpg);"> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                    </div>
+                </div>    
+
             </div>
 
             <!--chat input-->
             <div class="chatbox_input" id="chatbox_input">
-                <ion-icon name="happy-outline"></ion-icon>
-                <ion-icon name="add-outline" id="plusUpload"></ion-icon>
-                <ion-icon name="close-outline" style="display:none;" id="plusUploadClose"></ion-icon>
+                <!-- <span id="plusUpload" ><svg viewBox="0 0 24 24" width="30" preserveAspectRatio="xMidYMid meet" class="x11xpdln x1d8287x x1h4ghdb"><title>plus</title><path fill="currentColor" d="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6V13z"></path></svg></span> -->
+                <button id="plusUpload">
+                    <span aria-hidden="true" data-icon="plus-rounded" class=""><svg viewBox="0 0 24 24" width="24" preserveAspectRatio="xMidYMid meet" class="x11xpdln x1d8287x x1h4ghdb" fill="none"><title>plus-rounded</title><path d="M11 13H5.5C4.94772 13 4.5 12.5523 4.5 12C4.5 11.4477 4.94772 11 5.5 11H11V5.5C11 4.94772 11.4477 4.5 12 4.5C12.5523 4.5 13 4.94772 13 5.5V11H18.5C19.0523 11 19.5 11.4477 19.5 12C19.5 12.5523 19.0523 13 18.5 13H13V18.5C13 19.0523 12.5523 19.5 12 19.5C11.4477 19.5 11 19.0523 11 18.5V13Z" fill="currentColor"></path></svg></span>
+                </button>
+                <button>
+                    <span><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>expressions</title><path d="M8.49893 10.2521C9.32736 10.2521 9.99893 9.5805 9.99893 8.75208C9.99893 7.92365 9.32736 7.25208 8.49893 7.25208C7.6705 7.25208 6.99893 7.92365 6.99893 8.75208C6.99893 9.5805 7.6705 10.2521 8.49893 10.2521Z" fill="currentColor"></path><path d="M17.0011 8.75208C17.0011 9.5805 16.3295 10.2521 15.5011 10.2521C14.6726 10.2521 14.0011 9.5805 14.0011 8.75208C14.0011 7.92365 14.6726 7.25208 15.5011 7.25208C16.3295 7.25208 17.0011 7.92365 17.0011 8.75208Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M16.8221 19.9799C15.5379 21.2537 13.8087 21.9781 12 22H9.27273C5.25611 22 2 18.7439 2 14.7273V9.27273C2 5.25611 5.25611 2 9.27273 2H14.7273C18.7439 2 22 5.25611 22 9.27273V11.8141C22 13.7532 21.2256 15.612 19.8489 16.9776L16.8221 19.9799ZM14.7273 4H9.27273C6.36068 4 4 6.36068 4 9.27273V14.7273C4 17.6393 6.36068 20 9.27273 20H11.3331C11.722 19.8971 12.0081 19.5417 12.0058 19.1204L11.9935 16.8564C11.9933 16.8201 11.9935 16.784 11.9941 16.7479C11.0454 16.7473 10.159 16.514 9.33502 16.0479C8.51002 15.5812 7.84752 14.9479 7.34752 14.1479C7.24752 13.9479 7.25585 13.7479 7.37252 13.5479C7.48919 13.3479 7.66419 13.2479 7.89752 13.2479L13.5939 13.2479C14.4494 12.481 15.5811 12.016 16.8216 12.0208L19.0806 12.0296C19.5817 12.0315 19.9889 11.6259 19.9889 11.1248V9.07648H19.9964C19.8932 6.25535 17.5736 4 14.7273 4ZM14.0057 19.1095C14.0066 19.2605 13.9959 19.4089 13.9744 19.5537C14.5044 19.3124 14.9926 18.9776 15.4136 18.5599L18.4405 15.5576C18.8989 15.1029 19.2653 14.5726 19.5274 13.996C19.3793 14.0187 19.2275 14.0301 19.0729 14.0295L16.8138 14.0208C15.252 14.0147 13.985 15.2837 13.9935 16.8455L14.0057 19.1095Z" fill="currentColor"></path></svg></span> 
+                </button>
                 <input type="text" id="messageInput" placeholder="Type a message">
-                <ion-icon name="mic" id="micIcon"></ion-icon>
-                <ion-icon name="send-outline" id="sendIcon"></ion-icon>
+                <span id="micIcon" ><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>ptt</title><path fill="currentColor" d="M11.999,14.942c2.001,0,3.531-1.53,3.531-3.531V4.35c0-2.001-1.53-3.531-3.531-3.531 S8.469,2.35,8.469,4.35v7.061C8.469,13.412,9.999,14.942,11.999,14.942z M18.237,11.412c0,3.531-2.942,6.002-6.237,6.002 s-6.237-2.471-6.237-6.002H3.761c0,4.001,3.178,7.297,7.061,7.885v3.884h2.354v-3.884c3.884-0.588,7.061-3.884,7.061-7.885 L18.237,11.412z"></path></svg></span>
+                <span id="sendIcon"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>send</title><path fill="currentColor" d="M1.101,21.757L23.8,12.028L1.101,2.3l0.011,7.912l13.623,1.816L1.112,13.845 L1.101,21.757z"></path></svg></span>
+                
             </div>
 
              <!-- upoload file dropdown menu -->
@@ -638,11 +711,12 @@
                             <button class="imgAddBtn">
                                 <label for="addmoreImg">
                                     <ion-icon name="add-sharp"></ion-icon>
+                                    <span><svg viewBox="0 0 24 24" width="30" preserveAspectRatio="xMidYMid meet" class="x11xpdln x1d8287x x1h4ghdb"><title>plus</title><path fill="currentColor" d="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6V13z"></path></svg></span>
                                 </label>
                             </button>
                         </div>
                         <div class="send_button">
-                            <ion-icon name="send" id="sendFiles"></ion-icon>
+                            <span id="sendFiles"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>send</title><path fill="currentColor" d="M1.101,21.757L23.8,12.028L1.101,2.3l0.011,7.912l13.623,1.816L1.112,13.845 L1.101,21.757z"></path></svg></span>
                         </div>
                     </div>
 
@@ -651,13 +725,72 @@
             </div>
             
         </div> 
+
+        <!-- message side bar -->
+        <div id="message_search_side" style="display: none;" class="message_search_side">
+            <div class="header">
+                <svg  id="message_side_close" viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="currentColor" enable-background="new 0 0 24 24"><title>x</title><path d="M19.6004 17.2L14.3004 11.9L19.6004 6.60005L17.8004 4.80005L12.5004 10.2L7.20039 4.90005L5.40039 6.60005L10.7004 11.9L5.40039 17.2L7.20039 19L12.5004 13.7L17.8004 19L19.6004 17.2Z"></path></svg>
+                <h1>Search messages</h1>
+            </div>
+            
+            <div class="search_date">
+                <div style="position: relative;">
+                    <button class="search_date_button" id="toggle_Calendar">
+                        <svg viewBox="0 0 24 24" height="20" preserveAspectRatio="xMidYMid meet"  fill="none"><title>calendar-empty</title><path fill-rule="evenodd" clip-rule="evenodd" d="M19 3H20C21.1 3 22 3.9 22 5V21C22 22.1 21.1 23 20 23H4C2.9 23 2 22.1 2 21V5C2 3.9 2.9 3 4 3H5V2C5 1.45 5.45 1 6 1C6.55 1 7 1.45 7 2V3H17V2C17 1.45 17.45 1 18 1C18.55 1 19 1.45 19 2V3ZM5 21H19C19.55 21 20 20.55 20 20V8H4V20C4 20.55 4.45 21 5 21Z" fill="currentColor"></path></svg>
+                    </button>
+
+                    <!-- calender -->
+                    <div id="calender" class="calender">
+                        <div class="calender_header">
+                            <button id="prevBtn">‹</button>
+                            <div class="monthYear" style="color: white;" id="monthYear">March 2025</div>
+                            <button class="nextBtn" id="nextBtn">›</button>
+                        </div>
+                        <div  class="days">
+                            <div class="day">Mon</div>
+                            <div class="day">Tue</div>
+                            <div class="day">Wed</div>
+                            <div class="day">Thu</div>
+                            <div class="day">Fri</div>
+                            <div class="day">Sat</div>
+                            <div class="day">Sun</div>
+    
+                        </div>
+                        <div class="dates" id="dates"></div>
+                    </div>
+                </div>
+                
+                 
+                <div class="message_search_side_search">
+                    <div>
+                        <span  id="message_search_icon" class="search_icon"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>search</title><path fill="currentColor" d="M15.009,13.805h-0.636l-0.22-0.219c0.781-0.911,1.256-2.092,1.256-3.386 c0-2.876-2.332-5.207-5.207-5.207c-2.876,0-5.208,2.331-5.208,5.207s2.331,5.208,5.208,5.208c1.293,0,2.474-0.474,3.385-1.255 l0.221,0.22v0.635l4.004,3.999l1.194-1.195L15.009,13.805z M10.201,13.805c-1.991,0-3.605-1.614-3.605-3.605 s1.614-3.605,3.605-3.605s3.605,1.614,3.605,3.605S12.192,13.805,10.201,13.805z"></path></svg></span>
+                        <span id="message_search_right_arrow" style="color: #00a884;" class="search_icon"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>back</title><path fill="currentColor" d="M12,4l1.4,1.4L7.8,11H20v2H7.8l5.6,5.6L12,20l-8-8L12,4z"></path></svg></span>
+                        <input id="message_search_input" type="text" id="drawer-search-input" placeholder="Search">
+                        <span  id="message_search_close" class="cancel_icon">
+                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>x-alt</title><path fill="currentColor" d="M17.25,7.8L16.2,6.75l-4.2,4.2l-4.2-4.2L6.75,7.8l4.2,4.2l-4.2,4.2l1.05,1.05l4.2-4.2l4.2,4.2l1.05-1.05 l-4.2-4.2L17.25,7.8z"></path></svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <div class="suggestion_text">
+                <div class="suggestion_text_under">
+                    <span>Search for messages with Shraddha Mami.</span>
+                </div>
+            </div> -->
+
+            <div id="search_data" class="search_data">
+                
+            </div>
+            
+        </div>
  
         <!--File Videw Message-->
         <div class="file_view" id="file_view">
             <div class="file_view_top">
                 <div class="file_view_top_left"></div>
                 <div class="file_view_top_right">
-                    <ion-icon id="file_view_close" name="close-outline" ></ion-icon>
+                    <span id="file_view_close"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>close-refreshed</title><path d="M11.9998 13.4L7.0998 18.3C6.91647 18.4833 6.68314 18.575 6.3998 18.575C6.11647 18.575 5.88314 18.4833 5.6998 18.3C5.51647 18.1167 5.4248 17.8833 5.4248 17.6C5.4248 17.3167 5.51647 17.0833 5.6998 16.9L10.5998 12L5.6998 7.09999C5.51647 6.91665 5.4248 6.68332 5.4248 6.39999C5.4248 6.11665 5.51647 5.88332 5.6998 5.69999C5.88314 5.51665 6.11647 5.42499 6.3998 5.42499C6.68314 5.42499 6.91647 5.51665 7.0998 5.69999L11.9998 10.6L16.8998 5.69999C17.0831 5.51665 17.3165 5.42499 17.5998 5.42499C17.8831 5.42499 18.1165 5.51665 18.2998 5.69999C18.4831 5.88332 18.5748 6.11665 18.5748 6.39999C18.5748 6.68332 18.4831 6.91665 18.2998 7.09999L13.3998 12L18.2998 16.9C18.4831 17.0833 18.5748 17.3167 18.5748 17.6C18.5748 17.8833 18.4831 18.1167 18.2998 18.3C18.1165 18.4833 17.8831 18.575 17.5998 18.575C17.3165 18.575 17.0831 18.4833 16.8998 18.3L11.9998 13.4Z" fill="currentColor"></path></svg></span>
                 </div>
             </div>
             <div class="file_view_center">
@@ -688,10 +821,8 @@
     
     </script>
     <script src="{% static 'js\index.js' %}"></script>
-
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script> 
-
+    <script src="{% static 'js\calender.js' %}"></script>
+    
 </body>
 </html>
 

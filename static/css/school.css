@@ -443,7 +443,7 @@ form .pass-txt {
     order: 0;
     position: relative;
     width: 64px;
-    background: #202c33;
+    background: #1d1f1f;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -537,8 +537,9 @@ form .pass-txt {
 
 .chat-container .leftside{
    position: relative;
-   flex: 30%;
-   background: #111B21;
+   flex: 0 0 30%;
+   max-width: 30%;
+   background: #161717;
    border-right: 1px solid rgba(0, 0, 0, 0.2);
       
 }
@@ -558,12 +559,26 @@ form .pass-txt {
     display: none;
     height: 100%; 
     max-height: 100vh;  
+    flex-direction: column;
+    justify-content: center;
  }
+
+.border_left{
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: rgba(255, 255, 255, .1);
+}
+
+.border_right {
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: rgba(255, 255, 255, .1);
+}
 
 .chat-container .intro-right{
     position: relative;
     flex: 70%;
-    background: #222e35;
+    background: #161717;
     height: 100%;
     max-height: 100vh;
     display: flex;
@@ -592,16 +607,24 @@ form .pass-txt {
     position: relative;
     width: 100%;
     height: 60px;
-    background:  #202C33;
+    background:  #161717;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 15px;
- }
+}
 
-.chat-header h1{
+.chat-header .chat_header_text{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.chat-header .chat_header_text h1{
     color: #e9edef;
-    font-size: 1.375rem;
+    font-size: 1.25rem;
+    margin-bottom: 0;
     font-weight: bold;
     font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;
 }
@@ -670,22 +693,28 @@ form .pass-txt {
 
 .nav_icons{
     display: flex;
-
+    margin-bottom: 0;
  } 
+
 .nav_icons li{
     display: flex;
     list-style: none;
     cursor: pointer;
-    color: #aebac1;
-    font-size: 1.5em;
-    margin-left: 22px; 
- } 
+    color: #fafafa; 
+} 
+
+.nav_icons li span{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
 
 .search_chat{
    position: relative ;
    width: 100%;
    height: 50px;
-   background: #111B21; 
+   background: #161717; 
    display: flex;
    justify-content: center;
    align-items: center;
@@ -696,11 +725,35 @@ form .pass-txt {
     width: 100%;
 }
 
+.search_chat div .search_icon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 30px;
+    top: 14px;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #8696a0;
+}
+
+.search_chat div .search-close{
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: 30px;
+    top: 14px;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #8696a0;
+}
+
 .search_chat div input{
     width: 100%;
     outline: none;
     border: none;
-    background: #202C33;
+    background: #242626;
     padding: 6px;
     height: 38px;
     border-radius: 30px;
@@ -714,7 +767,10 @@ form .pass-txt {
     color: #bbb;
 }
 
-.search_chat div .search-icon{
+.search_chat div .search_icon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: absolute;
     left: 30px;
     top: 14px;
@@ -724,6 +780,9 @@ form .pass-txt {
 }
 
 .search_chat div .search-close{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: absolute;
     right: 30px;
     top: 14px;
@@ -759,7 +818,7 @@ form .pass-txt {
 .addUserRe .search_div input{
     width: 100%;
     outline: none;
-    background: #202C33;
+    background: #242626;
     padding: 6px;
     height: 38px;
     border-radius: 5px;
@@ -774,7 +833,7 @@ form .pass-txt {
     height: calc(100% - 110px);
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #161717;
    
 }
 
@@ -798,17 +857,32 @@ form .pass-txt {
     width: 100%;
     display: flex;
     align-items: center;
-    padding: 2px 15px 0px 15px;
     cursor: pointer;
-    background: #111B21;
-
-}
-.chatlist .block.active{
-    background: #2a3942;
+    background: #161717;
+    margin-bottom: 4px;
 }
 
-.chatlist .block:hover{
-    background: #202c33;
+.chatlist .block .inside{
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    gap: 15px;
+    border-radius: 12px;
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 100%;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 15px 0 13px;
+}
+
+.chatlist .block .inside.active{
+    background: rgba(255,255,255,.1);
+}
+
+.chatlist .block .inside:hover{
+    background: #242626;
 }
 
 
@@ -818,14 +892,14 @@ form .pass-txt {
     height: 45px;
     overflow: hidden;
     border-radius: 50%;
-    margin-right: 10px; 
 }
 
 .chatlist .block .details{
-   position: relative;
-   width: 100%;
-   margin-top: 15px;
-   border-bottom: 1px solid rgba(134, 150, 160, .15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin-top: 15px;
+    width: 100%;
 
 }
 
@@ -866,12 +940,10 @@ form .pass-txt {
 
 .message_p p{
     color: #8696a0;
-    display: -webkit-box;
-    height: 1.2em;
     font-size: 0.9em;
-    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
  
 }
 
@@ -918,7 +990,7 @@ form .pass-txt {
     padding-left: 4%; 
     flex-grow: 1; 
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #161717;
 }
 
 .message{
@@ -928,113 +1000,105 @@ form .pass-txt {
     margin: 5px 0; 
 }
 
-.my_message{
+.sender {
     justify-content: flex-end;
 }
 
-.message .message_back{
+.receiver {
+    justify-content: flex-start;
+}
+
+.message .message_back {
     position: relative;
-    right: 0;
     max-width: 65%;
-    padding: 6px 8px 6px 8px;
-    background: #005c4b;
+    padding: 6px 8px;
     border-radius: 10px;
     word-wrap: break-word;
     margin: 0;
+    color: white;
 }
-.message .message_back::before{
+
+.sender .message_back {
+    background: #144d37;
+}
+
+.sender .message_back::before {
     content: '';
     position: absolute;
     top: 0;
     right: -12px;
     width: 20px;
     height: 20px;
-    background: linear-gradient(135deg, #005c4b 0%, #005c4b 50%, transparent 50%, transparent);
-
+    background: linear-gradient(135deg, #144d37 0%, #144d37 50%, transparent 50%, transparent);
 }
 
-.message .message_back .top-content{
+.receiver .message_back {
+    background: #202c33;
+}
+
+.receiver .message_back::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -12px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(225deg, #202c33 0%, #202c33 50%, transparent 50%, transparent);
+}
+
+.message  .top-content{
     font-size: 14.2px;
-    color: #e9edef;
     font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;
 }
-.message .message_back .bottom-content{
-       z-index: 10;
-       position: relative;
-       float: right;
-       margin-right: 0;
-       height: 15px;
-       white-space: nowrap;
-       display: flex;
-       align-items: center;
-       line-height: 15px;
-       color: rgba(255, 255, 255, .6);
-       font-size: .6875rem;
+.message .bottom-content{
+    z-index: 10;
+    position: relative;
+    display: flex;
+    justify-content: end;
+    gap: 3px;
+    align-items: center;
+    text-align: center;
 }
 
 .message .message_back .bottom-content .time{
-    display: inline-block;
-    vertical-align: top;
-    margin-right: 2px;
-
-}
-
-.message p{
-    position: relative;
-    right: 0; 
+    font-size: .6875rem;
+    opacity: 0.9;
     text-align: right;
-    max-width: 65%; 
-    padding: 6px 8px 6px 8px; 
-    background: #005c4b;
-    border-radius: 10px;
-    font-size: 0.9em;
-    word-wrap: break-word;
-    margin: 0;
-    color: white;
+    color: #fff;
+
 }
 
-
+.message .message_status svg {
+    fill: rgba(255, 255, 255, 0.6);
+    width: 16px;
+    height: 11px;
+}
 
 .message .mainImage {
     position: relative;
-    z-index: 200;
-    border-radius: 7.5px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); 
-    overflow: hidden; 
-    display: flex;
-    flex-direction: column;
     max-width: 336px;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
+.message .mainImage .first_view{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
 .end_background{
     background-color: #005c4b;
 }
 .start_background{
     background-color: #202c33;
 }
-.message p::before{
-    content: '';
-    position: absolute;
-    top: 0;
-    right: -12px;
-    width: 20px;
-    height: 20px;
-    background: linear-gradient(135deg, #005c4b 0%, #005c4b 50%, transparent 50%, transparent);
-}
-.message p span{
-    display: flex;
-    justify-content: end;
-    font-size: 0.75em;
-    font-weight: 500;
-    color: #FFFFFF99;
-    opacity: 0.7;
-}
 
-.first_view{
-    position: relative;
-}
-
-.innerImage{
+.innerImage img {
+    width: 100%;
+    border-radius: 8px;
     position: relative;
     padding: 3px;
     z-index: 1;
@@ -1042,13 +1106,79 @@ form .pass-txt {
     justify-content: center;
     max-width: 336px;
     max-height: 360px;
-}  
+}
 
-.innerImage img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 3px; 
+.bottomContent {
+    background-image: linear-gradient(to top, rgba( 11, 20, 26,.5), rgba(11, 20, 26, 0));
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    bottom: 3px;
+    left: 3px;
+    right: 3px;
+    height:28px;
+    padding: 10px 10px 0px 10px;
     cursor: pointer;
+    justify-content: end;
+    gap: 3px;
+    align-items: center;
+    text-align: center;
+}
+
+.bottomContent .vide_timestamp{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
+}
+
+.bottomContent .status-tick{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
+    margin-left: 2px;
+    margin-top: -1px;
+}
+
+.caption {
+    font-size: 0.85em;
+    color: #fff;
+    margin: 0;
+    padding: 7px 7px 7px 7px;
+    word-wrap: break-word;
+}
+
+.caption-bottom{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: end;
+    bottom: 3px;
+    left: 3px;
+    right: 3px;
+    padding: 0px 10px 0px 0px;
+    cursor: pointer;
+    gap: 3px;
+    align-items: center;
+    text-align: center;
+
+}
+
+.caption-bottom .vide_timestamp{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
+}
+
+.caption-bottom .status-tick{
+    font-size: .6875rem;
+    opacity: 0.9;
+    text-align: right;
+    color: #fff;
+    margin-left: 2px;
+    margin-top: -1px;
 }
 
 #previewVideo{
@@ -1069,8 +1199,57 @@ form .pass-txt {
     cursor: pointer;
     border-radius: 7px; 
 }
+/* .message .mainImage {
+    position: relative;
+    z-index: 200;
+    border-radius: 7.5px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); 
+    overflow: hidden; 
+    display: flex;
+    flex-direction: column;
+    max-width: 336px;
+}
 
-.media-loader {
+.message p::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -12px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #005c4b 0%, #005c4b 50%, transparent 50%, transparent);
+}
+.message p span{
+    display: flex;
+    justify-content: end;
+    font-size: 0.75em;
+    font-weight: 500;
+    color: #FFFFFF99;
+    opacity: 0.7;
+}
+
+
+.innerImage{
+    position: relative;
+    padding: 3px;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    max-width: 336px;
+    max-height: 360px;
+}  
+
+.innerImage img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 3px; 
+    cursor: pointer;
+}
+
+
+ */
+
+ .media-loader {
     position: absolute;
     top: 0;
     left: 0;
@@ -1081,7 +1260,6 @@ form .pass-txt {
     justify-content: center;
    
 }
-
 .loader {
     border: 4px solid rgba(255, 255, 255, 0.3);
     border-top: 4px solid #fff;
@@ -1118,6 +1296,14 @@ form .pass-txt {
     display: block;
 }
 
+.video-duration {
+    color: white;
+    border-radius: 4px;
+    font-size: .6875rem;
+    opacity: 0.9;
+}
+
+
 .videoBottom{
     background-image: linear-gradient(to top, rgba( 11, 20, 26,.5), rgba(11, 20, 26, 0));
     position: absolute;
@@ -1129,6 +1315,7 @@ form .pass-txt {
     height:28px;
     padding: 10px 10px 0px 10px;
     cursor: pointer;
+    justify-content: space-between;
 }
 
 .videoBottom .vide_timestamp{
@@ -1138,21 +1325,15 @@ form .pass-txt {
     color: #fff;
 }
 
-.videoBottom .status-tick{
-    font-size: .6875rem;
-    opacity: 0.9;
-    text-align: right;
-    color: #fff;
-    margin-left: 2px;
-    margin-top: -1px;
+.videoBottom .last-time{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 3px;
 }
 
-.videoBottom .last-time{
-    font-size: .6875rem;
-    opacity: 0.9;
-    text-align: right;
-    color: #fff;
-}
+/* 
 
 .space-between{
     justify-content: space-between;
@@ -1163,12 +1344,6 @@ form .pass-txt {
 }
 
 
-.video-duration {
-    color: white;
-    border-radius: 4px;
-    font-size: .6875rem;
-    opacity: 0.9;
-}
 
 
 
@@ -1198,63 +1373,9 @@ form .pass-txt {
     width: 100%;
     height: 28px;
 
-}
-
-.caption {
-    font-size: 0.85em;
-    color: #fff;
-    margin: 0;
-    padding: 7px 7px 7px 7px;
-    word-wrap: break-word;
-}
-
-.caption-bottom{
-    position: relative;
-    z-index: 1;
-    display: flex;
-    justify-content: end;
-    bottom: 3px;
-    left: 3px;
-    right: 3px;
-    padding: 0px 10px 0px 0px;
-    cursor: pointer;
-}
-
-.caption-bottom .vide_timestamp{
-    font-size: .6875rem;
-    opacity: 0.9;
-    text-align: right;
-    color: #fff;
-}
-
-.caption-bottom .status-tick{
-    font-size: .6875rem;
-    opacity: 0.9;
-    text-align: right;
-    color: #fff;
-    margin-left: 2px;
-    margin-top: -1px;
-}
+} */
 
 
-.frnd_message{
-    justify-content: flex-start;
-}
-
-.frnd_message p{
-    background: #202c33;
-    text-align: left;
-}
-
-.message.frnd_message p::before{
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -12px;
-    width: 20px;
-    height: 20px;
-    background: linear-gradient(225deg, #202c33 0%, #202c33 50%, transparent 50%, transparent);
-}
 
 .date-label{
     display: flex;
@@ -1275,37 +1396,47 @@ form .pass-txt {
 
 .chatbox_input{
     position: relative;
-    width: 100%;
-    height: 60px;
-    background: #202c33;
+    width: auto;
+    height: 52px;
+    background: #242626;
     padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-right: 9%;
+    margin-bottom: 12px;
+    margin-left: 12px;
+    border-radius: 26px;
 }
 
-.chatbox_input ion-icon{
+.chatbox_input span{
     cursor: pointer;
-    font-size: 1.8em;
-    color: #8696a0;
+    color: #fafafa;
 }
 
-
-.chatbox_input ion-icon:nth-child(1){
-    margin-right: 15px;
+.chatbox_input button{
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    font-size: 100%;
+    cursor: pointer;
+    font-family: inherit;
+    outline: none;
 }
+
 .chatbox_input input{
     position: relative;
     width: 90%;
-    margin: 0 20px;
     border: none;
     outline: none;
-    border-radius: 8px;
     font-size: 1em;
-    padding: 10px 15px;
-    background: #2a3942;
-    border: 1px solid #2a3942;
+    background: no-repeat;
     color: white;
+    height: 22px;
+    margin-left: 6px;
+    margin-right: 6px;
 }
 
 #messageInput::placeholder {
@@ -1350,8 +1481,7 @@ form .pass-txt {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #111B21;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    background: #161717;
     transition: transform 0.3s ease; 
     transform: translateX(-100%);
     z-index: 2000;
@@ -1364,33 +1494,36 @@ form .pass-txt {
     transform: translateX(0);
     top: 0;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #161717;
 }
 
 .drawer-header {
     position: relative;
     width: 100%;
     height: 60px;
-    background: #111B21;
+    background: #161717;
     display: flex;
     justify-content: start;
     align-items: center;
     padding: 0 15px;
+    gap: 15%;               
 }
 
-.drawer-header  ion-icon{
+.drawer-header  span{
     display: flex;
     list-style: none;
     cursor: pointer;
     color: white;
     font-size: 1.5em;
-    margin-right: 54px;
+    align-items: center;
+    justify-content: center;
 }
 
 .drawer-header h1{
     color: #e9edef;
     font-size: 1.375rem;
     font-weight: bold;
+    margin-bottom: 0px;
     font-family: "SF Pro Text", "SF Pro Icons", system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "Ubuntu", "Cantarell", "Fira Sans", sans-serif;color: #e9edef;
 }
 
@@ -1422,9 +1555,9 @@ form .pass-txt {
     position: relative;
     height: calc(100% - 110px);
     overflow-y: auto;
-    background: #111B21;
+    background: #161717;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #161717;
 }
 
 .drwer-chatlist .drawer-block{
@@ -1434,7 +1567,7 @@ form .pass-txt {
     align-items: center;
     padding: 10px 15px 10px 15px;
     cursor: pointer;
-    background: #111B21;
+    background: #161717;
 }
 
 .drwer-chatlist .drawer-block .imgbox{
@@ -1458,9 +1591,12 @@ form .pass-txt {
     align-items: center;
 }
 
-.drwer-chatlist .drawer-block .details .listHead ion-icon{
+.drwer-chatlist .drawer-block .details .listHead .deleteButton{
     font-size: 24px;
     color: #8696a0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .drwer-chatlist .drawer-block .details .listHead h4{
@@ -1745,8 +1881,7 @@ form .pass-txt {
     margin-right: 16px;
 }
 
-.send_button ion-icon {
-    font-size: 25px; 
+.send_button span { 
     color: white;
     
 }
@@ -1895,15 +2030,13 @@ form .pass-txt {
 }
 
 
-.imgAddBtn ion-icon{
+.imgAddBtn span{
     color: #d1d7db;
-    width: 25px;
-    height: 25px;
     cursor: pointer;
 }
 
 .file_view{
-    position: absolute;
+    position: fixed;
     width: 100%;
     height: 100%;
     background: #101A20;
@@ -1935,35 +2068,32 @@ form .pass-txt {
 }
 .file_view_top_right{
     order: 1;
-    margin-right: 18px;
+    margin-right: 2.5%;
 }
 
-.file_view_top_right ion-icon{
-    margin-left: 10px;
-    border-radius: 50%;
+.file_view_top_right span{
     color: #aebac1;
-    width: 30px;
-    height: 30px;
     font: inherit;
     font-size: 100%;
     cursor: pointer;
+    font: inherit;
+    font-size: 100%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .file_view_center{
     display: flex;
     align-items: center;
     justify-content: center;
-    max-width: 575px;
-    max-height: 323px;
-    margin-top: 5%;
     overflow-x: hidden;
     margin-bottom: 16px;
     overflow-y: hidden;
     flex-direction: column;
     flex-basis: 0px;
     flex-grow: 1;
-    margin-right: auto;
-    margin-left: auto;
 }
 
 .file_view_center .file{
@@ -2004,7 +2134,7 @@ form .pass-txt {
 
 .hidden {
     width: 100%;
-    background: #111B21;
+    background: #161717;
     border-top: none;
     border-right: none;
     border-left: none;
@@ -2094,14 +2224,14 @@ button:hover {
     position: relative;
     width: 100%;
     height: 60px;
-    background: #111B21;
+    background: #161717;
     display: flex;
     justify-content:space-between;
     align-items: center;
     padding: 0 15px;
 }
 
-.status-drawer-header ion-icon{
+.status-drawer-header span{
     display: flex;
     list-style: none;
     cursor: pointer;
@@ -2124,10 +2254,14 @@ button:hover {
     color: #aebac1;
     width: 40px;
     height: 40px;
-    padding: 8px;
     margin-right: 10px;
     border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+
 
 .status-box{
     position: relative;
@@ -2136,7 +2270,7 @@ button:hover {
     align-items: center;
     padding: 0px 15px 0px 3px;
     cursor: pointer;
-    background: #111B21;
+    background: #161717;
 }
 .status-imgbox{
     position: relative;
@@ -2301,62 +2435,57 @@ color: #008069;
     position: absolute;
     z-index: 10000;
     max-width: 340px;
-    padding: 9px 0;
+    padding: 10px;
     overflow: visible;
     text-align: left;
-    background-color:#233138;
+    background-color:#1D1F1F;
     border-radius: 3px;
     box-shadow: 0 2px 5px 0 rgba(11, 20, .26), 0 2px 10px 0 rgba(11, 20, .26);
     opacity: 1;
     display: none;
 }
+.small-drawer-status ul{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
 
 .small-drawer-status ul li{
     position: relative;
-    opacity: 0;
-    list-style-type: none;
+    opacity: 1;
+    color: rgba(255, 255, 255, .6);
+    border-radius: 8px;
 }
 
 .small-drawer-status ul li:hover{
-    background-color: #0C1317;
+    background-color:#242626;
 }
 
 .small-drawer-status-box{
-    display: flex;
-    padding-bottom: 8px;
-    min-width: 0;
-    overflow-x: hidden;
+    width: 100%;
+    height: 40px;
+    min-width: 160px;
     min-height: 0;
-    padding-top: 8px;
-    max-width: 100%;
-    overflow-y: hidden;
-    color: #d1d7db;
-    white-space: nowrap;
-    flex-shrink: 1;
-    padding-right: 32px;
     flex-wrap: nowrap;
-    flex-basis: auto;
-    padding-left: 24px;
-    box-sizing: border-box;
+    display: flex;
     align-items: center;
     cursor: pointer;
     flex-direction: row;
-    align-self: auto;
     justify-content: flex-start;
-    order: 0;
-    flex-grow: 0;
     justify-self: auto;
 }
 
 .small-drawer-status-icon{
     width: 24px;
     fill: currentColor;
+    margin-left: 8px;
+    margin-right: 10px;
 }
 
 .small-drawer-status-content{
     display: inline-block;
     line-height: 24px;
-    margin-left: 8px;
+    margin-right: 24px;
     font-size: .875rem;
 }
 
@@ -3039,7 +3168,7 @@ color: #008069;
     box-sizing: border-box;
     color: white;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #161717;
 }
 
 .status-viewBox-show-mystatus-viewedCount{
@@ -3118,7 +3247,7 @@ color: #008069;
     position: relative;
     opacity: 1;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.16) #111B21;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #161717;
     flex: 1;
 }
 
@@ -3291,14 +3420,27 @@ color: #008069;
     margin: 4px;
 }
 
+.status_part_sender {
+    background-color: #025144;
+}
+
+.status_part_reciver {
+    background-color: rgba(0, 0, 0, .2);
+}
 .status_part .status_part_left-line{
     flex: none;
     width: 4px;
     border-top-left-radius: 7.5px;
     border-bottom-left-radius: 7.5px;
-    background-color: #06cf9c;
 }
 
+.status_part_left-line-sender{
+    background-color: #53bdeb;
+}
+
+.status_part_left-line-reciver{
+    background-color: #06cf9c;
+}
 .status_part .status_part_conntent{
     min-height: 42px;
     padding-bottom: 8px;
@@ -3335,9 +3477,14 @@ color: #008069;
     text-overflow: ellipsis;
     white-space: nowrap;
     visibility: visible;
-    color: #06cf9c;
 }
 
+.status_part .status_part_conntent .status_part_conntent_wrap .status_part_conntent_title .span-text-sender{
+    color: #53bdeb;
+}
+.status_part .status_part_conntent .status_part_conntent_wrap .status_part_conntent_title .span-text-reciver{
+    color: #06cf9c;
+}
 .status_part .status_part_conntent .status_part_conntent_wrap .status_part_conntent_title_bottom{
     overflow-x: hidden;
     max-height: calc(20px* 3);
@@ -3445,3 +3592,349 @@ color: #008069;
     max-height: 100%;
     max-width: 100%;
 }
+
+.message_search_side{
+    position: relative;
+    flex: 0 0 30%;
+    background: #161717;
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+    max-width: 30%;
+    border-left: 1px solid rgba(134, 150, 160, 0.15);
+}
+
+.message_search_side .header {
+    position: relative;
+    width: 100%;
+    height: 60px;
+    background: #161717;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    padding: 0px 0px 0px 30px;
+    gap: 13%;
+}
+
+.message_search_side .header  svg{
+    color: white;
+    cursor: pointer;
+}
+.message_search_side .header h1{
+    color: #e9edef;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    font-size: 100%;
+    vertical-align: baseline;
+    border: 0;
+    outline: none;
+}
+
+.message_search_side .search_date{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 15px;
+    position: relative;
+    border-bottom: 5px solid #1d1f1f;
+}
+.message_search_side .search_date .search_date_button{
+    background: #111b21;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 24px;
+    width: 24px;
+    cursor: pointer;
+
+}
+
+.message_search_side .search_date .search_date_button:focus {
+    outline: none; 
+    box-shadow: none; 
+}
+
+.message_search_side .search_date .search_date_button svg{
+    color: #8696a0;
+    display: block;
+}
+
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    color: rgba(0, 0, 0, 0);
+    opacity: 1;
+    display: block;
+    background: url(/*yourURLHere*/) no-repeat;
+    width: 25px;
+    height: 25px;
+    border-width: thin
+}
+
+.message_search_side .search_date .message_search_side_search{
+    position: relative;
+    width: 100%;
+    height: 50px;
+    background: #161717;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.message_search_side .search_date .message_search_side_search div{
+    width: 100%;
+}
+
+.message_search_side .search_date .message_search_side_search div .search_icon{
+    position: absolute;
+    left: 30px;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #8696a0;
+}
+
+.message_search_side .search_date .message_search_side_search div input {
+    width: 100%;
+    outline: none;
+    border: none;
+    background: #242626;
+    padding: 6px;
+    height: 38px;
+    border-radius: 8px;
+    font-size: .9375rem;
+    padding-left: 20%;
+    padding-right: 12%;
+    color: white;
+    border-radius: 26px;
+}
+
+.message_search_side .search_date .message_search_side_search div input::placeholder{
+    color: #8696a0;
+}
+.message_search_side .search_date .message_search_side_search div .cancel_icon{
+    position: absolute;
+    right: 30px;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #8696a0;
+}
+
+.message_search_side .suggestion_text{
+    height: auto;
+    padding-bottom: 72px;
+    padding-top: 72px;
+    flex-direction: column;
+    flex-basis: auto;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    color: #667781;
+    flex-shrink: 0;
+    text-align: center;
+    justify-content: flex-start;
+    padding-left: 50px;
+    flex-grow: 0;
+    padding-right: 50px;
+}
+
+.message_search_side .suggestion_text .suggestion_text_under{
+    line-height: 20px;
+    font-size: 0.875rem;
+    color: #8696a0;
+}
+
+.message_search_side .suggestion_text .suggestion_text_under span{
+    visibility: visible;
+    min-height: 0px;
+}
+
+.message_search_side .search_data{
+    position: relative;
+    height: calc(100% - 110px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) #161717;
+}
+
+.search_data .blocks{
+    display: flex;
+    flex-basis: auto;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    min-width: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+    position: relative;
+    width: 100%;
+    height: 72px;
+    background: #161717;
+    
+}
+
+.search_data .blocks .block_inside:hover {
+    background: #242626;
+}
+.search_data .blocks .block_inside{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 12px;
+    height: 72px;
+    cursor: pointer;
+}
+
+.search_data .blocks .block_inside .date{
+    max-width: 100%;
+    font-size: 12px;
+    color: #8696a0;
+    flex: 0 0 auto;
+    margin-top: 3px;
+    line-height: 14px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+.search_data .blocks .block_inside .content{
+    max-width: 100%;
+    font-size: 14px;
+    color: #8696a0;
+    flex: 0 0 auto;
+    margin-top: 3px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+.content_span_highlight{
+    color: #00a884;
+    font-weight: bold;
+}
+/* calender Css start */
+
+.calender {
+    position: absolute;
+    z-index: 10;
+    top: 42px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 315px;
+    height: fit-content;
+    background: #202c33;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+}
+
+.calender.show {
+    max-height: 400px;
+    opacity: 1;
+    pointer-events: all;
+    z-index: 1000;
+}
+
+
+.calender .calender_header{
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+    background-color: #008069;
+    height: 44px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding-left: 15%;
+    padding-right: 15%;
+    margin-bottom: 1em;
+}
+
+.calender .calender_header button{
+    display: flex;
+    min-width: 44px;
+    font-size: 1.125rem;
+    justify-content: center;
+    font-weight: bold;
+    align-items: center;
+    color: white;
+    background: none;
+    border: 0;
+    margin: 0;
+    outline: none;
+    cursor: pointer;
+}
+
+.calender .calender_header .nextBtn.disabled{
+    color: rgba(255, 255, 255, .4);
+    cursor: not-allowed;
+}
+
+.calender .days{
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+}
+.calender .day{
+    text-align: center;
+    padding: 5px;
+    color: white;
+    font-size: .75rem;
+    text-decoration: none;
+}
+
+.calender .dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    color: white;
+}
+
+.calender .dates .date{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: 0.2s;
+    font-size: .75rem;
+    line-height: 22px;
+}
+
+.calender .dates .date .abbr.active{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #008069;
+    font-size: .75rem;
+    line-height: 1.25;
+    text-align: center;
+    border: 3px solid #008069;
+    display: inline-block;
+}
+
+
+
+.calender .dates .date.inactive{
+    font-size: .75rem;
+    color: #757575;
+}
+.calender .dates .date.disabled{
+    font-size: .75rem;
+    color: #757575;
+    cursor: not-allowed;
+}
+
+/* calender css is finished */

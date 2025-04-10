@@ -67,13 +67,14 @@ def loginpage(request):
             'response':clientkey
         }
 
-        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=captchaData)
-        response = json.loads(r.text)
-        verify = response['success']
+        # Recapctha for verify  
+        # r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=captchaData)
+        # response = json.loads(r.text)
+        # verify = response['success']
     
-        if True is not verify:
-            messages.error(request, "Please fill the CAPTCHA")
-            return render(request, 'login.html')
+        # if True is not verify:
+        #     messages.error(request, "Please fill the CAPTCHA")
+        #     return render(request, 'login.html')
         
         if User.objects.filter(email=email).exists():
             user = authenticate(request,  email=email, password=password)
@@ -174,7 +175,7 @@ def home(request):
     contact_users = User.objects.filter(id__in=contact_ids) 
     user_data = []
     for contact_user in contact_users:
-        message_reciver_count = Message.objects.filter(sender_id=contact_user.id,receiver_id=login_user.id, is_read_toggle=False).count()
+        message_reciver_count = Message.objects.filter(sender_id=contact_user.id,receiver_id=login_user.id, status_view='delivered').count()
         
         if contact_user.id == login_user.id:
             message_reciver_count = 0

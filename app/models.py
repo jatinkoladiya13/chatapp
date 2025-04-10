@@ -81,7 +81,6 @@ class Message(models.Model):
     receiver = models.ForeignKey(User,related_name='received_messages', on_delete=models.CASCADE) 
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    is_read_toggle = models.BooleanField(default=False, blank=True, null=True)
     status_view = models.CharField(max_length=10, choices=STATUS_CHOICES, default='sent')
 
     image = models.ImageField(upload_to='message_images/', blank=True, null=True)
