@@ -53,10 +53,35 @@ const updateCalender = () =>{
 
 datesElement.addEventListener('click', function(event){
     const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
     const data_date = new Date(event.target.getAttribute('data-date'));
 
+    const options = { year: 'numeric', month: 'short', day: '2-digit' };
+    const formattedDate = data_date.toLocaleDateString('en-US', options);
+     
     if (event.target.tagName === 'ABBR' && data_date < today) {
-        console.log(`Selected Date: ${data_date.toDateString()}`);
+
+        let custom_date = '';
+
+        if(data_date.toDateString() === today.toDateString()){
+            custom_date = 'Today';
+        }else if(data_date.toDateString() === yesterday.toDateString()){
+            custom_date = 'Yesterday';
+        }else{
+            custom_date = formattedDate;
+        }
+
+        const messageElement = document.getElementById(custom_date);
+        if (messageElement) {
+            messageElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }
+
+        calender.classList.remove("show");  
     }
 });
 

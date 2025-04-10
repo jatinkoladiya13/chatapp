@@ -2014,6 +2014,56 @@ function playVideo(url, checkings){
 
 // Websocket event handlers
 let chat_history_search_MSG;
+
+function adding_update_MSG_array(data){
+    const existingMessageGroup = chat_history_search_MSG.history.find(group => group.date === data.label_time);
+    if(existingMessageGroup){
+        const existingMessage = existingMessageGroup.messages.find(msg => msg.message_id === data.message_id);
+        if(existingMessage){
+            existingMessage.content = data.content;
+            existingMessage.timestamp = data.timestamp;
+        }else{
+            existingMessageGroup.messages.push({
+                content: data.content,
+                sender_id: data.sender_id,
+                receiver_id: data.receiver_id,
+                timestamp: data.timestamp,
+                url: data.url,
+                caption: data.caption,
+                type_content: data.type_content,
+                is_reply_status: data.is_reply_status,
+                reciver_name: data.reciver_name,
+                video_duration: data.video_duration,
+                receiver_message_view: data.receiver_message_view,
+                message_id: data.message_id
+            });
+
+            existingMessageGroup.messages.sort((a,b) => new Date(a.timestamp)- new Date(b.timestamp));
+        }
+    }else{
+        const newDateGroup = {
+            date: data.label_time,
+            messages: [
+                {
+                    content: data.content,
+                    sender_id: data.sender_id,
+                    receiver_id: data.receiver_id,
+                    timestamp: data.timestamp,
+                    url: data.url,
+                    caption: data.caption,
+                    type_content: data.type_content,
+                    is_reply_status: data.is_reply_status,
+                    reciver_name: data.reciver_name,
+                    video_duration: data.video_duration,
+                    receiver_message_view: data.receiver_message_view,
+                    message_id: data.message_id
+                }
+            ]
+        };
+        chat_history_search_MSG.history.push(newDateGroup);
+    }
+}
+
 chatSocket.onmessage = function(e){
         const data = JSON.parse(e.data);
         console.log(data);
@@ -2026,7 +2076,7 @@ chatSocket.onmessage = function(e){
             }
            
         }else if(data.type == 'chat_message'){
-
+            adding_update_MSG_array(data);
             handleChatMessage(data);
         
         }
@@ -2114,7 +2164,7 @@ function handleChathistory(data){
         data.history.forEach((day, index) => {
             lastDate = day.date; 
             const dateLabel = `
-                <div class="date-label">
+                <div class="date-label"  id="${day.date}">
                     <p>${day.date}</p>
                 </div>
             `;
@@ -2328,7 +2378,7 @@ function handleChatMessage(data){
     if(selectedUserId === data.receiver_id || selectedUserId == data.sender_id){
         if (lastDate !== currentDate) {
             chatBoxs.insertAdjacentHTML('beforeend', `
-                <div class="date-label">
+                <div class="date-label" id="${currentDate}">
                     <p>${currentDate}</p>
                 </div>
             `);
@@ -2607,6 +2657,8 @@ function clickopenbox(){
             selectedUserId = this.getAttribute('data-user-id');
 
             document.querySelector('.rightside .chatBox').innerHTML = '';
+            close_search_msg();
+            
             chatSocket.send(JSON.stringify({
                 'action': 'send_history',
                 'receiver_id': selectedUserId,
@@ -2722,6 +2774,9 @@ const message_search_input = document.getElementById('message_search_input');
 const message_search_close = document.getElementById('message_search_close');
 
 const search_data = document.getElementById('search_data');
+const suggestion_text_show = document.getElementById('suggestion_text_show');
+const noResultsMessage = document.getElementById('noResultsMessage');
+
 
 search_messages.addEventListener('click', function(){
     message_search_side.style.display = 'block';
@@ -2734,8 +2789,16 @@ search_messages.addEventListener('click', function(){
 });
 
 message_side_close.addEventListener('click', function(){
-    message_search_side.style.display = 'none';
+    close_search_msg();
 });
+
+function close_search_msg(){
+    message_search_side.style.display = 'none';
+    message_search_input.value = '';
+    search_data.innerHTML = '';
+    suggestion_text_show.style.display = 'flex';
+    noResultsMessage.textContent  =  "Search for messages with Shraddha Mami.";
+}
 
 message_search_input.addEventListener('input', function(){
     
@@ -2749,10 +2812,13 @@ message_search_input.addEventListener('input', function(){
     const filter = message_search_input.value.toLowerCase();
     search_data.innerHTML = '';
 
+   
     if(message_search_input.value.trim() !== ''){
+
+        suggestion_text_show.style.display = 'none';
+
         chat_history_search_MSG['history'].slice().reverse().forEach(chat=>{
-            chat.messages.slice().reverse().forEach(message => {
-                
+            chat.messages.slice().reverse().forEach(message => {                
                 const date = chat.date;
                 const content = message.content ? message.content.toLowerCase() : "";
                 const caption = message.caption ? message.caption.toLowerCase() : "";
@@ -2768,7 +2834,7 @@ message_search_input.addEventListener('input', function(){
 
                     search_data.innerHTML += `
                     <div class="blocks">
-                       <div class="block_inside">
+                       <div class="block_inside" data-message-id="${message.message_id}">
                             <div class="date">
                                 <span>${date}</span>
                             </div>
@@ -2778,14 +2844,42 @@ message_search_input.addEventListener('input', function(){
                         </div>
                         
                     </div>`;
+
+            
                 }
 
             });
         });
+        
+        if (search_data.innerHTML.trim() === '' && message_search_input.value.trim() !== '') {
+            suggestion_text_show.style.display = 'flex';
+            noResultsMessage.textContent  =  "No messages found";
+        } else {
+            suggestion_text_show.style.display = 'none';
+        }
+        
+       
+    }else{
+        suggestion_text_show.style.display = 'flex';
+        noResultsMessage.textContent  =  "Search for messages with Shraddha Mami.";
     }
    
 
 
+});
+
+search_data.addEventListener('click', function(event) {
+    const block = event.target.closest('.block_inside');
+    if(block){
+        const messageId = block.getAttribute('data-message-id');
+        const messageElement = document.getElementById(messageId);
+        if (messageElement) {
+            messageElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    }
 });
 
 message_search_input.addEventListener('focus', function(){
