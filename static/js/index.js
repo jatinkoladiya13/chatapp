@@ -7,6 +7,7 @@ const chatlist = document.getElementById('chatlist');
 const chatBlocks = chatlist.getElementsByClassName('block');
 const introRight = document.querySelector('.intro-right');
 const rightSide = document.querySelector('.rightside');
+const rightSide_inside = document.querySelector('.rightside .rightchat_inside');
 const createfriend = document.getElementById('createfriend');
 const drawerclose = document.getElementById('drawer-close');
 const leftsideDrawer = document.getElementById('leftsideDrawer');
@@ -21,11 +22,7 @@ const draweEmailInput = document.getElementById('drawer-email-input');
 const drwerChatlist  = document.querySelector('.drwer-chatlist');
 const drawerSearchInput = document.getElementById('drawer-search-input');
 const drwerSearchClose = document.getElementById('drawer-search-close');
-const plusUpload = document.getElementById('plusUpload');
-const plusDropdown = document.getElementById('plus-dropdown-menu');
-const imageViewer = document.getElementById('imageViewer');
-const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-const imagePreviewClose = document.getElementById('imagePreviewClose');
+
 const chat_box          = document.getElementById('chatBox'); 
 const chat_box_input    = document.getElementById('chatbox_input');
 
@@ -82,7 +79,7 @@ searchClose.addEventListener('click', () => {
     
    
 window.onload = function(){
-    rightSide.style.display = 'none';
+    rightSide_inside.style.display = 'none';
     introRight.style.display = 'flex';
 }; 
     
@@ -154,46 +151,6 @@ drwerSearchClose.addEventListener('click', () => {
     drawerSearchInput.focus();
 }); 
 
-
-let rotated = false;
-plusUpload.addEventListener('click', ()=>{
- 
-    plusUpload.style.transition = 'transform 0.5s ease-in-out';
-    rotated = !rotated;
-    if(rotated){
-        plusUpload.style.transform = 'rotate(45deg)';
-        plusDropdown.style.cssText = `
-            display: block;
-            transform: translateY(0);
-            opacity: 1; 
-        `;  
-    }else{
-        plusUpload.style.transform = 'rotate(0deg)';
-        plusDropdown.style.cssText = `
-            display: none;
-            transform: translateY(0);
-            opacity: 1;
-        `; 
-    }
-});
-
-
-
-document.addEventListener('click',function(event){
-    if(!plusDropdown.contains(event.target) && !plusUpload.contains(event.target)){
-        plusUpload.style.transform = 'rotate(0deg)';
-        plusDropdown.style.cssText = `
-            display: none;
-            transform: translateY(0);
-            opacity: 1;
-        `; 
-
-    } 
-});
-
-imagePreviewClose.addEventListener('click',()=>{
-    clearImages(); 
-});
 
 // side header click functionality 
 
@@ -272,6 +229,9 @@ function status_data_get_On_button(){
             topheaderProfile_Status_Second.style.display = 'flex';
             profile_Status_Second_details.textContent = data.mystatus_data.my_status_upload_time;
             statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.mystatus_data.mystatus_count, data.mystatus_data.mystatus_unviewed_count);
+        }else{
+            topheader_Profile_Status.style.display = 'flex';
+            topheaderProfile_Status_Second.style.display = 'none';
         }
        
         
@@ -509,399 +469,6 @@ topheader_Profile_Status.addEventListener('click', function(event){
     scrollableContent.style.overflowY = "hidden";
     event.stopPropagation();
 });
-
-// take photo and video for status and viewed 
-const imgPreviewContainers = document.getElementById('imgPreview-containers');
-const closeStausImgandVidPreview = document.getElementById('closeStausImgandVidPreview');
-
-closeStausImgandVidPreview.addEventListener('click', function(){
-    imgPreviewContainers.style.display ="none";
-    statusFileIndexCounter = 0;
-    fileBlobs = [];
-});
-
-let statusFileIndexCounter = 0;
-let fileBlobs = [];
-
-function extractVideoThumbnail(videoFile){
-    return new Promise((resolve, reject) => {
-        const videoElement = document.createElement('video');
-        const canvasElement = document.createElement('canvas');
-        const context = canvasElement.getContext('2d');
-
-        const videoURL = URL.createObjectURL(videoFile);
-        videoElement.src = videoURL;
-
-        videoElement.muted = true;
-        videoElement.playsInline = true;
-        videoElement.autoplay = true;
-
-        videoElement.addEventListener('loadeddata', () => {
-            // Set canvas size to match the video's dimensions
-            canvasElement.width = videoElement.videoWidth;
-            canvasElement.height = videoElement.videoHeight;
-
-            // Draw the current frame of the video onto the canvas
-            context.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
-
-            // Convert the canvas content to a Data URL (base64 string)
-            const thumbnailDataUrl = canvasElement.toDataURL('image/png');
-
-            // Clean up and revoke the blob URL
-            URL.revokeObjectURL(videoURL);
-
-            // Resolve the thumbnail image Data URL
-            resolve(thumbnailDataUrl);
-        });
-
-        videoElement.addEventListener('error', (e) => {
-            reject(new Error('Error loading video file for thumbnail extraction.'));
-        });
-    });
-}
-
-//  this function check video or image
-function isCheckLogic(result, checkIsVideo){
-    const statusTakePrviews = document.querySelector(".status-take-file-previews");
-    let file_tag = ``;
-    statusTakePrviews.innerHTML = "";
-
-    if (checkIsVideo) {
-        file_tag = `
-        <video id="statuspreviewFile" controls>
-            <source src=${result} type="video/mp4">
-        </video>`;
-    } else {
-        file_tag = `<img id="statuspreviewFile" src=${result} alt="Image Preview">`;
-    }
-    statusTakePrviews.insertAdjacentHTML('beforeend', file_tag);
-}
-
-function readFile(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve({ result: e.target.result, file });
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-
-// input tage fille onchange called this function 
-function handlePhotoAndVideoCapture(event){
-    const files = event.target.files;
-    
-    const total_status_limit = my_status_count + files.length;
-    if(total_status_limit > 25){
-        alert(`You can only upload a maximum of 25 statuses. Please reduce your selection.`);
-        return;
-    }
-    
-
-    
-
-    const  statusMutipleFile  = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
-    const statusCaptionInput = document.getElementById("status-caption-input");
-    const statusCaptionClose = document.getElementById("status-caption-close");
-    
-   
-    const isFirstUpload = statusMutipleFile.innerHTML.trim() === '';
-   
-
-    if(isFirstUpload){
-        statusFileIndexCounter = 0;  
-        fileBlobs = [];  
-        statusCaptionInput.value="";
-        statusCaptionInput.setAttribute('data-index', '0');
-    }
-
-    const filePromises  = Array.from(event.target.files).map((file)=>{
-
-        return new Promise((resolve, reject)=>{
-
-            if(file.type.startsWith('video/') && file.size > 10 * 1024 * 1024){
-                alert(`The video file "${file.name}" exceeds the size limit of 10 MB and will be skipped.`);
-                return resolve(null);
-            }
-
-            const isVideo = file.type.startsWith('video/');
-            if(isVideo){
-                const video = document.createElement("video");
-                const videoFileUrl = URL.createObjectURL(file);
-                
-                video.src = videoFileUrl;
-                video.onloadedmetadata = function() {
-
-                    if(video.duration > 30){
-                        alert(`The video file "${file.name}" duration must be less than or equal to 30 seconds.`);
-                        return resolve(null);
-                    }
-
-                    readFile(file).then(resolve).catch(reject);
-                }
-            } else{
-                readFile(file).then(resolve).catch(reject);
-            }
-          
-
-          
-           
-            
-        });
-    }).filter((promise) => promise !== null);
-
-    Promise.all(filePromises).then((fileDataArray)=>{
-        fileDataArray.filter((fileData) => fileData !== null).forEach( ({result, file }) => {
-            const isVideo = file.type.startsWith('video/');
-            let imgTeg;
-            
-            if (isVideo) {
-                extractVideoThumbnail(file).then(thumbnailDataUrl => {
-                    imgTeg = `
-                        <button class="status_Multiple_File_Btn" data-index="${statusFileIndexCounter}" data-caption="" data-src="${result}">
-                            <div class="first">
-                                <ion-icon name="close-outline" id="st-removeFile"></ion-icon>
-                            </div>
-                            <div class="second">
-                                <img alt="Video Thumbnail" class="cover" src="${thumbnailDataUrl}">
-                            </div>
-                        </button>
-                    `;
-
-                    // thumbnailDataurl convert to file
-                    const byteString = atob(thumbnailDataUrl.split(',')[1]);
-                    const arrayBufferr = new ArrayBuffer(byteString.length);
-                    const uint8Array = new Uint8Array(arrayBufferr);
-                    
-                    for(let i=0; i<byteString.length; i++){
-                        uint8Array[i] = byteString.charCodeAt(i);
-                    }
-
-                    const blob = new Blob([uint8Array], {type: 'image/png'});
-                    const background_file = new File([blob], 'thumbnail.png', { type: 'image/png' });
-   
-
-                    statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
-                    fileBlobs.push({
-                        file: file,
-                        background_file:background_file,
-                        index: statusFileIndexCounter,
-                        type: true,
-                    }); 
-    
-                    if (statusFileIndexCounter === 0 && isFirstUpload) {
-                        isCheckLogic(result, true);
-                    }
-
-                    statusFileIndexCounter++;
-                });
-            } else {
-                imgTeg = `
-                    <button class="status_Multiple_File_Btn" data-index="${statusFileIndexCounter}" data-caption="">
-                        <div class="first">
-                            <ion-icon name="close-outline" id="st-removeFile"></ion-icon>
-                        </div>
-                        <div class="second">
-                            <img alt="Preview" class="cover" src="${result}">
-                        </div>
-                    </button>
-                `;
-                statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
-                fileBlobs.push({
-                    file: file,
-                    index: statusFileIndexCounter,
-                    type:false,
-                }); 
-
-                if (statusFileIndexCounter === 0 && isFirstUpload) {
-                    isCheckLogic(result, false);
-                } 
-
-                statusFileIndexCounter++;
-            }
-           
-             
-           
-
-        });
-    });
-    imgPreviewContainers.style.display ="flex";
-
-    //  this is bottom click change privewe and remove 
-    const observer = new MutationObserver(()=>{
-        const status_Multiple_File_Btn = document.querySelectorAll('.status_Multiple_File_Btn');
-
-        if(isFirstUpload){
-            status_Multiple_File_Btn[0].classList.add('selected');
-            const caption = status_Multiple_File_Btn[0].getAttribute('data-caption');
-            statusCaptionInput.value = caption || '';
-        
-        }
-
-        const statusMutipleFile = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
-        statusMutipleFile.addEventListener('click', function(event){
-            if(event.target.closest('#st-removeFile')){
-                const button = event.target.closest('.status_Multiple_File_Btn');
-                if(button){
-                    const isSelected = button.classList.contains('selected');
-                   
-                    button.remove();
-
-                    const dataIndex = button.getAttribute('data-index');
-                    const indexToRemove = parseInt(dataIndex);
-                    fileBlobs.splice(indexToRemove, 1);
-
-                    const remainingButtons = document.querySelectorAll('.status_Multiple_File_Btn');
-                    if(remainingButtons.length > 0){
-                        if(isSelected){
-                            remainingButtons[0].classList.add('selected');
-                            const imgElement = remainingButtons[0].querySelector('img');
-                            const dataOfSrc = remainingButtons[0].getAttribute('data-src');
-                            if(dataOfSrc){
-                                isCheckLogic(dataOfSrc, true);
-                            }else{
-                                isCheckLogic(imgElement.src, false);
-                            }
-    
-                            const caption  = remainingButtons[0].getAttribute('data-caption');
-                            statusCaptionInput.value = caption || '';
-                            statusCaptionInput.setAttribute('data-index',  remainingButtons[0].getAttribute('data-index'));
-                        }
-
-                    }else{
-                        imgPreviewContainers.style.display ="none";
-                    }
-
-                }
-            }else if(event.target.closest('.status_Multiple_File_Btn')){
-                const clickedButton = event.target.closest('.status_Multiple_File_Btn');
-                const status_Multiple_File_Btn = document.querySelectorAll('.status_Multiple_File_Btn');
-
-                status_Multiple_File_Btn.forEach(item => item.classList.remove('selected'));
-                clickedButton.classList.add('selected');
-
-                const imgElement = clickedButton.querySelector('img');
-                const dataSrc = clickedButton.getAttribute('data-src');
-                if(dataSrc){
-                    isCheckLogic(dataSrc, true);
-                }else{
-                    isCheckLogic(imgElement.src, false);
-                }
-                
-        
-                const caption = clickedButton.getAttribute('data-caption');
-                const statusCaptionInput = document.getElementById("status-caption-input");
-                statusCaptionInput.value = caption || '';
-                statusCaptionInput.setAttribute('data-index', clickedButton.getAttribute('data-index'));
-            }
-        });
-
-    
-
-
-        observer.disconnect();
-    });
-
-    observer.observe(statusMutipleFile, { childList: true });
-    
-    // this is caption input access
-    statusCaptionInput.addEventListener('input', function(){
-        const selectedIndex = this.getAttribute('data-index');
-        const selectedImageButton = document.querySelector(`.status_Multiple_File_Btn[data-index="${selectedIndex}"]`);
-        if(selectedImageButton){
-            selectedImageButton.setAttribute('data-caption', this.value);   
-        }
-    });
-
-    // this is caption close icon click
-    statusCaptionClose.addEventListener('click', function(){
-        
-        const selectedIndex = statusCaptionInput.getAttribute('data-index');
-        const selectedImageButton = document.querySelector(`.status_Multiple_File_Btn[data-index="${selectedIndex}"]`);
-
-        if(selectedImageButton){
-            statusCaptionInput.value = '';
-            selectedImageButton.setAttribute('data-caption', '');
-        }
-    });
-   
-}
-
-//  status upload send button click with called api function
-const statusUploadSend = document.getElementById('status_upload_send');
-const profile_Status_Second_details = document.getElementById('profile_Status_Second_details');
-
-statusUploadSend.addEventListener('click', function(event){
- 
-    if(fileBlobs.length > 0){
-       
-        fileBlobs.forEach( async (status_file, index) => {
-            const formDate = new FormData();
-    
-           
-            if(status_file.type){
-                formDate.append('video', status_file.file);
-                formDate.append('background_img', status_file.background_file);
-            }else{
-                formDate.append('image', status_file.file);
-            }
-
-            const file_catption_get = document.querySelector(`.status_Multiple_File_Btn[data-index="${status_file.index}"]`);
-            const caption =  file_catption_get ? file_catption_get.getAttribute('data-caption') : '';
-            formDate.append('caption', caption);  
-
-            
-          
-            await statusFileSenToApi(formDate, index);
-
-        });
-          
-    }
-});
-
-//  upload api function 
-async function statusFileSenToApi(formatDate, index){
-    try{
-        const response = await fetch('/upload_status/',{
-            method:'POST',
-            header:{
-                'Content-Type':'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: formatDate,
-        });
-        
-    
-        if(response.ok){
-            const data = await response.json();
-            let checking = fileBlobs.length-1;
-            
-            if(checking === index){
-                fileBlobs=[];
-                topheaderProfile_Status_Second.style.display = 'flex';
-                topheader_Profile_Status.style.display = 'none';  
-                document.querySelector('.status_preview_bottoms .send-images .status-multiple-files').innerHTML = '';     
-            }
-
-            profile_Status_Second_details.textContent = data.message['Upload_time']; 
-            my_status_count = data.message.total_count_status;
-            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.message.total_count_status, data.message.unviewed_count);
-            imgPreviewContainers.style.display ="none";
-
-            chatSocket.send(JSON.stringify({
-                'action':'uploade_status',
-                'uploaded_user_id': data.user_id,
-                'status_id':data.message.id,  
-                'uploaded_users_contacts':data.user_contacts, 
-            }));
-
-        }else{
-            console.error("Failed to update profile. Status:", response.status);
-        }
-    }catch(error){
-        console.error("Error:",error);
-    }
-}
 
 
 // this is common function show lines viewed and unviewed 
@@ -1486,6 +1053,95 @@ function add_Viewed_status(status_id){
 }
 
 
+// file upload 
+const file_preview_container = document.getElementById('file_preview_container');
+const file_preview_Close = document.getElementById('file_preview_Close');
+
+const plus_upload_btn = document.getElementById('plus_upload_btn');
+const plusDropdown = document.getElementById('plus-dropdown-menu');
+
+const textarea = document.getElementById("captinoInput");
+textarea.addEventListener("input", function () {
+  const initialHeight = window.innerWidth <= 500 ? 20 : 24;
+  textarea.style.height = `${initialHeight}px`;
+  textarea.style.height = `${Math.min(textarea.scrollHeight, 100)}px`;
+});
+
+let rotated = false;
+plus_upload_btn.addEventListener('click', ()=>{
+ 
+    plus_upload_btn.style.transition = 'transform 0.1s ease-in-out';
+    rotated = !rotated;
+    if(rotated){
+        plus_upload_btn.style.transform = 'rotate(45deg)';
+        plusDropdown.style.cssText = `
+            display: block;
+            transform: translateY(0);
+            opacity: 1; 
+        `;  
+    }else{
+        plus_upload_btn.style.transform = 'rotate(0deg)';
+        plusDropdown.style.cssText = `
+            display: none;
+            transform: translateY(0);
+            opacity: 1;
+        `; 
+    }
+});
+
+document.addEventListener('click',function(event){
+    if(!plusDropdown.contains(event.target) && !plus_upload_btn.contains(event.target)){
+        plus_upload_btn.style.transform = 'rotate(0deg)';
+        plusDropdown.style.cssText = `
+            display: none;
+            transform: translateY(0);
+            opacity: 1;
+        `; 
+
+    } 
+});
+
+
+file_preview_Close.addEventListener('click',()=>{
+    clearFiles(); 
+});
+
+function readFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve({ result: e.target.result, file });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function clearFiles(){
+    file_preview_container.style.display = 'none';
+    chat_box.style.display = 'block';
+    chat_box_input.style.display = 'flex';
+    
+    const multipleImg = document.querySelector('.preview_bottom .send-images .multiple-image');
+    multipleImg.innerHTML = '';
+    
+    const imagePreview = document.querySelector(".file-preview");
+    imagePreview.innerHTML = '';
+}
+
+function closeDrawandOpenImgView(){
+    if(chat_box){
+        plusDropdown.style.cssText = `
+            display: none;
+            transform: translateY(0);
+            opacity: 1;
+        `; 
+        chat_box.style.display = 'none';
+        chat_box_input.style.display = 'none';
+    }
+    file_preview_container.style.display = 'flex';
+    
+}
+
+// loader
 const multipleItems = document.getElementById('multiple-items');
 const dataLoader = document.getElementById('loader');
 
@@ -1499,485 +1155,389 @@ function stopLoading(){
     dataLoader.style.display  = "none";
 }
 
-function clearImages(){
-    imagePreviewContainer.style.display = 'none';
-    chat_box.style.display = 'block';
-    chat_box_input.style.display = 'flex';
-    
-    const multipleImg = document.querySelector('.preview_bottom .send-images .multiple-image');
-    multipleImg.innerHTML = '';
-    
-    const imagePreview = document.querySelector(".image-preview");
-    imagePreview.innerHTML = '';
+function extractVideoThumbnail(videoFile){
+    return new Promise((resolve, reject) => {
+        const videoElement = document.createElement('video');
+        const canvasElement = document.createElement('canvas');
+        const context = canvasElement.getContext('2d');
 
-    const check_input = document.getElementById('addmoreImg');
-    if(check_input){
-        check_input.remove();
+        const videoURL = URL.createObjectURL(videoFile);
+        videoElement.src = videoURL;
+
+        videoElement.muted = true;
+        videoElement.playsInline = true;
+        videoElement.autoplay = true;
+
+        videoElement.addEventListener('loadeddata', () => {
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+
+           
+            context.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
+            const thumbnailDataUrl = canvasElement.toDataURL('image/png');
+
+            URL.revokeObjectURL(videoURL);
+            resolve(thumbnailDataUrl);
+        });
+
+        videoElement.addEventListener('error', (e) => {
+            reject(new Error('Error loading video file for thumbnail extraction.'));
+        });
+    });
+}
+
+function isCheckLogic(result, checkIsVideo){
+    const fileTakePrviews = document.querySelector(".file-preview");
+    let file_tag = ``;
+    if(fileTakePrviews){
+        fileTakePrviews.innerHTML = "";
     }
+    
+
+    if (checkIsVideo) {
+        file_tag = `
+        <video id="previewVideo" controls>
+            <source src=${result} type="video/mp4">
+        </video>`;
+    } else {
+        file_tag = `<img id="previewImage" src=${result} alt="Image Preview">`;
+    }
+    fileTakePrviews.insertAdjacentHTML('beforeend', file_tag);
 }
 
-function closeDrawandOpenImgView(){
-    plusDropdown.style.cssText = `
-            display: none;
-            transform: translateY(0);
-            opacity: 1;
-        `; 
-        
-    chat_box.style.display = 'none';
-    chat_box_input.style.display = 'none';
-    imagePreviewContainer.style.display = 'flex';
-}
 
-let imageIndexCounter = 0;
-let imageSave = [];
+let fileIndexCounter = 0;
+let fileBlobs = [];
+let file_check = '';
 
-function handlePhotoCapture(event){
-    const files = event.target.files;
+function handle_upload_files(event){
+    const input = event.target;
+    const files = input.files;
+     
+    closeDrawandOpenImgView();
+    startLoading();
+    
+   
+    const  mulitiple_files_view  = document.querySelector('.preview_bottom .send-images .multiple-image');
+    const file_caption_input = document.getElementById("captinoInput");     
+    const file_caption_close = document.getElementById("caption-close"); 
 
-    if(files){
-        startLoading();          
-        closeDrawandOpenImgView();
+    const isFirstUpload = mulitiple_files_view.innerHTML.trim() === '';
 
-        const  mutipleImg  = document.querySelector('.preview_bottom .send-images .multiple-image');
-        const imagePreview = document.querySelector(".image-preview");
-        const button = document.querySelector('.imgAddBtn');
-        const captionInput = document.getElementById('captinoInput');
-        const captionClose = document.getElementById('caption-close');
+    if(isFirstUpload){
 
-        const isFirstUpload = mutipleImg.innerHTML.trim() === '';
-        if(isFirstUpload){
-            imageIndexCounter = 0; 
-            imageSave = [];  
-            imagePreview.insertAdjacentHTML('beforeend',  `<img id="previewImage" src="" alt="Image Preview">`);
-            const fileInput  = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.id = 'addmoreImg';
-            fileInput.accept = 'image/*';
-            fileInput.multiple = true;
-            fileInput.style.display = 'none';
-            fileInput.onchange = handlePhotoCapture;
-            button.appendChild(fileInput); 
-
-            mutipleImg.innerHTML = '';
-            const readerFirst = new FileReader()
-            readerFirst.onload = function(e){
-                const previewImage = document.getElementById('previewImage');
-                previewImage.src = e.target.result;
-            };
-            readerFirst.readAsDataURL(files[0]);
-
-            captionInput.value = '';
-            captionInput.setAttribute('data-index', '0');
+        if(input.id === 'chat-file'){
+            file_preview_container.classList.add('file-preview-common-chat');
+            file_check = 'chat';
+    
+        }else if(input.id === 'status-upload'){
+            file_preview_container.classList.add('file-preview-common-satus');
+            file_check = 'status';
         }
-        
-        
+    
+        fileIndexCounter = 0;  
+        fileBlobs = [];  
+        file_caption_input.value="";
+        file_caption_input.setAttribute('data-index', '0');
+    }
 
-
-        Array.from(files).forEach((file, index)=>{
+    const filePromises = Array.from(event.target.files).map((file)=>{
+        return new Promise((resolve, reject)=>{
             
-          
+            if(file.type.startsWith('video/') && file.size > 10 * 1024 * 1024){
+                alert(`The video file "${file.name}" exceeds the size limit of 10 MB and will be skipped.`);
+                return resolve(null);
+            }
 
-            const readerMultiple = new FileReader();
-            readerMultiple.onload = function(e){
-                imageIndexCounter++;
-                const imgTeg = `
-                    <button class="multipleImgBtn" data-index="${imageIndexCounter}" data-caption="">
+            const isVideo = file.type.startsWith('video/');
+
+            if(isVideo){
+                const video = document.createElement("video");
+                const videoFileUrl = URL.createObjectURL(file);
+
+                video.src = videoFileUrl;
+
+                video.onloadedmetadata = function(){
+                    if(video.duration > 30){
+                        alert(`The video file "${file.name}" duration must be less than or equal to 30 seconds.`);
+                        return resolve(null);
+                    }
+                    
+                    readFile(file).then(resolve).catch(reject);
+                }
+            }else{
+                readFile(file).then(resolve).catch(reject);
+            }
+
+        });
+    }).filter((promise) => promise !== null);
+
+    Promise.all(filePromises).then((fileDataArray)=>{
+        fileDataArray.filter((fileData) => fileData !== null).forEach( ({result, file }) => {
+            const isVideo = file.type.startsWith('video/');
+            let imgTeg;
+            if (isVideo) {
+                extractVideoThumbnail(file).then(thumbnailDataUrl =>{
+                    imgTeg = `
+                        <button class="multipleFileBtn" data-index="${fileIndexCounter}" data-caption="" data-src="${result}">
+                            <div class="first">
+                                <span id="st-removeFile">
+                                    <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>x-alt</title><path fill="currentColor" d="M17.25,7.8L16.2,6.75l-4.2,4.2l-4.2-4.2L6.75,7.8l4.2,4.2l-4.2,4.2l1.05,1.05l4.2-4.2l4.2,4.2l1.05-1.05 l-4.2-4.2L17.25,7.8z"></path></svg>
+                                </span>
+                            </div>
+                            <div class="second">
+                                <div class="inside">
+                                    <img alt="Video Thumbnail" class="cover" src="${thumbnailDataUrl}">
+                                </div>
+                            </div>
+                        </button>
+                    `;
+
+                    const byteString = atob(thumbnailDataUrl.split(',')[1]);
+                    const arrayBufferr = new ArrayBuffer(byteString.length);
+                    const uint8Array = new Uint8Array(arrayBufferr);
+                    
+                    for(let i=0; i<byteString.length; i++){
+                        uint8Array[i] = byteString.charCodeAt(i);
+                    }
+                
+                    const blob = new Blob([uint8Array], {type: 'image/png'});
+                    const background_file = new File([blob], 'thumbnail.png', { type: 'image/png' });
+
+                    mulitiple_files_view.insertAdjacentHTML('beforeend', imgTeg);
+                    fileBlobs.push({
+                        file: file,
+                        background_file:background_file,
+                        index: fileIndexCounter,
+                        type: true,
+                    }); 
+
+                    if (fileIndexCounter === 0 && isFirstUpload) {
+                        isCheckLogic(result, true);
+                    }
+
+                    fileIndexCounter++;
+   
+                });
+
+            }else{
+                imgTeg = `
+                    <button class="multipleFileBtn" data-index="${fileIndexCounter}" data-caption="">
                         <div class="first">
-                            <ion-icon name="close-outline"  id="removeImg"></ion-icon>
+                            <span id="st-removeFile">
+                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>x-alt</title><path fill="currentColor" d="M17.25,7.8L16.2,6.75l-4.2,4.2l-4.2-4.2L6.75,7.8l4.2,4.2l-4.2,4.2l1.05,1.05l4.2-4.2l4.2,4.2l1.05-1.05 l-4.2-4.2L17.25,7.8z"></path></svg>
+                            </span>
+            
                         </div>
                         <div class="second">
-                            <img alt="Preview" class="cover" src=${e.target.result}>
+                            <div class="inside">
+                                <img alt="Preview" class="cover" src="${result}">
+                            </div>
                         </div>
                     </button>
                 `;
-                mutipleImg.insertAdjacentHTML('beforeend', imgTeg); 
-                if (index === files.length) {
-                    stopLoading();
-                }
-                imageSave.push({
+                mulitiple_files_view.insertAdjacentHTML('beforeend', imgTeg);
+                fileBlobs.push({
                     file: file,
-                    index: imageIndexCounter,
-                });
-            };  
-            readerMultiple.readAsDataURL(file);
-          
+                    index: fileIndexCounter,
+                    type:false,
+                }); 
+
+                if (fileIndexCounter === 0 && isFirstUpload) {
+                    isCheckLogic(result, false);
+                } 
+
+                fileIndexCounter++;
+            }
+
         });
-          
-        setTimeout(()=>{
-            const multipleImgBtn = document.querySelectorAll('.multipleImgBtn');
-            if(isFirstUpload){
-                multipleImgBtn[0].classList.add('selected');
-                const caption = multipleImgBtn[0].getAttribute('data-caption');
-                captionInput.value = caption || '';
-                captionInput.setAttribute('data-index', 1);
-            }
+    });  
 
-            multipleImgBtn.forEach(element => {
-                element.addEventListener('click',function (){
-                    multipleImgBtn.forEach(item =>{
-                        
-                        item.classList.remove('selected');
-                    });
-
-                   
-                    this.classList.add('selected');
-
-                    const imgElement = this.querySelector('img');
-                    const previewImage = document.getElementById('previewImage');
-                    previewImage.src = imgElement.src;
-
-                    const caption = this.getAttribute('data-caption');
-                    captionInput.value = caption || '';
-                    captionInput.setAttribute('data-index', this.getAttribute('data-index'));
-
-                });
-                const removeImg = element.querySelector('#removeImg');
-                removeImg.addEventListener('click',function(e){
-                   e.stopPropagation();
-                   
-                   const isSelected = element.classList.contains('selected');
-                   
-                   element.remove();
-
-                   const dataIndex = element.getAttribute('data-index');
-                   const indexToRemove = parseInt(dataIndex);
-                   imageSave.splice(indexToRemove, 1);
-
-                   const remainingItems = document.querySelectorAll('.multipleImgBtn');
-                   if(remainingItems.length > 0){
-                      if(isSelected){
-                        remainingItems[0].classList.add('selected');
-                        const imgElement = remainingItems[0].querySelector('img');
-                        const previewImage = document.getElementById('previewImage');
-                        previewImage.src = imgElement.src;
-
-                        const caption  = remainingItems[0].getAttribute('data-caption');
-                        captionInput.value = caption || '';
-                        captionInput.setAttribute('data-index',  remainingItems[0].getAttribute('data-index'));
-                      }
-                   }else{
-                        imagePreviewContainer.style.display = 'none';
-                        chat_box.style.display = 'block';
-                        chat_box_input.style.display = 'flex';
-                       
-                        plusUpload.style.transform = 'rotate(0deg)';
-                        plusDropdown.style.cssText = `
-                            display: none;
-                            transform: translateY(0);
-                            opacity: 1;
-                        `; 
-
-                   }
-                });
-            });
-        }, 100);
-
-        commonCaption();
-
-
-        event.target.value = ''; 
-    }
-}
-
-function commonCaption(){
-    captionInput.addEventListener('input', function(){
-        const selectedIndex = this.getAttribute('data-index');
-        const selectedImageButton = document.querySelector(`.multipleImgBtn[data-index="${selectedIndex}"]`);
-        if(selectedImageButton){
-            selectedImageButton.setAttribute('data-caption', this.value);   
-        }
-    });
-
-    captionClose.addEventListener('click', function(){
-        const selectedIndex = captionInput.getAttribute('data-index');
-        const selectedImageButton = document.querySelector(`.multipleImgBtn[data-index="${selectedIndex}"]`);
-
-        if(selectedImageButton){
-            captionInput.value = '';
-            selectedImageButton.setAttribute('data-caption', '');
-        }
-    });
-}
-
-let videoIndexCounter = 0;
-let videoBlobs = []; 
-
-const captionInput = document.getElementById('captinoInput');
-const captionClose = document.getElementById('caption-close');
-
-async function handleVideoCapture(event){
-    const files = event.target.files;
-    const minimumSizeMB = 64;
-    const minimumSizeBytes = minimumSizeMB * 1048576;
-    if(files){
-        
-        for (const file of files) {
-            if (file.size >= minimumSizeBytes) {
-                alert(`Video size must be at least ${minimumSizeMB} MB. The file '${file.name}' is too small.`);
-                return;
-            }
-        }
-        startLoading();  
-        closeDrawandOpenImgView();
-        const  mutipleImg  = document.querySelector('.preview_bottom .send-images .multiple-image');
-        const imagePreview = document.querySelector(".image-preview");
-        const button = document.querySelector('.imgAddBtn');
-        const isFirstUpload = mutipleImg.innerHTML.trim() === '';
-        
+    const observer = new MutationObserver(()=>{
+        const multiple_File_Btn = document.querySelectorAll('.multipleFileBtn');
 
         if(isFirstUpload){
-            videoIndexCounter = 0;
-            videoBlobs = [];
-            const fileInput  = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.id = 'addmoreImg';
-            fileInput.accept = 'video/mp4,video/3gpp,video/quicktime';
-            fileInput.multiple = true;
-            fileInput.style.display = 'none';
-            fileInput.onchange = handleVideoCapture;
-            button.appendChild(fileInput); 
-
-
-            const videoTag = `
-                <video id="previewVideo" controls>
-                    <source src="" type="video/mp4">
-                </video> 
-            `;
-            
-            imagePreview.insertAdjacentHTML('beforeend',  videoTag);
-
-            captionInput.value = '';
-            captionInput.setAttribute('data-index', '0');
+            multiple_File_Btn[0].classList.add('selected');
+            const caption = multiple_File_Btn[0].getAttribute('data-caption');
+            file_caption_input.value = caption || '';
         }
-        
-       
-        for (let index = 0; index < files.length; index++) {
-            
-            await processFile(files[index], index, isFirstUpload);
-            videoIndexCounter++;
-        }
-        
-        stopLoading();  
-        setTimeout(()=> attachThumbnailListeners(),500);
 
-       
-        event.target.value = ''; 
-    }
-}
+        const  mulitiple_files_view  = document.querySelector('.preview_bottom .send-images .multiple-image');
+        mulitiple_files_view.addEventListener('click', function(event){
+            if(event.target.closest('#st-removeFile')){
+                const button = event.target.closest('.multipleFileBtn');
+                if(button){
+                    const isSelected = button.classList.contains('selected');
+                    button.remove();
 
-function processFile(file, index, isFirstUpload) {
-    const  mutipleImg  = document.querySelector('.preview_bottom .send-images .multiple-image');
-    return new Promise((resolve) => {
-        const readerMultiple = new FileReader();
-        readerMultiple.onload = function(e) {
-            const videoBlob = e.target.result;
-            const video = document.createElement('video');
-            video.src = videoBlob;
-            video.muted = true;
-            video.preload = 'metadata';
-            
-            video.addEventListener('loadeddata', () => {
-                if (video.readyState >= 2) {
-                    video.currentTime = 0;
-                    setTimeout(() => {
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
-                        canvas.width = 600; 
-                        canvas.height = 400; 
-                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                        const thumbnailDataUrl = canvas.toDataURL('image/jpeg');
-                        if (thumbnailDataUrl) {
-                            const videoTag = `
-                                <button class="multipleImgBtn" data-src="${videoBlob}" data-file="${file}" data-index="${videoIndexCounter}" data-caption="">
-                                    <div class="first">
-                                        <ion-icon name="close-outline" class="removeImg" id="removeImg"></ion-icon>
-                                    </div>
-                                    <div class="second">
-                                        <img src="${thumbnailDataUrl}" width="100" height="75" alt="Video Thumbnail" />
-                                    </div>
-                                </button>
-                            `;
-                            mutipleImg.insertAdjacentHTML('beforeend', videoTag);
-                            videoBlobs.push({
-                                file: file,
-                                index: videoIndexCounter
-                            });
-                            if (index === 0 && isFirstUpload) {
-                                const multipleImgBtn = document.querySelector('.multipleImgBtn[data-index="0"]');    
-                                multipleImgBtn.classList.add('selected');
-                                const previewVideo = document.getElementById('previewVideo');
-                                previewVideo.src = videoBlob;
-                                previewVideo.load();
+                    const dataIndex = button.getAttribute('data-index');
+                    const indexToRemove = parseInt(dataIndex);
+                    fileBlobs.splice(indexToRemove, 1);
+                    
+                    const remainingButtons = document.querySelectorAll('.multipleFileBtn');
+                    if(remainingButtons.length > 0){
+                        if(isSelected){
+                            
+                            remainingButtons[0].classList.add('selected');
+                            const imgElement = remainingButtons[0].querySelector('img');
+                            const dataOfSrc = remainingButtons[0].getAttribute('data-src');
+                            if(dataOfSrc){
+                                isCheckLogic(dataOfSrc, true);
+                            }else{
+                                isCheckLogic(imgElement.src, false);
                             }
                             
-                        } else {
-                            console.error('Failed to generate thumbnail for video:', file.name);
+                            const caption  = remainingButtons[0].getAttribute('data-caption');
+                            file_caption_input.value = caption || '';
+                            file_caption_input.setAttribute('data-index',  remainingButtons[0].getAttribute('data-index'));                            
+
                         }
-                        resolve();
-                    }, 500);
-                }
-            }, { once: true });
-            video.play().then(() => video.pause());
-        };
-        readerMultiple.readAsDataURL(file);
-    });
-}
-
-
-function attachThumbnailListeners(){
-    const multipleImgBtn = document.querySelectorAll('.multipleImgBtn');
-  
-    if(multipleImgBtn.length > 0){
-        
-        multipleImgBtn.forEach(element => {
-            element.addEventListener('click', function() {
-                multipleImgBtn.forEach(item => {
-                    item.classList.remove('selected');
-                });
-                this.classList.add('selected');
-    
-                const videoSrc = this.getAttribute('data-src');
-                const previewImage = document.getElementById('previewVideo');
-                previewImage.src = videoSrc;
-                previewImage.load();
-
-                const caption = this.getAttribute('data-caption');
-                captionInput.value = caption || '';
-                captionInput.setAttribute('data-index', this.getAttribute('data-index'));
-
-            });
-
-            const removeImg = element.querySelector('#removeImg');
-            removeImg.addEventListener('click',function(e){
-                e.stopPropagation();
-                
-                const isSelected = element.classList.contains('selected');
-                const fileIndex = parseInt(element.getAttribute('data-index'), 10);
-                 
-                // Removed file from videoBlobs
-                if (fileIndex >= 0 && videoBlobs.length > fileIndex) {
-                    videoBlobs.splice(fileIndex, 1);
-                }
-
-
-                element.remove();
-
-                const remainingItems = document.querySelectorAll('.multipleImgBtn');
-                if(remainingItems.length > 0){
-                    if(isSelected){  
-                        remainingItems[0].classList.add('selected');
-                        const videoSrc = remainingItems[0].getAttribute('data-src');
-                        const previewImage = document.getElementById('previewVideo');
-                        previewImage.src = '';
-                        previewImage.src = videoSrc;
-                        previewImage.load();
-
-                        const caption = remainingItems[0].getAttribute('data-caption');
-                        captionInput.value = caption || '';
-                        captionInput.setAttribute('data-index', remainingItems[0].getAttribute('data-index'));
+                    }else{
+                        file_preview_container.style.display = 'none';
                     }
-                }else{
-                    imagePreviewContainer.style.display = 'none';
-                    chat_box.style.display = 'block';
-                    chat_box_input.style.display = 'flex';
-
-                    plusUpload.style.transform = 'rotate(0deg)';
-                    plusDropdown.style.cssText = `
-                        display: none;
-                        transform: translateY(0);
-                        opacity: 1;
-                    `; 
-
                 }
-            });
+
+            }else if(event.target.closest('.multipleFileBtn')){
+                const clickedButton = event.target.closest('.multipleFileBtn');
+                const multiple_File_Btn = document.querySelectorAll('.multipleFileBtn');
+
+                multiple_File_Btn.forEach(item => item.classList.remove('selected'));
+                clickedButton.classList.add('selected');
+
+                const imgElement = clickedButton.querySelector('img');
+                const dataSrc = clickedButton.getAttribute('data-src');
+                if(dataSrc){
+                    isCheckLogic(dataSrc, true);
+                }else{
+                    isCheckLogic(imgElement.src, false);
+                }
+
+
+                const caption = clickedButton.getAttribute('data-caption');
+                const file_caption_input = document.getElementById("captinoInput");  
+                file_caption_input.value = caption || '';
+                file_caption_input.setAttribute('data-index', clickedButton.getAttribute('data-index'));
+            }
         });
+        observer.disconnect();
+    });
+    
+    observer.observe(mulitiple_files_view, { childList: true });
 
-        commonCaption();
+    file_caption_input.addEventListener('input', function(){
+        const selectedIndex = this.getAttribute('data-index');
+        const file_Button = document.querySelector(`.multipleFileBtn[data-index="${selectedIndex}"]`);
+        if(file_Button){
+            file_Button.setAttribute('data-caption', this.value);   
+        }
+    });
 
-    }
+    file_caption_close.addEventListener('click', function(){
+        const selectedIndex = statusCaptionInput.getAttribute('data-index');
+        const file_Button = document.querySelector(`.multipleFileBtn[data-index="${selectedIndex}"]`);
+
+        if(file_Button){
+            file_caption_input.value = '';
+            file_Button.setAttribute('data-caption', '');
+        }
+    });
+
+    stopLoading();
 }
 
 
 const sendFiles = document.getElementById('sendFiles');
 
-sendFiles.addEventListener('click', async ()=>{
-    if(videoBlobs.length > 0){
-        send_videos();
-    }else{
-        send_images();   
-    }
-    clearImages();
+sendFiles.addEventListener('click', function(){
 
-    
+    if(fileBlobs.length > 0){
+        fileBlobs.forEach(async (file,  index)=>{
+            const formData = new FormData();
+
+            if(file.type){
+                formData.append('video', file.file);
+                formData.append('background_img', file.background_file);
+            }else{
+                formData.append('image', file.file);
+            }
+
+            const file_caption_get = document.querySelector(`.multipleFileBtn[data-index="${file.index}"]`);
+            const caption = file_caption_get ? file_caption_get.getAttribute('data-caption') : '';
+            formData.append('caption', caption);  
+
+            if(file_check == 'chat'){
+                formData.append('receiver_usr',selectedUserId);
+                await fileSendToApi(formData, index, '/upload-video/');
+            }else if(file_check  == 'status'){
+                await fileSendToApi(formData, index, '/upload_status/');
+            }
+
+        });
+        clearFiles();
+    }
+
 });
 
-async function send_videos(){
-   
-    videoBlobs.forEach(async (video, index)  => {
-        const formData = new FormData();
-        formData.append('video', video.file);
+const profile_Status_Second_details = document.getElementById('profile_Status_Second_details');
+async function fileSendToApi(formatDate, index, api){
+    try{
+        const response = await fetch(api,{
+            method:'POST',
+            header:{
+                'Content-Type':'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body:formatDate,
+        });
 
-        const videoBtn = document.querySelector(`.multipleImgBtn[data-index="${video.index}"]`);
-        const caption = videoBtn ? videoBtn.getAttribute('data-caption') : '';
-        formData.append(`captions`, caption); 
+        if(response.ok){
+            const data = await response.json();
+            let checking = fileBlobs.length - 1;
 
-        formData.append('receiver_usr',selectedUserId);
-        await fileSendApi(formData);
-        
-    });
-   
+            if(checking === index){
 
-   
+                fileBlobs=[];
+                if(file_check == 'status'){
+                    topheaderProfile_Status_Second.style.display = 'flex';
+                    topheader_Profile_Status.style.display = 'none';  
+                    document.querySelector('.status_preview_bottoms .send-images .status-multiple-files').innerHTML = '';
+                }
+                 
+            }
+
+            if(file_check == 'chat'){
+
+                chatSocket.send(JSON.stringify({
+                                'action': 'send_message',
+                                'message': '',
+                                'receiver_id': selectedUserId,
+                                'Send_Data': data.message,
+                            })); 
+            
+            }else if(file_check == 'status'){
+                
+                profile_Status_Second_details.textContent = data.message['Upload_time']; 
+                my_status_count = data.message.total_count_status;
+                statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.message.total_count_status, data.message.unviewed_count);
+    
+                chatSocket.send(JSON.stringify({
+                    'action':'uploade_status',
+                    'uploaded_user_id': data.user_id,
+                    'status_id':data.message.id,  
+                    'uploaded_users_contacts':data.user_contacts, 
+                }));
+            }
+        }
+
+    }catch(error){
+        console.error("Error:",error);
+    }
+
+
 }
 
-function send_images(){
-   
-    imageSave.forEach( async (image, index) => {
 
-        const formData = new FormData();
-        formData.append('image', image.file);
-       
-        const imageBtn = document.querySelector(`.multipleImgBtn[data-index="${image.index}"]`);
-  
-        const caption = imageBtn ? imageBtn.getAttribute('data-caption') : '';
-       
-        formData.append(`captions`, caption); 
-        formData.append('receiver_usr',selectedUserId);
 
-        await fileSendApi(formData);
- 
-
-    });
-}
-
-// send file to api
-// async function fileSendApi(formData){
-//     try{
-//         const response = await fetch('/upload-video/', {
-//             method: 'POST',
-//             header:{
-//                 'Content-Type':'application/json',
-//                 'X-CSRFToken':getCookie('csrftoken')
-//             },
-//             body: formData,
-//         });
-        
-//         const data = await  response.json();
-
-//         chatSocket.send(JSON.stringify({
-//             'action': 'send_message',
-//             'message': '',
-//             'receiver_id': selectedUserId,
-//             'Send_Data': data.message,
-//         })); 
-
-//         videoBlobs = [];
-//     }catch(error){
-//         console.error("Error:",error);
-//     }
-   
-// }
 
 // file view close icon
 const fileViewClose = document.getElementById('file_view_close');
@@ -2646,12 +2206,12 @@ function clickopenbox(){
     chatBlocksClick.forEach(block=>{
         block.addEventListener('click', function(){
         
-            clearImages();   
+            clearFiles();   
             document.querySelectorAll('.chatlist .block .inside').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
            
             if(selectedUserId == null){
-                rightSide.style.display = 'flex';
+                rightSide_inside.style.display = 'contents';
                 introRight.style.display = 'none';
             }
             selectedUserId = this.getAttribute('data-user-id');

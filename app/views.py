@@ -360,7 +360,7 @@ def upload_videos(request):
         video = request.FILES.get('video')
         image = request.FILES.get('image')
         receiver_usr = request.POST.get('receiver_usr')
-        caption = request.POST.get('captions')
+        caption = request.POST.get('caption')
         sender_id = request.user.id
 
         receiver_msg = User.objects.get(id=receiver_usr)

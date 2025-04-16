@@ -191,7 +191,7 @@
                     <ul style="margin-bottom: 0;">
 
                         <li>         
-                            <label for="pho-vid-input">
+                            <label for="status-upload">
                                 <div class="small-drawer-status-box">
                                     <div class="small-drawer-status-icon">
                                         <svg viewBox="0 0 20 20" height="20" width="20" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>media-multiple</title><path fill-rule="evenodd" clip-rule="evenodd" d="M20 14V2C20 0.9 19.1 0 18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14ZM9.4 10.53L11.03 12.71L13.61 9.49C13.81 9.24 14.19 9.24 14.39 9.49L17.35 13.19C17.61 13.52 17.38 14 16.96 14H7C6.59 14 6.35 13.53 6.6 13.2L8.6 10.53C8.8 10.27 9.2 10.27 9.4 10.53ZM0 18V5C0 4.45 0.45 4 1 4C1.55 4 2 4.45 2 5V17C2 17.55 2.45 18 3 18H15C15.55 18 16 18.45 16 19C16 19.55 15.55 20 15 20H2C0.9 20 0 19.1 0 18Z" fill="currentColor"></path></svg>
@@ -199,7 +199,7 @@
                                     <div class="small-drawer-status-content">Photos & Videos</div>
                                 </div>
                             </label>
-                            <input type="file" id="pho-vid-input" accept="image/*,video/mp4,video/3gpp,video/quicktime" multiple="" style="display: none;" onchange="handlePhotoAndVideoCapture(event);">
+                            <input type="file" id="status-upload" accept="image/*,video/mp4,video/3gpp,video/quicktime" multiple="" style="display: none;" onchange="handle_upload_files(event);">
                         </li>
 
                         <li>
@@ -349,56 +349,6 @@
             
        </div>
          
-
-       <!--Status imag and video geting preview container-->
-       <div class="imag-preview-containers" id="imgPreview-containers" style="height:100%">
-            <div  style="display: contents;" >
-                <ion-icon name="close-outline" id="closeStausImgandVidPreview" style="
-                position: absolute;
-                top: 10px;
-                left: 10px;
-                color: #AEBAC1;
-                width: 30px;
-                height: 30px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                font-size: 100%;
-                font-weight: bold;
-                font: inherit;
-                "></ion-icon>
-
-                <div class="status-take-file-previews">
-                    
-                </div>
-
-                 <div class="caption_input">
-                    <input type="text" placeholder="Add a caption" id="status-caption-input">
-                    <ion-icon name="close-outline" style="margin: 0px 20px;"; class="caption-close" id="status-caption-close"></ion-icon>
-                </div>
-
-                <div class="status_preview_bottoms">
-                    <div class="send-images">
-                        <div class="status-multiple-files" >
-            
-                        </div>
-                        <button class="imgAddBtn">
-                            <label for="add-more-pho-vid">
-                                <ion-icon name="add-sharp"></ion-icon>
-                            </label>
-                            <input type="file" id="add-more-pho-vid" accept="image/*,video/mp4,video/3gpp,video/quicktime" multiple="" style="display: none;" onchange="handlePhotoAndVideoCapture(event);">
-                        </button>
-                    </div>
-                    <div class="send_button" id="status_upload_send">
-                        <ion-icon name="send"></ion-icon>
-                    </div>
-                </div>
- 
-
-            </div>
-       </div> 
-
         <!--My Status viewer dialog box-->
         <div class="mystatus_dialog" style="display: none;">
 
@@ -568,163 +518,211 @@
         </div>
 
         
-       <!-- This is right side intro part --> 
-       <div class="intro-right border_left">
-            <div class="intro-img">
-                <img src="/static/images/Group Chat-cuate.svg" alt="">
-            </div>
-            
-       </div>
+        
 
 
        <div class="rightside border_left">
-           <div class="chat-header">
-                <div class="imgText">
-                    <div class="userimg">
-                        <img src="/static/images/profile.png" class="cover">
-                    </div> 
-                    <h4>jatin koladiya<br><span id="statusText">online</span></h4>
-                </div>
-                <ul class="nav_icons" style="gap: 20px;">
-                    <li><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>video-call</title><path d="M3.27096 7.31042C3 7.82381 3 8.49587 3 9.84V14.16C3 15.5041 3 16.1762 3.27096 16.6896C3.5093 17.1412 3.88961 17.5083 4.35738 17.7384C4.88916 18 5.58531 18 6.9776 18H13.1097C14.502 18 15.1982 18 15.7299 17.7384C16.1977 17.5083 16.578 17.1412 16.8164 16.6896C17.0873 16.1762 17.0873 15.5041 17.0873 14.16V9.84C17.0873 8.49587 17.0873 7.82381 16.8164 7.31042C16.578 6.85883 16.1977 6.49168 15.7299 6.26158C15.1982 6 14.502 6 13.1097 6H6.9776C5.58531 6 4.88916 6 4.35738 6.26158C3.88961 6.49168 3.5093 6.85883 3.27096 7.31042Z" fill="currentColor"></path><path d="M18.7308 9.60844C18.5601 9.75994 18.4629 9.97355 18.4629 10.1974V13.8026C18.4629 14.0264 18.5601 14.2401 18.7308 14.3916L20.9567 16.3669C21.4879 16.8384 22.3462 16.4746 22.3462 15.778V8.22203C22.3462 7.52542 21.4879 7.16163 20.9567 7.63306L18.7308 9.60844Z" fill="currentColor"></path></svg></li>
-                    <li><svg id="search_messages" viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>search-alt</title><path fill="currentColor" d="M15.9,14.3H15L14.7,14c1-1.1,1.6-2.7,1.6-4.3c0-3.7-3-6.7-6.7-6.7S3,6,3,9.7 s3,6.7,6.7,6.7c1.6,0,3.2-0.6,4.3-1.6l0.3,0.3v0.8l5.1,5.1l1.5-1.5L15.9,14.3z M9.7,14.3c-2.6,0-4.6-2.1-4.6-4.6s2.1-4.6,4.6-4.6 s4.6,2.1,4.6,4.6S12.3,14.3,9.7,14.3z"></path></svg></li>
-                    <li><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>menu</title><path fill="currentColor" d="M12,7c1.104,0,2-0.896,2-2c0-1.105-0.895-2-2-2c-1.104,0-2,0.894-2,2 C10,6.105,10.895,7,12,7z M12,9c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,9.895,13.104,9,12,9z M12,15 c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,15.894,13.104,15,12,15z"></path></svg></ion-icon></li>
-                </ul> 
-           </div>
-           
-          
-           <!-- chatbox -->
-            <div class="chatBox" id="chatBox">
-                <div class="message sender">
-                    <div class="mainImage end_background">
-                        <div class="status_part" style="background-color: #025144;">
-                            <span class="status_part_left-line status_part_left-line-sender"></span>
-                            <div class="status_part_conntent">
-                                <div class="status_part_conntent_wrap">
-                                    <div class="status_part_conntent_title">
-                                        <span class="span-text-sender">jatin · Status</span>
-                                    </div>
-                                    <div class="status_part_conntent_title_bottom">
-                                        <div class="status_part_conntent_title_bottom_icon">
-                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
-                                        </div>
-                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:32</span>
-                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="status_part_img">
-                                <div class="status_part_img_first">
-                                    <div class="status_part_img_second" ><div class="status_part_imgview" style="background-image: url(http://127.0.0.1:8000/media/message_images/d7d2c61f-7c1c-4c43-9aa6-fe1d907aa70f.jpg);"> </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
+            <div class="rightchat_inside">
 
+                <div class="chat-header">
+                    <div class="imgText">
+                        <div class="userimg">
+                            <img src="/static/images/profile.png" class="cover">
+                        </div> 
+                        <h4>jatin koladiya<br><span id="statusText">online</span></h4>
                     </div>
-                </div>  
-                
-                <div class="message receiver">
-                    <div class="mainImage start_background">
-                        <div class="status_part" style="background-color: rgba(0, 0, 0, .2);">
-                            <span class="status_part_left-line status_part_left-line-reciver"></span>
-                            <div class="status_part_conntent">
-                                <div class="status_part_conntent_wrap">
-                                    <div class="status_part_conntent_title">
-                                        <span class="span-text-reciver">jatin · Status</span>
-                                    </div>
-                                    <div class="status_part_conntent_title_bottom">
-                                        <div class="status_part_conntent_title_bottom_icon">
-                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                    <ul class="nav_icons" style="gap: 20px;">
+                        <li><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>video-call</title><path d="M3.27096 7.31042C3 7.82381 3 8.49587 3 9.84V14.16C3 15.5041 3 16.1762 3.27096 16.6896C3.5093 17.1412 3.88961 17.5083 4.35738 17.7384C4.88916 18 5.58531 18 6.9776 18H13.1097C14.502 18 15.1982 18 15.7299 17.7384C16.1977 17.5083 16.578 17.1412 16.8164 16.6896C17.0873 16.1762 17.0873 15.5041 17.0873 14.16V9.84C17.0873 8.49587 17.0873 7.82381 16.8164 7.31042C16.578 6.85883 16.1977 6.49168 15.7299 6.26158C15.1982 6 14.502 6 13.1097 6H6.9776C5.58531 6 4.88916 6 4.35738 6.26158C3.88961 6.49168 3.5093 6.85883 3.27096 7.31042Z" fill="currentColor"></path><path d="M18.7308 9.60844C18.5601 9.75994 18.4629 9.97355 18.4629 10.1974V13.8026C18.4629 14.0264 18.5601 14.2401 18.7308 14.3916L20.9567 16.3669C21.4879 16.8384 22.3462 16.4746 22.3462 15.778V8.22203C22.3462 7.52542 21.4879 7.16163 20.9567 7.63306L18.7308 9.60844Z" fill="currentColor"></path></svg></li>
+                        <li><svg id="search_messages" viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>search-alt</title><path fill="currentColor" d="M15.9,14.3H15L14.7,14c1-1.1,1.6-2.7,1.6-4.3c0-3.7-3-6.7-6.7-6.7S3,6,3,9.7 s3,6.7,6.7,6.7c1.6,0,3.2-0.6,4.3-1.6l0.3,0.3v0.8l5.1,5.1l1.5-1.5L15.9,14.3z M9.7,14.3c-2.6,0-4.6-2.1-4.6-4.6s2.1-4.6,4.6-4.6 s4.6,2.1,4.6,4.6S12.3,14.3,9.7,14.3z"></path></svg></li>
+                        <li><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>menu</title><path fill="currentColor" d="M12,7c1.104,0,2-0.896,2-2c0-1.105-0.895-2-2-2c-1.104,0-2,0.894-2,2 C10,6.105,10.895,7,12,7z M12,9c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,9.895,13.104,9,12,9z M12,15 c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,15.894,13.104,15,12,15z"></path></svg></ion-icon></li>
+                    </ul> 
+               </div>
+               
+              
+               <!-- chatbox -->
+                <div class="chatBox" id="chatBox">
+                    <div class="message sender">
+                        <div class="mainImage end_background">
+                            <div class="status_part" style="background-color: #025144;">
+                                <span class="status_part_left-line status_part_left-line-sender"></span>
+                                <div class="status_part_conntent">
+                                    <div class="status_part_conntent_wrap">
+                                        <div class="status_part_conntent_title">
+                                            <span class="span-text-sender">jatin · Status</span>
                                         </div>
-                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:32</span>
-                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                                        <div class="status_part_conntent_title_bottom">
+                                            <div class="status_part_conntent_title_bottom_icon">
+                                                <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                                            </div>
+                                            <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:32</span>
+                                            <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="status_part_img">
+                                    <div class="status_part_img_first">
+                                        <div class="status_part_img_second" ><div class="status_part_imgview" style="background-image: url(http://127.0.0.1:8000/media/message_images/d7d2c61f-7c1c-4c43-9aa6-fe1d907aa70f.jpg);"> </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="status_part_img">
-                                <div class="status_part_img_first">
-                                    <div class="status_part_img_second" ><div class="status_part_imgview" style="background-image: url(http://127.0.0.1:8000/media/message_images/d7d2c61f-7c1c-4c43-9aa6-fe1d907aa70f.jpg);"> </div>
-                                    </div>
-                                </div>
-                            </div>
+                            
+    
                         </div>
-                        
-
-                    </div>
-                </div>    
-
-            </div>
-
-            <!--chat input-->
-            <div class="chatbox_input" id="chatbox_input">
-                <!-- <span id="plusUpload" ><svg viewBox="0 0 24 24" width="30" preserveAspectRatio="xMidYMid meet" class="x11xpdln x1d8287x x1h4ghdb"><title>plus</title><path fill="currentColor" d="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6V13z"></path></svg></span> -->
-                <button id="plusUpload">
-                    <span aria-hidden="true" data-icon="plus-rounded" class=""><svg viewBox="0 0 24 24" width="24" preserveAspectRatio="xMidYMid meet" class="x11xpdln x1d8287x x1h4ghdb" fill="none"><title>plus-rounded</title><path d="M11 13H5.5C4.94772 13 4.5 12.5523 4.5 12C4.5 11.4477 4.94772 11 5.5 11H11V5.5C11 4.94772 11.4477 4.5 12 4.5C12.5523 4.5 13 4.94772 13 5.5V11H18.5C19.0523 11 19.5 11.4477 19.5 12C19.5 12.5523 19.0523 13 18.5 13H13V18.5C13 19.0523 12.5523 19.5 12 19.5C11.4477 19.5 11 19.0523 11 18.5V13Z" fill="currentColor"></path></svg></span>
-                </button>
-                <button>
-                    <span><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>expressions</title><path d="M8.49893 10.2521C9.32736 10.2521 9.99893 9.5805 9.99893 8.75208C9.99893 7.92365 9.32736 7.25208 8.49893 7.25208C7.6705 7.25208 6.99893 7.92365 6.99893 8.75208C6.99893 9.5805 7.6705 10.2521 8.49893 10.2521Z" fill="currentColor"></path><path d="M17.0011 8.75208C17.0011 9.5805 16.3295 10.2521 15.5011 10.2521C14.6726 10.2521 14.0011 9.5805 14.0011 8.75208C14.0011 7.92365 14.6726 7.25208 15.5011 7.25208C16.3295 7.25208 17.0011 7.92365 17.0011 8.75208Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M16.8221 19.9799C15.5379 21.2537 13.8087 21.9781 12 22H9.27273C5.25611 22 2 18.7439 2 14.7273V9.27273C2 5.25611 5.25611 2 9.27273 2H14.7273C18.7439 2 22 5.25611 22 9.27273V11.8141C22 13.7532 21.2256 15.612 19.8489 16.9776L16.8221 19.9799ZM14.7273 4H9.27273C6.36068 4 4 6.36068 4 9.27273V14.7273C4 17.6393 6.36068 20 9.27273 20H11.3331C11.722 19.8971 12.0081 19.5417 12.0058 19.1204L11.9935 16.8564C11.9933 16.8201 11.9935 16.784 11.9941 16.7479C11.0454 16.7473 10.159 16.514 9.33502 16.0479C8.51002 15.5812 7.84752 14.9479 7.34752 14.1479C7.24752 13.9479 7.25585 13.7479 7.37252 13.5479C7.48919 13.3479 7.66419 13.2479 7.89752 13.2479L13.5939 13.2479C14.4494 12.481 15.5811 12.016 16.8216 12.0208L19.0806 12.0296C19.5817 12.0315 19.9889 11.6259 19.9889 11.1248V9.07648H19.9964C19.8932 6.25535 17.5736 4 14.7273 4ZM14.0057 19.1095C14.0066 19.2605 13.9959 19.4089 13.9744 19.5537C14.5044 19.3124 14.9926 18.9776 15.4136 18.5599L18.4405 15.5576C18.8989 15.1029 19.2653 14.5726 19.5274 13.996C19.3793 14.0187 19.2275 14.0301 19.0729 14.0295L16.8138 14.0208C15.252 14.0147 13.985 15.2837 13.9935 16.8455L14.0057 19.1095Z" fill="currentColor"></path></svg></span> 
-                </button>
-                <input type="text" id="messageInput" placeholder="Type a message">
-                <span id="micIcon" ><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>ptt</title><path fill="currentColor" d="M11.999,14.942c2.001,0,3.531-1.53,3.531-3.531V4.35c0-2.001-1.53-3.531-3.531-3.531 S8.469,2.35,8.469,4.35v7.061C8.469,13.412,9.999,14.942,11.999,14.942z M18.237,11.412c0,3.531-2.942,6.002-6.237,6.002 s-6.237-2.471-6.237-6.002H3.761c0,4.001,3.178,7.297,7.061,7.885v3.884h2.354v-3.884c3.884-0.588,7.061-3.884,7.061-7.885 L18.237,11.412z"></path></svg></span>
-                <span id="sendIcon"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>send</title><path fill="currentColor" d="M1.101,21.757L23.8,12.028L1.101,2.3l0.011,7.912l13.623,1.816L1.112,13.845 L1.101,21.757z"></path></svg></span>
-                
-            </div>
-
-             <!-- upoload file dropdown menu -->
-             <div id="plus-dropdown-menu" class="plus-dropdown-menu">
-                <ul>
-                  <li>
-                    <label for="photo-input">
-                        <i class="fa-regular fa-images menu-icon" style="color: #007bfc;"></i> Photos
-                    </label>  
-                    <input type="file" id="photo-input" accept="image/*" multiple  style="display: none;" onchange="handlePhotoCapture(event)">
-                  </li>
-                  <li>
-                    <label for="video-input">
-                        <i class="fas fa-video menu-icon" style="color: #00a884;"></i> Videos
-                    </label>
-                    <input type="file" id="video-input" accept="video/mp4,video/3gpp,video/quicktime" multiple  style="display: none;" onchange="handleVideoCapture(event)" >
-                  </li>
-                  <li><i class="fas fa-comment-dots menu-icon" style="color: #B197FC;"></i> Messages</li>
-                </ul>
-            </div>
-
-            <!-- Image preview and send button -->
-            <div class="imag-preview-container" id="imagePreviewContainer">
-               <div  style="display: contents;" id="multiple-items">
-                    <ion-icon name="close-outline"  id="imagePreviewClose"></ion-icon>
-                    <div class="image-preview">
+                    </div>  
                     
-                    </div>
-                    <div class="caption_input">
-                        <input type="text" id="captinoInput" placeholder="Add a caption">
-                        <ion-icon name="close-outline" class="caption-close"  id="caption-close"></ion-icon>
-                    </div>
-
-                    <div class="preview_bottom">
-                        <div class="send-images">
-                            <div class="multiple-image" id="multiple-image">
-                
+                    <div class="message receiver">
+                        <div class="mainImage start_background">
+                            <div class="status_part" style="background-color: rgba(0, 0, 0, .2);">
+                                <span class="status_part_left-line status_part_left-line-reciver"></span>
+                                <div class="status_part_conntent">
+                                    <div class="status_part_conntent_wrap">
+                                        <div class="status_part_conntent_title">
+                                            <span class="span-text-reciver">jatin · Status</span>
+                                        </div>
+                                        <div class="status_part_conntent_title_bottom">
+                                            <div class="status_part_conntent_title_bottom_icon">
+                                                <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
+                                            </div>
+                                            <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:32</span>
+                                            <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="status_part_img">
+                                    <div class="status_part_img_first">
+                                        <div class="status_part_img_second" ><div class="status_part_imgview" style="background-image: url(http://127.0.0.1:8000/media/message_images/d7d2c61f-7c1c-4c43-9aa6-fe1d907aa70f.jpg);"> </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <button class="imgAddBtn">
-                                <label for="addmoreImg">
-                                    <ion-icon name="add-sharp"></ion-icon>
-                                    <span><svg viewBox="0 0 24 24" width="30" preserveAspectRatio="xMidYMid meet" class="x11xpdln x1d8287x x1h4ghdb"><title>plus</title><path fill="currentColor" d="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6V13z"></path></svg></span>
-                                </label>
+                            
+    
+                        </div>
+                    </div>    
+    
+                </div>
+    
+                <!--chat input-->
+                <div class="chatbox_input" id="chatbox_input">
+                   
+                    <button id="plus_upload_btn">
+                        <span aria-hidden="true" data-icon="plus-rounded" class=""><svg viewBox="0 0 24 24" width="24" preserveAspectRatio="xMidYMid meet" class="x11xpdln x1d8287x x1h4ghdb" fill="none"><title>plus-rounded</title><path d="M11 13H5.5C4.94772 13 4.5 12.5523 4.5 12C4.5 11.4477 4.94772 11 5.5 11H11V5.5C11 4.94772 11.4477 4.5 12 4.5C12.5523 4.5 13 4.94772 13 5.5V11H18.5C19.0523 11 19.5 11.4477 19.5 12C19.5 12.5523 19.0523 13 18.5 13H13V18.5C13 19.0523 12.5523 19.5 12 19.5C11.4477 19.5 11 19.0523 11 18.5V13Z" fill="currentColor"></path></svg></span>
+                    </button>
+                    <button>
+                        <span><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>expressions</title><path d="M8.49893 10.2521C9.32736 10.2521 9.99893 9.5805 9.99893 8.75208C9.99893 7.92365 9.32736 7.25208 8.49893 7.25208C7.6705 7.25208 6.99893 7.92365 6.99893 8.75208C6.99893 9.5805 7.6705 10.2521 8.49893 10.2521Z" fill="currentColor"></path><path d="M17.0011 8.75208C17.0011 9.5805 16.3295 10.2521 15.5011 10.2521C14.6726 10.2521 14.0011 9.5805 14.0011 8.75208C14.0011 7.92365 14.6726 7.25208 15.5011 7.25208C16.3295 7.25208 17.0011 7.92365 17.0011 8.75208Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M16.8221 19.9799C15.5379 21.2537 13.8087 21.9781 12 22H9.27273C5.25611 22 2 18.7439 2 14.7273V9.27273C2 5.25611 5.25611 2 9.27273 2H14.7273C18.7439 2 22 5.25611 22 9.27273V11.8141C22 13.7532 21.2256 15.612 19.8489 16.9776L16.8221 19.9799ZM14.7273 4H9.27273C6.36068 4 4 6.36068 4 9.27273V14.7273C4 17.6393 6.36068 20 9.27273 20H11.3331C11.722 19.8971 12.0081 19.5417 12.0058 19.1204L11.9935 16.8564C11.9933 16.8201 11.9935 16.784 11.9941 16.7479C11.0454 16.7473 10.159 16.514 9.33502 16.0479C8.51002 15.5812 7.84752 14.9479 7.34752 14.1479C7.24752 13.9479 7.25585 13.7479 7.37252 13.5479C7.48919 13.3479 7.66419 13.2479 7.89752 13.2479L13.5939 13.2479C14.4494 12.481 15.5811 12.016 16.8216 12.0208L19.0806 12.0296C19.5817 12.0315 19.9889 11.6259 19.9889 11.1248V9.07648H19.9964C19.8932 6.25535 17.5736 4 14.7273 4ZM14.0057 19.1095C14.0066 19.2605 13.9959 19.4089 13.9744 19.5537C14.5044 19.3124 14.9926 18.9776 15.4136 18.5599L18.4405 15.5576C18.8989 15.1029 19.2653 14.5726 19.5274 13.996C19.3793 14.0187 19.2275 14.0301 19.0729 14.0295L16.8138 14.0208C15.252 14.0147 13.985 15.2837 13.9935 16.8455L14.0057 19.1095Z" fill="currentColor"></path></svg></span> 
+                    </button>
+                    <input type="text" id="messageInput" placeholder="Type a message">
+                    <span id="micIcon" ><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>ptt</title><path fill="currentColor" d="M11.999,14.942c2.001,0,3.531-1.53,3.531-3.531V4.35c0-2.001-1.53-3.531-3.531-3.531 S8.469,2.35,8.469,4.35v7.061C8.469,13.412,9.999,14.942,11.999,14.942z M18.237,11.412c0,3.531-2.942,6.002-6.237,6.002 s-6.237-2.471-6.237-6.002H3.761c0,4.001,3.178,7.297,7.061,7.885v3.884h2.354v-3.884c3.884-0.588,7.061-3.884,7.061-7.885 L18.237,11.412z"></path></svg></span>
+                    <span id="sendIcon"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>send</title><path fill="currentColor" d="M1.101,21.757L23.8,12.028L1.101,2.3l0.011,7.912l13.623,1.816L1.112,13.845 L1.101,21.757z"></path></svg></span>
+                    
+                </div>
+    
+                 <!-- upoload file dropdown menu -->
+                 <div id="plus-dropdown-menu" class="plus-dropdown-menu">
+                    <ul>
+                        <li>
+                            <label for="chat-file">
+                                <div class="small-drawer-status-box">
+                                    <div class="small-drawer-status-icon">
+                                        <svg style="color: #007bfc;" viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="xihbb3s" fill="none"><title>media-filled-refreshed</title><path d="M13.25 12.5L12.1 11C12 10.8667 11.8667 10.8 11.7 10.8C11.5333 10.8 11.4 10.8667 11.3 11L9.625 13.2C9.49167 13.3667 9.47083 13.5417 9.5625 13.725C9.65417 13.9083 9.80833 14 10.025 14H17.975C18.1917 14 18.3458 13.9083 18.4375 13.725C18.5292 13.5417 18.5083 13.3667 18.375 13.2L15.95 10.025C15.85 9.89167 15.7167 9.825 15.55 9.825C15.3833 9.825 15.25 9.89167 15.15 10.025L13.25 12.5ZM8 18C7.45 18 6.97917 17.8042 6.5875 17.4125C6.19583 17.0208 6 16.55 6 16V4C6 3.45 6.19583 2.97917 6.5875 2.5875C6.97917 2.19583 7.45 2 8 2H20C20.55 2 21.0208 2.19583 21.4125 2.5875C21.8042 2.97917 22 3.45 22 4V16C22 16.55 21.8042 17.0208 21.4125 17.4125C21.0208 17.8042 20.55 18 20 18H8ZM4 22C3.45 22 2.97917 21.8042 2.5875 21.4125C2.19583 21.0208 2 20.55 2 20V7C2 6.71667 2.09583 6.47917 2.2875 6.2875C2.47917 6.09583 2.71667 6 3 6C3.28333 6 3.52083 6.09583 3.7125 6.2875C3.90417 6.47917 4 6.71667 4 7V20H17C17.2833 20 17.5208 20.0958 17.7125 20.2875C17.9042 20.4792 18 20.7167 18 21C18 21.2833 17.9042 21.5208 17.7125 21.7125C17.5208 21.9042 17.2833 22 17 22H4Z" fill="currentColor"></path></svg>
+                                    </div>  
+                                    <div class="small-drawer-status-content">Photos & Videos</div>
+    
+                                </div>
+                            </label>  
+                            <input type="file" id="chat-file" accept="image/*,video/mp4,video/3gpp,video/quicktime" multiple  style="display: none;" onchange="handle_upload_files(event)">
+                        </li>
+                      
+                        <li>
+                            <label for="camera-input">
+                                <div class="small-drawer-status-box">
+                                    <div class="small-drawer-status-icon">
+                                        <svg style="color: #009de2;" viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="x1cbnkk4" fill="none"><title>camera-filled-refreshed</title><path d="M12 17.5C13.25 17.5 14.3125 17.0625 15.1875 16.1875C16.0625 15.3125 16.5 14.25 16.5 13C16.5 11.75 16.0625 10.6875 15.1875 9.8125C14.3125 8.9375 13.25 8.5 12 8.5C10.75 8.5 9.6875 8.9375 8.8125 9.8125C7.9375 10.6875 7.5 11.75 7.5 13C7.5 14.25 7.9375 15.3125 8.8125 16.1875C9.6875 17.0625 10.75 17.5 12 17.5ZM12 15.5C11.3 15.5 10.7083 15.2583 10.225 14.775C9.74167 14.2917 9.5 13.7 9.5 13C9.5 12.3 9.74167 11.7083 10.225 11.225C10.7083 10.7417 11.3 10.5 12 10.5C12.7 10.5 13.2917 10.7417 13.775 11.225C14.2583 11.7083 14.5 12.3 14.5 13C14.5 13.7 14.2583 14.2917 13.775 14.775C13.2917 15.2583 12.7 15.5 12 15.5ZM4 21C3.45 21 2.97917 20.8042 2.5875 20.4125C2.19583 20.0208 2 19.55 2 19V7C2 6.45 2.19583 5.97917 2.5875 5.5875C2.97917 5.19583 3.45 5 4 5H7.15L8.4 3.65C8.58333 3.45 8.80417 3.29167 9.0625 3.175C9.32083 3.05833 9.59167 3 9.875 3H14.125C14.4083 3 14.6792 3.05833 14.9375 3.175C15.1958 3.29167 15.4167 3.45 15.6 3.65L16.85 5H20C20.55 5 21.0208 5.19583 21.4125 5.5875C21.8042 5.97917 22 6.45 22 7V19C22 19.55 21.8042 20.0208 21.4125 20.4125C21.0208 20.8042 20.55 21 20 21H4Z" fill="currentColor"></path></svg>
+                                    </div>  
+                                    <div class="small-drawer-status-content">Camera</div>
+                                </div>
+                            </label>
+                        </li>
+    
+                        <li>
+                            <label for="camera-input">
+                                <div class="small-drawer-status-box">
+                                    <div class="small-drawer-status-icon">
+                                        <svg style="color: #02a698;" viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="x1w53qhl" fill="none"><title>sticker-create-filled-refreshed</title><path opacity="0.9" fill-rule="evenodd" clip-rule="evenodd" d="M14 21.6814C15.0541 21.3509 16.024 20.7715 16.8221 19.9799L19.8489 16.9776C20.8807 15.9542 21.5742 14.6537 21.8569 13.25H18C15.7909 13.25 14 15.0409 14 17.25V21.6814ZM12 22H9.27273C5.25611 22 2 18.7439 2 14.7273V9.27273C2 5.25611 5.25611 2 9.27273 2H14.7273C18.7439 2 22 5.25611 22 9.27273V11.25H18C14.6863 11.25 12 13.9363 12 17.25V22ZM9 5C8.44772 5 8 5.44772 8 6V8H6C5.44772 8 5 8.44772 5 9C5 9.55229 5.44772 10 6 10H8V12C8 12.5523 8.44772 13 9 13C9.55228 13 10 12.5523 10 12V10H12C12.5523 10 13 9.55228 13 9C13 8.44772 12.5523 8 12 8H10V6C10 5.44772 9.55228 5 9 5Z" fill="currentColor"></path></svg>
+                                    </div>  
+                                    <div class="small-drawer-status-content">New Sticker</div>
+                                </div>
+                            </label>
+                        </li>
+    
+                     
+                    </ul>
+                </div>
+    
+                <!-- img and vid uploads  -->
+                <div class="file-preview-container" id="file_preview_container">
+                   <div  style="display: contents;" id="multiple-items">
+                        <div class="file_preview_Close">
+                            <button id="file_preview_Close">
+                                <span><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="currentColor" enable-background="new 0 0 24 24"><title>x</title><path d="M19.6004 17.2L14.3004 11.9L19.6004 6.60005L17.8004 4.80005L12.5004 10.2L7.20039 4.90005L5.40039 6.60005L10.7004 11.9L5.40039 17.2L7.20039 19L12.5004 13.7L17.8004 19L19.6004 17.2Z"></path></svg></span>
                             </button>
                         </div>
-                        <div class="send_button">
-                            <span id="sendFiles"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>send</title><path fill="currentColor" d="M1.101,21.757L23.8,12.028L1.101,2.3l0.011,7.912l13.623,1.816L1.112,13.845 L1.101,21.757z"></path></svg></span>
+                        <!-- <ion-icon name="close-outline"  id="file_preview_Close"></ion-icon> -->
+                        <div class="file-preview">
+                           
+                        
                         </div>
-                    </div>
+                        
+                        <div class="caption_input">
+                            <textarea id=captinoInput placeholder="Add a caption"></textarea>
+                            <div class="caption-input-buttons">
+                                <button class="closes">
+                                    <span  id="caption-close"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>x-alt</title><path fill="currentColor" d="M17.25,7.8L16.2,6.75l-4.2,4.2l-4.2-4.2L6.75,7.8l4.2,4.2l-4.2,4.2l1.05,1.05l4.2-4.2l4.2,4.2l1.05-1.05 l-4.2-4.2L17.25,7.8z"></path></svg></span>
+                                </button>
+                                <button class="closes emoji_button">
+                                    <span><svg viewBox="0 0 20 20" height="20" width="20" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 20 20"><title>emoji-input</title><path fill="currentColor" d="M9.5,1.7C4.8,1.7,1,5.5,1,10.2s3.8,8.5,8.5,8.5s8.5-3.8,8.5-8.5S14.2,1.7,9.5,1.7z  M9.5,17.6c-4.1,0-7.4-3.3-7.4-7.4s3.3-7.4,7.4-7.4s7.4,3.3,7.4,7.4S13.6,17.6,9.5,17.6z"></path><path fill="currentColor" d="M6.8,9.8C7.5,9.7,8,9.1,7.9,8.4C7.8,7.8,7.4,7.3,6.8,7.3C6.1,7.3,5.6,8,5.7,8.7 C5.7,9.3,6.2,9.7,6.8,9.8z"></path><path fill="currentColor" d="M13.9,11.6c-1.4,0.2-2.9,0.3-4.4,0.4c-1.5,0-2.9-0.1-4.4-0.4c-0.2,0-0.4,0.1-0.4,0.3 c0,0.1,0,0.2,0,0.2c0.9,1.8,2.7,2.9,4.7,3c2-0.1,3.8-1.2,4.8-3c0.1-0.2,0-0.4-0.1-0.5C14.1,11.6,14,11.6,13.9,11.6z M9.8,13.6 c-2.3,0-3.5-0.8-3.7-1.4c2.3,0.4,4.6,0.4,6.9,0C13,12.3,12.6,13.6,9.8,13.6L9.8,13.6z"></path><path fill="currentColor" d="M12.2,9.8c0.7-0.1,1.2-0.7,1.1-1.4c-0.1-0.6-0.5-1.1-1.1-1.1c-0.7,0-1.2,0.7-1.1,1.4 C11.2,9.3,11.6,9.7,12.2,9.8z"></path></svg></span>
+                                </button>
+                            </div>
+                            
+                       
+                        </div>
+    
+                        <div class="preview_bottom">
+                            <div class="send-images">
+                                <div class="multiple-image" id="multiple-image">
+                    
+                                </div>
+                                <button class="imgAddBtn">
+                                    <label for="add_files">
+                                        <span><svg viewBox="0 0 24 24" width="30" preserveAspectRatio="xMidYMid meet" class="x11xpdln x1d8287x x1h4ghdb"><title>plus</title><path fill="currentColor" d="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6V13z"></path></svg></span>
+                                    </label>
+                                    <input type="file" id="add_files" accept="image/*,video/mp4,video/3gpp,video/quicktime" multiple  style="display: none;" onchange="handle_upload_files(event)">
+                                </button>
+                            </div>
+                            <div class="send_button" id="sendFiles">
+                                <span ><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>send</title><path fill="currentColor" d="M1.101,21.757L23.8,12.028L1.101,2.3l0.011,7.912l13.623,1.816L1.112,13.845 L1.101,21.757z"></path></svg></span>
+                            </div>
+                        </div>
+    
+                   </div> 
+                   <div class="loader" id="loader"></div>
+                </div>
 
-               </div> 
-               <div class="loader" id="loader"></div>
             </div>
-            
+          
+            <!-- This is right side intro part --> 
+            <div class="intro-right border_left">
+                <div class="intro-img">
+                    <img src="/static/images/Group Chat-cuate.svg" alt="">
+                </div>
+                
+            </div>
+           
         </div> 
+
+
+        
 
         <!-- message side bar -->
         <div id="message_search_side" style="display: none;" class="message_search_side">
@@ -784,6 +782,9 @@
             </div>
             
         </div>
+
+
+       
  
         <!--File Videw Message-->
         <div class="file_view" id="file_view">
@@ -820,8 +821,9 @@
     });
     
     </script>
-    <script src="{% static 'js\index.js' %}"></script>
     <script src="{% static 'js\calender.js' %}"></script>
+    <script src="{% static 'js\uploads_files.js' %}"></script>
+    <script src="{% static 'js\index.js' %}"></script>
     
 </body>
 </html>

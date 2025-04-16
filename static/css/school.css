@@ -556,11 +556,16 @@ form .pass-txt {
     position: relative;
     flex: 70%;
     background:#0B141A;
-    display: none;
+    display: flex;
     height: 100%; 
     max-height: 100vh;  
     flex-direction: column;
     justify-content: center;
+ }
+
+ .chat-container .rightside .rightchat_inside{
+    position: relative;
+    display: none;
  }
 
 .border_left{
@@ -591,7 +596,7 @@ form .pass-txt {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: calc(100vh - 40px);
+    height: 60%;
     cursor: default;
 }
 
@@ -1457,7 +1462,7 @@ form .pass-txt {
     object-fit: cover;
     object-position: center;
     border: 2px solid #000000;
-    cursor: pointer; /* Add some space between the image and the button */
+    cursor: pointer; 
 }
 
 .upload-button {
@@ -1583,6 +1588,7 @@ form .pass-txt {
     position: relative;
     width: 100%;
     border-bottom: 1px solid  rgba(134, 150, 160, 0.15); 
+    height: 35px;
 }
 
 .drwer-chatlist .drawer-block .details .listHead{
@@ -1621,8 +1627,9 @@ form .pass-txt {
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1002; /* Higher z-index than drawer content */
 }
+
+.add-user-btn:focus, .add-user-btn
 
 .save-btn {
     width: 50%;
@@ -1689,14 +1696,14 @@ form .pass-txt {
 
 .plus-dropdown-menu{
   position: absolute;
-  background-color: #233138;
+  background-color: #1d1f1f;
   border-radius: 16px;
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
   padding: 10px;
   display: none;
   z-index: 10000;
   overflow: hidden;
-  bottom: 58px;
+  bottom: 74.4px;
   left: 25px;
   transform:  translateY(20px);
   opacity: 0;
@@ -1705,27 +1712,24 @@ form .pass-txt {
 
 
 .plus-dropdown-menu ul {
-    list-style-type: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .plus-dropdown-menu ul li {
-    padding: 8px;
-    cursor: pointer;
-    display: flex; /* To align icon and text */
-    align-items: center;
-    color: #D1D7DB; 
-     /* Center the icon and text vertically */
+    position: relative;
+    opacity: 1;
+    color: white;
+    border-radius: 8px;
 }
 
 .plus-dropdown-menu ul li label{
-    cursor: pointer;
+    margin-bottom: 0;
 }
 
 .plus-dropdown-menu ul li:hover{
-    background-color: #182229;
-    border-radius: 10px;
+    background-color: rgba(255,255,255,.1);
 }
 
 .menu-icon{
@@ -1735,17 +1739,28 @@ form .pass-txt {
 }
 
 
-.imag-preview-container {
-    position: absolute;
-    width: 100%;
-    height: calc(100% - 60px);
+.file-preview-container {
     background: #101A20;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    display: block;
+    display: none;
     flex-direction: column;
     align-items: center;
     z-index: 9999;
     justify-content: center;
+}
+
+.file-preview-common-chat{
+    position: relative;
+    width: 100%;
+    height: calc(100% - 60px);
+}
+
+.file-preview-common-satus{
+    position: fixed;
+    height: calc(100vh - 40px);
+    width: calc(100% - 38px);
+    left: 18px;
+    max-width: 100%;
 }
 
 .loader {
@@ -1763,23 +1778,35 @@ form .pass-txt {
     100% { transform: rotate(360deg); }
 }
 
-#imagePreviewClose {
+.file_preview_Close {
     position: absolute;
     top: 10px;
     left: 10px; 
-    color: #AEBAC1;
     width: 30px; 
     height: 30px; 
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    font-size: 100%;
-    font-weight: bold;
-    font: inherit;
 }
 
-.image-preview {
+.file_preview_Close:hover{
+    background-color: #242626;
+    border-radius: 50%;
+}
+
+.file_preview_Close button{
+    padding: 0px;
+    border: none;
+    background-color: transparent;
+    font-family: inherit;
+    cursor: pointer;
+    font-size: 100%;
+    color: rgba(255, 255, 255, .6);
+    outline: none;
+}
+
+
+.file-preview {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1796,45 +1823,90 @@ form .pass-txt {
     margin-left: 16px; 
 }
 
-.image-preview img {
+.file-preview img {
     max-width: 100%; 
     max-height: 100%; 
-    object-fit: contain; 
+    object-fit: contain;
+    display: block; 
 }
 
-.image-preview video {
+.file-preview video {
     max-width: 100%; 
     max-height: 100%; 
-    object-fit: contain; 
+    object-fit: contain;
+    display: block; 
 
 }
 
 .caption_input{
-    position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
-    max-width: 60%;
+    justify-content: space-between;
     width: 100%;
-    margin-top: 15px;
-}
-
-.caption_input input{
-    position: relative;
-    width: 90%;
-    margin: 0 20px;
-    border: none;
-    outline: none;
+    max-width: 66%;
+    padding: 7px 16px 7px 16px;
+    background-color: #242626;
     border-radius: 8px;
-    font-size: 1em;
-    padding: 10px 32px 10px 10px;
-    background: #2B3B45;
-    color: #AEBAC1;
+    margin-top: 10px;
+    position: relative;
+    margin-bottom: 15px;
 }
 
-.caption_input input::placeholder {
-    color: #AEBAC1; 
+.caption_input textarea {
+    flex-grow: 1;
+    resize: none;
+    background-color: #242626;
+    border: none;
+    height: 30px;
+    font-size: 0.95em;
+    color: #e9edef;
+    outline: none;
+    margin-right: 10px;
+    line-height: 1.5em;
+
+    min-height: calc(1.5em * 1); 
+    max-height: calc(1.5em * 5);
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding-top: 3px;
+}
+
+.caption_input textarea::placeholder {
+    color: rgb(154 155 155); 
     opacity: 1; 
+}
+
+.caption_input .caption-input-buttons{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-shrink: 1;
+    min-width: 0px;
+    flex-basis: auto;
+    flex-direction: row;
+    flex-grow: 0;
+    min-height: 35px;
+    align-self: auto;
+    justify-self: auto;
+    order: 0;
+}
+
+.caption_input .caption-input-buttons .closes{
+    padding: 0px;
+    border: none;
+    background-color: transparent;
+    font-family: inherit;
+    cursor: pointer;
+    margin-right: 8px;
+    font-size: 100%;
+    color: rgba(255, 255, 255, .6);
+    outline: none;
+}
+
+.caption_input .caption-input-buttons .emoji_button {
+    margin-bottom: 1px;
+    margin-right: 0px;
 }
 
 .caption-close {
@@ -1861,7 +1933,7 @@ form .pass-txt {
     justify-content: space-between;
     align-items: center;
     margin-top: auto;
-    border-top-color: #AEBAC1;
+    border-top-color: rgba(255, 255, 255, .1);
     border-top-width: 1px;
     border-top-style: solid;
     
@@ -1879,11 +1951,6 @@ form .pass-txt {
     min-width: 60px;
     min-height: 60px;
     margin-right: 16px;
-}
-
-.send_button span { 
-    color: white;
-    
 }
 
 .send-images{
@@ -1920,25 +1987,33 @@ form .pass-txt {
 }
 
 
-.multipleImgBtn{
-    margin: 6px 3px 8px 3px;
-    border: 3px solid;
+.multipleFileBtn{
     position: relative;
-    z-index: var(--z-index-value);
+    z-index: 100;
     box-sizing: border-box;
     display: inline-block;
-    flex: none;
-    overflow: hidden;
     vertical-align: middle;
+    flex: 0 0 auto;
+    margin: 8px 5px 10px;
+    overflow: hidden;
+    border: 1px solid rgba(45, 46, 46, 1);
     border-radius: 5px;
+   
+}
+
+.multipleFileBtn:focus,
+.multipleFileBtn:active {
+    outline: none;
+    border: none;
+    box-shadow: none; 
+}
+
+.multipleFileBtn:hover{
     cursor: pointer;
 }
 
-
-.multipleImgBtn:focus {
-    outline: none;
-}
-.multipleImgBtn.selected{
+.multipleFileBtn.selected{
+    margin: 6px 3px 8px;
     border: 3px solid #00a884;
 }
 
@@ -1947,9 +2022,37 @@ form .pass-txt {
     --overlay-rgb: 11, 20, 26;
 }
 
-.multipleImgBtn .second{
+.multipleFileBtn:hover .first{
+    opacity: 1;
+}
+
+.multipleFileBtn:hover  .second .inside::before{
+    opacity: 1; 
+}
+
+.multipleFileBtn .first{
+    position: absolute;
+    top: -4px;
+    right: 1px;
+    z-index: 100;
+    color: #fff;
+    opacity: 0;
+    transition: right 75ms ease-out, top 75ms ease-out;
+}
+
+
+.multipleFileBtn .first span{
+    height: 24px;
+    width: 24px;
+    display: block;
+}
+
+.multipleFileBtn .second{
     overflow: hidden;
-    background-color: #101a20;
+    background-color: #161717;
+}
+
+.multipleFileBtn .second .inside{
     position: relative;
     top: 0;
     left: 0;
@@ -1958,23 +2061,24 @@ form .pass-txt {
     height: 52px;
 }
 
-.multipleImgBtn .second::before{
+.multipleFileBtn .second .inside::before{
     position: absolute;
     top: 0;
     right: 0;
     width: 100%;
     height: 40px;
     content: "";
-    background: linear-gradient(10deg, transparent 0%, transparent 45%, rgba(var(--overlay-rgb), .18) 75%, rgba(var(--overlay-rgb), .4) 100%);
+    background: linear-gradient(10deg, transparent 0%, transparent 45%, rgba(11, 20, 26, .18) 75%, rgba(11, 20, 26, .4) 100%);
     opacity: 0;
+    z-index: 1;
     transition: opacity .1s ease-out;
 }
 
-.multipleImgBtn:hover .second::before{
+/* .multipleFileBtn:hover .second::before{
     opacity: 1;
-}
+} */
 
-.multipleImgBtn .second img{
+.multipleFileBtn .second .inside img{
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -1983,25 +2087,6 @@ form .pass-txt {
 
 
 
-.multipleImgBtn .first{
-    position: absolute;
-    top: 1px;
-    right: 1px;
-    z-index: 100;
-    color: #e9edef;
-    opacity: 0;
-    transition: right 75ms ease-out, top 75ms ease-out;
-}
-
-.multipleImgBtn:hover .first {
-    opacity: 1; 
-}
-
-.multipleImgBtn .first ion-icon{
-    height: 24px;
-    width: 24px;
-    color: #e9edef;
-}
 
 .imgAddBtn{
     position: relative;
@@ -3935,6 +4020,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     font-size: .75rem;
     color: #757575;
     cursor: not-allowed;
+}
+
+.sample_of{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #101A20;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    align-items: center;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
 }
 
 /* calender css is finished */
