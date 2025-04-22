@@ -19,6 +19,7 @@ const cancelDialog = document.getElementById('cancelDelete');
 const confirmDelete = document.getElementById('confirmDelete');
 const saveButton = document.getElementById('save-btn');
 const draweEmailInput = document.getElementById('drawer-email-input');
+const drawe_CNTName_input = document.getElementById('drawer-CNTname-input');
 const drwerChatlist  = document.querySelector('.drwer-chatlist');
 const drawerSearchInput = document.getElementById('drawer-search-input');
 const drwerSearchClose = document.getElementById('drawer-search-close');
@@ -116,18 +117,48 @@ cancelDialog.addEventListener('click',()=>{
     deleteDialog.style.display = 'none';
 });
 
+deleteDialog.addEventListener('click', function(e){
+    if(e.target === deleteDialog){
+        deleteDialog.style.display = 'none';
+    } 
+});
+
 confirmDelete.addEventListener('click',()=>{
     const userId = deleteDialog.getAttribute('data-user-id');
     if(userId){
-        
         deleteContact(userId);
     }   
 });
 
+const delete_model_userCHT = document.getElementById('delete_model_userCHT');
+delete_model_userCHT.addEventListener('click', ()=>{
+    deleteDialog.style.display = 'flex';
+    const chat_USR_model = document.getElementById('chat_USR_model');
+
+    const userId = chat_USR_model.getAttribute('data-user-id');
+    const userName = chat_USR_model.getAttribute('data-user-name');
+    document.getElementById('dialog-heading-ixt').textContent = `Delete chat with ${userName}`;
+     
+    deleteDialog.setAttribute('data-user-id', userId);
+    chat_USR_model.style.display = 'none';
+});
+
+
 saveButton.addEventListener('click',()=>{
-    if(draweEmailInput.value.trim() != ''){
-        
-         saveContactsApi(draweEmailInput.value);
+    const  emailRegex =  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(draweEmailInput.value.trim() == '' || drawe_CNTName_input.value.trim() == ''){
+        common_SHOW_messages('error', "Add all required information......!");
+    }
+    else if(!emailRegex.test(draweEmailInput.value)){
+        common_SHOW_messages('error', "Enter valid email......!");
+    }else{
+
+        if(draweEmailInput.value.trim() != '' && drawe_CNTName_input.value.trim() != ''){
+            
+            saveContactsApi(draweEmailInput.value, drawe_CNTName_input.value);
+        }else{
+            common_SHOW_messages('error', "Add all required information......!");
+        }
     }
 });
 
@@ -1636,7 +1667,44 @@ chatSocket.onmessage = function(e){
             }
            
         }else if(data.type == 'chat_message'){
-            adding_update_MSG_array(data);
+
+            if(data.check_contact &&  Object.keys(data.check_contact).length > 0 && data.sender_id !== Number(djangoUserId)){
+                
+                const chatlist = document.getElementById('chatlist');
+            
+                const _id = data.check_contact._id;
+                const url = data.check_contact.profile_img ? data.check_contact.profile_img :"/static/images/profile.png";
+                const username = data.check_contact.username;
+
+                chatlist.innerHTML += `
+                <div class="block" >
+                    <div class="inside" data-user-id="${_id}">
+                        <div class="imgbox">
+                            <img src="${url}" class="cover">                    
+                        </div>    
+                        <div class="details">
+                            <div class="listHead">
+                                <h4>${username}</h4>
+                                <p class="time">${data.last_msg_time}</p>
+                            </div>
+                            <div class="message_p">
+                                  <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
+                                
+                                ${data.toggle_count > 0 ?
+                                    `<b class="toggle-count">${data.toggle_count}</b>`
+                                :''}
+                                
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
+                `;
+                clickopenbox();
+            }
+
+            if(chat_history_search_MSG){
+                adding_update_MSG_array(data);
+            }
             handleChatMessage(data);
         
         }
@@ -1804,7 +1872,7 @@ function appendMessage(data){
         
         let image_url = data.url;  
 
-        messageElement = `<div class="message ${messageClass}" id="${data.message_id}" data="${data.receiver_message_view}">
+        messageElement = `<div class="message ${messageClass}" id="${data.message_id}"  receiver_id="${data.receiver_id}" data="${data.receiver_message_view}">
             <div class="mainImage ${file_message_class}">
             ${data.is_reply_status ?
                 `<div class="status_part ${status_reply_deeper}">
@@ -1854,7 +1922,7 @@ function appendMessage(data){
         const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
        
         messageElement =   
-        `<div class="message ${messageClass}" id="${data.message_id}" data="${data.receiver_message_view}">
+        `<div class="message ${messageClass}" id="${data.message_id}" receiver_id="${data.receiver_id}" data="${data.receiver_message_view}">
                     <div class="mainImage ${file_message_class}"">
                         ${data.is_reply_status ?
                         `<div class="status_part ${status_reply_deeper}">
@@ -1913,7 +1981,7 @@ function appendMessage(data){
 
     }else{
         messageElement = 
-        `<div class="message ${messageClass}"  id="${data.message_id}" data="${data.receiver_message_view}">
+        `<div class="message ${messageClass}"  id="${data.message_id}" receiver_id="${data.receiver_id}" data="${data.receiver_message_view}">
             <div class="message_back">
                 <div class="top-content">
                     <span>${data.content}</span>
@@ -1935,6 +2003,9 @@ function handleChatMessage(data){
     const currentDate = data.label_time;
     const isCheck_user = data.sender_id === Number(djangoUserId);
 
+       
+    
+
     if(selectedUserId === data.receiver_id || selectedUserId == data.sender_id){
         if (lastDate !== currentDate) {
             chatBoxs.insertAdjacentHTML('beforeend', `
@@ -1950,10 +2021,10 @@ function handleChatMessage(data){
     let emaplath = ''; 
     if(isCheck_user){
         moveToTop(data.receiver_id);
-        emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
+        emaplath = `.chatlist .block .inside[data-user-id="${data.receiver_id}"]`
     }else{
         moveToTop(data.sender_id);
-        emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
+        emaplath = `.chatlist .block .inside[data-user-id="${data.sender_id}"]`
     }
 
     if(emaplath !== ''){
@@ -2012,15 +2083,16 @@ function commenInput(){
 }   
 
 // bluse tick 
-
+const seenMessageIds  = new Set();
 const observerReceiveMessage  = new IntersectionObserver((enteries) => {
     enteries.forEach(entry=>{
         if(entry.isIntersecting){
             const messageElement = entry.target;
             const data  = messageElement.getAttribute('data');
             const message_id = messageElement.getAttribute('id');
-            if(data === 'delivered'){
+            if(data === 'delivered' && !seenMessageIds.has(message_id)){
                 messageElement.setAttribute('data', 'seen');
+                seenMessageIds.add(message_id);
                 chatSocket.send(JSON.stringify({
                     'action': 'change_message_status_by_receiver',
                     'message_id':message_id,
@@ -2054,13 +2126,15 @@ const observerReceiveMessage  = new IntersectionObserver((enteries) => {
 
 
 const chatBox = document.getElementById('chatBox');
-const observedMessages = new Set();
+
 const mutationObserver = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
         mutation.addedNodes.forEach(node => {
             if(node.nodeType === 1 && node.classList.contains('message') && node.classList.contains('receiver')){
                 const data = node.getAttribute('data');
-                if(data === 'delivered'){
+                const message_id = node.getAttribute('id');
+                const  receiver_id= node.getAttribute('receiver_id');
+                if(data === 'delivered' && !seenMessageIds.has(message_id) && receiver_id == window.djangoUserId){
                     observerReceiveMessage.observe(node);
                     console.log("🆕 New message added. Observing now...",data);
                 }
@@ -2110,24 +2184,26 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function saveContactsApi(email){
+function saveContactsApi(email, contact_name){
     fetch('/create_contacts/',{
         method:'POST',
         header:{
             'Content-Type':'application/json',
             'X-CSRFToken':getCookie('csrftoken')
         },
-        body:JSON.stringify({contact_email:email})
+        body:JSON.stringify({contact_email:email, contact_name:contact_name})
     }).then(response => response.json()).then(data=>{
         if(data.status == 200){
             draweEmailInput.value = '';
             adduserDrawer.classList.remove('open');
             getContacts('');
+            common_SHOW_messages('success', `Contact save successfully......!`);
         }else{
-            console.error('Error:',data);    
+            common_SHOW_messages('error', `${data.error}`);
+    
         }
     }).catch(error => {
-        console.error('Error:',error);
+        common_SHOW_messages('error', `${error}`);
     });
 }
 
@@ -2148,25 +2224,93 @@ function getContacts(query){
             userBlock.className = 'drawer-block';
             userBlock.setAttribute('data-user-id', user.id);
             userBlock.innerHTML = `
-                <div class="imgbox">
-                   <img src="${user.profile_image != null ? user.profile_image : '/static/images/profile.png'}" class="cover"> 
-                </div>
-                <div class="details">
-                    <div class="listHead">
-                        <h4>${user.username}</h4>
-                        <span class="deleteButton" id="deleteButton" ><svg viewBox="0 0 24 25" height="25" width="24" preserveAspectRatio="xMidYMid meet" class=""><title>delete</title><path d="M7 21.5C6.45 21.5 5.97917 21.3042 5.5875 20.9125C5.19583 20.5208 5 20.05 5 19.5V6.5C4.71667 6.5 4.47917 6.40417 4.2875 6.2125C4.09583 6.02083 4 5.78333 4 5.5C4 5.21667 4.09583 4.97917 4.2875 4.7875C4.47917 4.59583 4.71667 4.5 5 4.5H9C9 4.21667 9.09583 3.97917 9.2875 3.7875C9.47917 3.59583 9.71667 3.5 10 3.5H14C14.2833 3.5 14.5208 3.59583 14.7125 3.7875C14.9042 3.97917 15 4.21667 15 4.5H19C19.2833 4.5 19.5208 4.59583 19.7125 4.7875C19.9042 4.97917 20 5.21667 20 5.5C20 5.78333 19.9042 6.02083 19.7125 6.2125C19.5208 6.40417 19.2833 6.5 19 6.5V19.5C19 20.05 18.8042 20.5208 18.4125 20.9125C18.0208 21.3042 17.55 21.5 17 21.5H7ZM17 6.5H7V19.5H17V6.5ZM10 17.5C10.2833 17.5 10.5208 17.4042 10.7125 17.2125C10.9042 17.0208 11 16.7833 11 16.5V9.5C11 9.21667 10.9042 8.97917 10.7125 8.7875C10.5208 8.59583 10.2833 8.5 10 8.5C9.71667 8.5 9.47917 8.59583 9.2875 8.7875C9.09583 8.97917 9 9.21667 9 9.5V16.5C9 16.7833 9.09583 17.0208 9.2875 17.2125C9.47917 17.4042 9.71667 17.5 10 17.5ZM14 17.5C14.2833 17.5 14.5208 17.4042 14.7125 17.2125C14.9042 17.0208 15 16.7833 15 16.5V9.5C15 9.21667 14.9042 8.97917 14.7125 8.7875C14.5208 8.59583 14.2833 8.5 14 8.5C13.7167 8.5 13.4792 8.59583 13.2875 8.7875C13.0958 8.97917 13 9.21667 13 9.5V16.5C13 16.7833 13.0958 17.0208 13.2875 17.2125C13.4792 17.4042 13.7167 17.5 14 17.5Z" fill="currentColor"></path></svg></span>
-                       
+                <div class="inside">
+                    <div class="imgbox">
+                        <img src="${user.profile_image != null ? user.profile_image : '/static/images/profile.png'}" class="cover"> 
+                    </div>
+                    <div class="details">
+                        <div class="listHead">
+                            <h4>${user.username}</h4>                        
+                        </div>
                     </div>
                 </div>
             `;
             
             drwerChatlist.appendChild(userBlock);
 
-            const deleteButton = userBlock.querySelector('.deleteButton');
-            if(deleteButton){
-                deleteButton.addEventListener('click',()=>{
-                    deleteDialog.style.display = 'flex';
-                    deleteDialog.setAttribute('data-user-id', user.id);
+            const drawer_block = userBlock.querySelector('.drawer-block .inside');
+            if(drawer_block){
+                drawer_block.addEventListener('click',()=>{
+                    leftsideDrawer.classList.remove('open');
+                    const user_Block = document.querySelector(`.block .inside[data-user-id="${user.id}"]`);
+                    
+                    if(user_Block !== null){
+                        if(!user_Block.classList.contains('active')){
+                            document.querySelectorAll('.chatlist .block .inside').forEach(b => b.classList.remove('active'));
+                            user_Block.classList.add('active');
+        
+                            if(selectedUserId == null){
+                                rightSide_inside.style.display = 'contents';
+                                introRight.style.display = 'none';
+                            }
+                            selectedUserId = user.id;
+                
+        
+                            document.querySelector('.rightside .chatBox').innerHTML = '';
+                            close_search_msg();
+        
+                            chatSocket.send(JSON.stringify({
+                                'action': 'send_history',
+                                'receiver_id': selectedUserId,
+                            }));
+                
+                            document.querySelector('.rightside .userimg img').src = user.profile_image ? user.profile_image: '/static/images/profile.png';
+                            document.querySelector('.rightside h4').innerHTML = `${user.username}<br><span id="statusText">online</span>`;
+        
+                        }
+                    }else{
+                        
+                        const chatlist = document.getElementById('chatlist');
+                       
+                        const _id = user.id;
+                        const url = user.profile_image ?user.profile_image: '/static/images/profile.png';
+                        const username = user.username;
+
+                        document.querySelectorAll('.chatlist .block .inside').forEach(b => b.classList.remove('active')); 
+                        chatlist.innerHTML += `
+                        <div class="block" >
+                            <div class="inside active" data-user-id="${_id}">
+                                <div class="imgbox">
+                                    <img src="${url}" class="cover">                    
+                                </div>    
+                                <div class="details">
+                                    <div class="listHead">
+                                        <h4>${username}</h4>
+                                        <p class="time"></p>
+                                    </div>
+                                    <div class="message_p">
+                                            <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>    
+                                    </div>
+                                </div>                        
+                            </div>
+                        </div>
+                        `;
+
+                        rightSide_inside.style.display = 'contents';
+                        introRight.style.display = 'none';
+                        selectedUserId = user.id;
+
+                        console.log("i data got here", selectedUserId);
+                        document.querySelector('.rightside .chatBox').innerHTML = '';
+                        close_search_msg();
+            
+                        document.querySelector('.rightside .userimg img').src = user.profile_image ? user.profile_image: '/static/images/profile.png';
+                        document.querySelector('.rightside h4').innerHTML = `${user.username}<br><span id="statusText">online</span>`;
+                        
+                        clickopenbox();
+                        
+                    }
+                   
                 });    
             }
             
@@ -2190,9 +2334,19 @@ function deleteContact(id){
         if(data.status == 200){
             
             deleteDialog.style.display = 'none';
-            const userBlockToRemove = document.querySelector(`.drwer-chatlist .drawer-block[data-user-id="${id}"]`);
-            if(userBlockToRemove){
-                userBlockToRemove.remove();
+            const target_inside_block = document.querySelector(`.block .inside[data-user-id="${id}"]`);
+            if(target_inside_block){
+                target_inside_block.remove();
+
+                rightSide_inside.style.display = 'none';
+                introRight.style.display = 'flex';
+                selectedUserId = null;
+                lastDate = null;
+    
+                // document.querySelector('.rightside .chatBox').innerHTML = '';
+
+                // document.querySelector('.rightside .userimg img').src = profileImage;
+                // document.querySelector('.rightside h4').innerHTML = `${userName}<br><span id="statusText">online</span>`;
             }
         }
     }).catch(error => {
@@ -2203,37 +2357,54 @@ function deleteContact(id){
 
 function clickopenbox(){
     const chatBlocksClick = document.querySelectorAll('.block .inside');
-    chatBlocksClick.forEach(block=>{
-        block.addEventListener('click', function(){
-        
-            clearFiles();   
-            document.querySelectorAll('.chatlist .block .inside').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-           
-            if(selectedUserId == null){
-                rightSide_inside.style.display = 'contents';
-                introRight.style.display = 'none';
-            }
-            selectedUserId = this.getAttribute('data-user-id');
-
-            document.querySelector('.rightside .chatBox').innerHTML = '';
-            close_search_msg();
-            
-            chatSocket.send(JSON.stringify({
-                'action': 'send_history',
-                'receiver_id': selectedUserId,
-            })); 
-
-            const userId = this.getAttribute('data-user-id');
-            const userName = this.querySelector('.listHead h4').textContent;
-            const profileImage = this.querySelector('.imgbox img').src;
-            const lastMessageTime = this.querySelector('.time').textContent;
-
-            document.querySelector('.rightside .userimg img').src = profileImage;
-            document.querySelector('.rightside h4').innerHTML = `${userName}<br><span id="statusText">online</span>`;
-        });
-    });
+    chatBlocksClick.forEach(block=>attachChatBlockEvents(block));
    
+}
+
+function attachChatBlockEvents(block){
+    block.addEventListener('contextmenu', function(e){
+        e.preventDefault();
+
+        const chat_USR_model = document.getElementById('chat_USR_model');
+        chat_USR_model.style.left = `${e.pageX}px`;
+        chat_USR_model.style.top = `${e.pageY}px`;
+        chat_USR_model.style.display = 'block';
+
+        const userId =  this.getAttribute('data-user-id');
+        const userName = this.querySelector('.listHead h4').textContent;
+
+        chat_USR_model.setAttribute('data-user-id', userId);
+        chat_USR_model.setAttribute('data-user-name', userName);
+               
+    });
+
+    block.addEventListener('click', function(){
+    
+        clearFiles();   
+        document.querySelectorAll('.chatlist .block .inside').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+       
+        if(selectedUserId == null){
+            rightSide_inside.style.display = 'contents';
+            introRight.style.display = 'none';
+        }
+        selectedUserId = this.getAttribute('data-user-id');
+
+        document.querySelector('.rightside .chatBox').innerHTML = '';
+        close_search_msg();
+        
+        chatSocket.send(JSON.stringify({
+            'action': 'send_history',
+            'receiver_id': selectedUserId,
+        })); 
+
+        const userId = this.getAttribute('data-user-id');
+        const userName = this.querySelector('.listHead h4').textContent;
+        const profileImage = this.querySelector('.imgbox img').src;
+
+        document.querySelector('.rightside .userimg img').src = profileImage;
+        document.querySelector('.rightside h4').innerHTML = `${userName}<br><span id="statusText">online</span>`;
+    });
 }
 
 // status 24 hours  status delete functionality 
@@ -2481,6 +2652,32 @@ document.addEventListener("click", function (event) {
     if (!calender.contains(event.target) && event.target !== toggle_Calendar) {
         calender.classList.remove("show");
     }
+    const msG = document.getElementById('chat_USR_model');
+    if(msG){
+        msG.style.display = 'none';
+    }
+    
+    
 });
 
 
+function common_SHOW_messages(status, text){
+    const messageBox = document.querySelector('.messages');
+    const messageText = document.querySelector('.messages .discou');
+
+    messageBox.style.animation = 'none';
+    void messageBox.offsetWidth;
+    messageBox.classList.remove('success', 'error');
+    
+    messageBox.classList.add(status);
+    messageText.textContent = text;
+
+    messageBox.style.display = 'block'
+
+    setTimeout(()=>{
+        messageBox.style.animation = 'fadeOut 0.5s ease-in-out forwards';
+        setTimeout(()=>{
+            messageBox.style.display = 'none';
+        }, 500);
+    }, 5000);
+}

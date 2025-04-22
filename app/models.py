@@ -29,6 +29,20 @@ class User(AbstractUser):
         
         return "/static/default_profile.png"
 
+    def delete(self, *args, **kwargs):
+        
+        from django.contrib.auth import get_user_model
+        UserModel = get_user_model()
+         
+        other_users =  UserModel.objects.exclude(id=self.id)
+        
+        for user in other_users:
+            updated_contacts = [contact for contact in user.contacts if contact.get("user_id") != self.id]
+            if user.contacts != updated_contacts:
+                user.contacts = updated_contacts
+                user.save()
+
+        super().delete(*args, **kwargs) 
 
     def __str__(self) -> str:
         return f'{self.username}'

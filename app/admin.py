@@ -9,6 +9,10 @@ class Useradmin(UserAdmin):
     list_display = ['id', 'username', 'email', 'profile_image', 'google_profile_image', 'contacts', 'deleted_contacts', 'verfy_otp', 'is_online']
     ordering = ['pk']
 
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            obj.delete()
+
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     model = Message

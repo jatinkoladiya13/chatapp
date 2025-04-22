@@ -179,9 +179,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'receiver_message_view':message.status_view,
                         }
                         await conn.send(text_data=json.dumps(filter_message_data))
-
-
-            print(f"check============={message_id}========",receiver_id)
             pass    
 
         if action == 'send_message':
@@ -193,17 +190,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
             receiver = await database_sync_to_async(User.objects.get)(id=receiver_id)
             
           
-            check = True
+            check_contact = {}
             sender_profile_image = ''
             if  sender.id not in [contact["user_id"] for contact in receiver.contacts]:
                 receiver.contacts.append({
-                    'user_id':sender.id,
-                    'delete_status':False,})
+                    "user_id":sender.id,
+                    "delete_status":False,
+                    "contact_name":sender.username})
+                print("this is working for me....")
                 await database_sync_to_async(receiver.save)()
-                check = False
+                check_contact = {"_id":sender.id, "username":sender.username, "profile_img":sender.profile_image.url if sender.profile_image else None,}
                 sender_profile_image = sender.profile_image.url if sender.profile_image else None
 
-
+            for contact in sender.contacts:
+                if contact["user_id"] == receiver.id:
+                    if contact["delete_status"]:
+                        contact["delete_status"] = False
+                        await database_sync_to_async(sender.save)()
+                        break 
+                      
              
             type_content = ''
             url = ''
@@ -285,7 +290,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'toggle_count':message_reciver_count +1,
                 'last_msg_time':last_msg_time,
                 'label_time':formate_msg_time,
-                'check_contacts':check,
+                'check_contact':check_contact,
                 'sender_profile_image':sender_profile_image,
                 'url':url,
                 'caption':caption,
