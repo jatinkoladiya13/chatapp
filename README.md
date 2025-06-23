@@ -8,7 +8,7 @@ A real-time chat application built with **Django** and **Django Channels**, allo
 - User register &  login
 - One to one and group chat support
 - Real-time messaging using Websockets 
-- Responsive UI using HTMl and CSS
+- Responsive UI using HTMl and CSS with manage small task javascript
 - Responsive UI using Bootstrap
 - User online/offline status indicator
 - User upload daily status
