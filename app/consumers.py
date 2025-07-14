@@ -312,7 +312,42 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             video_duration = ''
             is_reply_status = False
+        
+        # if action == "video_offer":
+        #     receiver_id = text_data_json["receiver_id"]
+        #     offer = text_data_json["offer"]
 
+        #     if int(receiver_id) in user_connections:
+        #         for conn in user_connections[int(receiver_id)]:
+        #             await conn.send(text_data=json.dumps({
+        #                 "type": "video_offer",
+        #                 "offer": offer,
+        #                 "sender_id": sender_id
+        #             }))
+
+        # if action == "video_answer":
+        #     receiver_id = text_data_json["receiver_id"]
+        #     answer = text_data_json["answer"]
+
+        #     if int(receiver_id) in user_connections:
+        #         for conn in user_connections[int(receiver_id)]:
+        #             await conn.send(text_data=json.dumps({
+        #                 "type": "video_answer",
+        #                 "answer": answer,
+        #                 "sender_id": sender_id
+        #             })) 
+
+        # if action == "new_ice_candidate":
+        #     receiver_id = text_data_json["receiver_id"]
+        #     candidate = text_data_json["candidate"]
+
+        #     if int(receiver_id) in user_connections:
+        #         for conn in user_connections[int(receiver_id)]:
+        #             await conn.send(text_data=json.dumps({
+        #                 "type": "new_ice_candidate",
+        #                 "candidate": candidate,
+        #                 "sender_id": sender_id
+        #             }))                       
 
 
     async def send_chat_history(self, sender_id, receiver_id):

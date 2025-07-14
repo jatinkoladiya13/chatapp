@@ -4246,3 +4246,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     font-size: .9375rem;
     line-height: 24px;
 }
+
+#localVideo {
+    transform: scaleX(-1); 
+}
+
+#remoteVideo {
+    transform: scaleX(-1); 
+}

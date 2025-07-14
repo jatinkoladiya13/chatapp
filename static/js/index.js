@@ -2681,3 +2681,98 @@ function common_SHOW_messages(status, text){
         }, 500);
     }, 5000);
 }
+
+// video call 
+// const localVideo = document.getElementById("localVideo");
+// const remoteVideo = document.getElementById("remoteVideo");
+
+// const peer = new RTCPeerConnection();
+
+// function sendWhenSocketReady(data) {
+//     if (chatSocket.readyState === WebSocket.OPEN) {
+//         chatSocket.send(JSON.stringify(data));
+//     } else {
+//         chatSocket.addEventListener("open", () => {
+//             chatSocket.send(JSON.stringify(data));
+//         }, { once: true });
+//     }
+// }
+
+// navigator.mediaDevices.getUserMedia({
+//     video: true,
+//     audio: { 
+//         echoCancellation: true,
+//         noiseSuppression: true,
+//         autoGainControl: true,
+//         channelCount: 1,
+//         sampleRate: 48000, 
+//         sampleSize: 16
+//     }
+// }).then(stream => {
+//     localVideo.srcObject = stream;
+//     stream.getTracks().forEach(track => peer.addTrack(track, stream));
+// });
+
+// peer.ontrack = (event) => {
+   
+//     if (event.track.kind === "video") {
+//         remoteVideo.srcObject = event.streams[0];
+//     } else if (event.track.kind === "audio") {
+//         document.getElementById("remoteAudio").srcObject = event.streams[0];
+//     }
+// };
+
+// peer.onicecandidate = event => {
+//     sendWhenSocketReady({
+//         action: "new_ice_candidate",
+//         receiver_id: 43,
+//         candidate: event.candidate
+//     });
+// };
+
+
+// chatSocket.addEventListener("open", () => {
+//     peer.createOffer().then(offer => {
+//         peer.setLocalDescription(offer);
+//         if (window.djangoUserId !== '43') {
+//             chatSocket.send(JSON.stringify({
+//                 action: "video_offer",
+//                 receiver_id: 43,
+//                 offer: offer
+//             }));
+//         }
+//     });
+// });
+
+// chatSocket.onmessage = async ({ data }) => {
+//     const msg = JSON.parse(data);
+//     console.log("msg===============",msg);
+//     switch (msg.type){
+
+//         case "video_offer":
+//             await peer.setRemoteDescription(new RTCSessionDescription(msg.offer));
+//             const answer = await peer.createAnswer();
+//             await peer.setLocalDescription(answer);
+//             sendWhenSocketReady({
+//                 action: "video_answer",
+//                 receiver_id: msg.sender_id,   
+//                 answer: answer
+//             });
+//             break;
+
+//         case "video_answer":
+//             await peer.setRemoteDescription(new RTCSessionDescription(msg.answer));
+//             break;
+
+//         case "new_ice_candidate":
+//             try {
+//                 await peer.addIceCandidate(new RTCIceCandidate(msg.candidate));
+//             } catch (e) {
+//                 console.error("Error adding received ice candidate", e);
+//             }
+//             break;    
+
+              
+//     }
+
+// }
