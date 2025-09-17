@@ -19,3 +19,9 @@ A real-time chat application built with **Django** and **Django Channels**, allo
 - channels 4.x
 - channels-redis 4.x
 - SQLite (default, can be changed)
+
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
+
+This env file load when we use the celery server.
