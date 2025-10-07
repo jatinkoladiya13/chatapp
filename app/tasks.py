@@ -5,6 +5,9 @@ from channels.layers import get_channel_layer
 from datetime import datetime
 from django.utils import timezone
 from asgiref.sync import async_to_sync
+import logging
+
+
 
 @shared_task
 def delete_expired_statues():
