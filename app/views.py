@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from app.models import User
 from django.contrib.auth import authenticate, login, logout
+from allauth.socialaccount.models import SocialAccount, SocialLogin
 from django.contrib import messages
 from app.email import send_otp_via_email
 from .untils import encrypt, decrypt
@@ -18,8 +19,9 @@ from app.custom_time_filters import relative_time
 from django.utils import timezone
 from datetime import datetime
 from django.utils import timezone
-import json
+import json, os
 import uuid
+import requests
 # Create your views here.
 
 def register(request):
@@ -55,8 +57,25 @@ def loginpage(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
+
+        # reCAPTCHA Stuff
+        clientkey = request.POST['g-recaptcha-response']
+        secretkey = os.getenv('CAPTCHA_SECRET_KEY'),
+
+        captchaData ={
+            'secret':secretkey,
+            'response':clientkey
+        }
+
+        # Recapctha for verify  
+        # r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=captchaData)
+        # response = json.loads(r.text)
+        # verify = response['success']
+    
+        # if True is not verify:
+        #     messages.error(request, "Please fill the CAPTCHA")
+        #     return render(request, 'login.html')
         
-        print(f"email=={email}==password==={password}")
         if User.objects.filter(email=email).exists():
             user = authenticate(request,  email=email, password=password)
             if user is not None:
@@ -71,6 +90,7 @@ def loginpage(request):
 
 def logouts(request):
     logout(request)
+    request.session.flush() 
     messages.success(request,"Log out successfully..!")
     return redirect('login')
 
@@ -148,14 +168,16 @@ def home(request):
     login_user  = request.user
     
 
-    contact_ids = [contact['user_id'] for contact in login_user.contacts if contact['delete_status'] != True]
+    contacts = [contact for contact in login_user.contacts if contact['delete_status'] != True]
     
     
     
-    contact_users = User.objects.filter(id__in=contact_ids) 
+    # contact_users = User.objects.filter(id__in=contact_ids) 
     user_data = []
-    for contact_user in contact_users:
-        message_reciver_count = Message.objects.filter(sender_id=contact_user.id,receiver_id=login_user.id, is_read=False).count()
+    for contact in contacts:
+        
+        contact_user = User.objects.get(id=contact['user_id'])
+        message_reciver_count = Message.objects.filter(sender_id=contact_user.id,receiver_id=login_user.id, status_view='delivered').count()
         
         if contact_user.id == login_user.id:
             message_reciver_count = 0
@@ -198,10 +220,17 @@ def home(request):
                     last_msg  = last_message.caption
                 else:    
                     last_msg = last_message.content            
-         
+       
+        username = ''
+        if contact["contact_name"] != '':
+            username =  contact["contact_name"]
+        else:
+            username = contact_user.username
+
+
         user_data.append({
             'id': contact_user.id,
-            'username': contact_user.username,
+            'username': username,
             'email': contact_user.email,
             'profile_image':contact_user.profile_image.url if contact_user.profile_image else None,
             'toggle_count':message_reciver_count,
@@ -221,9 +250,16 @@ def home(request):
 def create_contacts(request):
     if request.method == 'POST':
         login_user_id = request.user.id
-        json_id=json.loads(request.body)
-        contact_email = json_id.get('contact_email')
-        user  = User.objects.get(email=contact_email)
+        json_data=json.loads(request.body)
+        contact_email = json_data.get('contact_email')
+        contact_name = json_data.get('contact_name')
+        messages.success(request, "Your account has been registered successfully!")
+
+        try: 
+            user  = User.objects.get(email=contact_email)
+        except User.DoesNotExist:
+            return  JsonResponse({'error': "This email is not exists..!"}, status=400)
+
         if user :
             create_by_user = User.objects.get(id=login_user_id)
 
@@ -233,6 +269,7 @@ def create_contacts(request):
             for contact in create_by_user.contacts:
                 if contact['user_id'] == user.id:
                     contact['delete_status'] = False
+                    contact['contact_name'] = contact_name
                     break
                 if contact['user_id'] in create_by_user.deleted_contacts:
                     del create_by_user.deleted_contacts[contact['user_id']]
@@ -240,7 +277,8 @@ def create_contacts(request):
                 print(type(user.contacts), user.contacts)
                 create_by_user.contacts.append({
                     'user_id':user.id,
-                    'delete_status':False,})
+                    'delete_status':False,
+                    'contact_name':contact_name})
             create_by_user.save()
             return JsonResponse({'status':'200', 'message':  "Create contact successfully..!"}, status=200)    
                  
@@ -255,26 +293,28 @@ def get_contacts(request):
 
     search_term = request.GET.get('q', '').strip()
 
-    contact_ids = [contact['user_id'] for contact in user.contacts if contact['delete_status'] != True]
+    contact_user_data = []
+    for contact in user.contacts:
+      
+            contact_user = User.objects.get(id=contact['user_id'])
+           
+            contact_name = contact.get("contact_name", "")
+            username = contact_name if contact_name else contact_user.username
 
-    if search_term:
-        contact_users = User.objects.filter(
-            id__in=contact_ids,
-            username__icontains=search_term
-        )
-    else:
-        contact_users = User.objects.filter(id__in=contact_ids)    
+            if search_term:
+                if contact_name:
+                    if search_term not in contact_name.lower():
+                        continue  
+                else:
+                    if search_term not in contact_user.username.lower():
+                        continue    
 
-    
-    contact_user_data = [
-        {
-            'id': contact_user.id,
-            'username': contact_user.username,
-            'profile_image': contact_user.profile_image.url if contact_user.profile_image else None,
-        }
-        for contact_user in contact_users
-    ]
-   
+            contact_user_data.append({
+                'id': contact_user.id,
+                'username': username,
+                'profile_image': contact_user.profile_image.url if contact_user.profile_image else None,
+            })
+
     return JsonResponse({'status':'200', 'data':  contact_user_data}, status=200)
 
 def  delete_contact(request, contact_id):
@@ -340,7 +380,7 @@ def upload_videos(request):
         video = request.FILES.get('video')
         image = request.FILES.get('image')
         receiver_usr = request.POST.get('receiver_usr')
-        caption = request.POST.get('captions')
+        caption = request.POST.get('caption')
         sender_id = request.user.id
 
         receiver_msg = User.objects.get(id=receiver_usr)
@@ -515,36 +555,37 @@ def get_recent_status(request):
         show_contact_status = []         
 
         for contact in user_contacts:
-            contact_user_id  = contact["user_id"]
-            
-            if contact_user_id != user_id:
-                contact_user = User.objects.get(id=contact_user_id)
-                contact_name = contact_user.username
-
-                contact_user_status = Status.objects.filter(user=contact_user)
-                status_count = contact_user_status.count()
+            if contact['delete_status'] != True:
+                contact_user_id  = contact["user_id"]
                 
+                if contact_user_id != user_id:
+                    contact_user = User.objects.get(id=contact_user_id)
+                    contact_name = contact_user.username
 
-        
-                viewed_count = StatusView.objects.filter(viewer=user, status__user = contact_user).count()
-                unviewed_count = status_count - viewed_count
+                    contact_user_status = Status.objects.filter(user=contact_user)
+                    status_count = contact_user_status.count()
+                    
 
-                last_status = contact_user_status.order_by('-created_at').first()
-                final_time = ''
-                if last_status:
-                    get_local_time = localtime(last_status.created_at)
-                    final_time = relative_time(get_local_time)
-                 
-                if   status_count > 0:  
-                     
-                    show_contact_status.append({
-                        'image_url': contact_user.profile_image.url if contact_user.profile_image else '',
-                        'name':contact_name,
-                        'totalStatus':status_count,
-                        'unviewed_count':unviewed_count,
-                        'time':final_time,
-                        'id':contact_user_id,
-                    })
+            
+                    viewed_count = StatusView.objects.filter(viewer=user, status__user = contact_user).count()
+                    unviewed_count = status_count - viewed_count
+
+                    last_status = contact_user_status.order_by('-created_at').first()
+                    final_time = ''
+                    if last_status:
+                        get_local_time = localtime(last_status.created_at)
+                        final_time = relative_time(get_local_time)
+                    
+                    if   status_count > 0:  
+                        
+                        show_contact_status.append({
+                            'image_url': contact_user.profile_image.url if contact_user.profile_image else '',
+                            'name':contact_name,
+                            'totalStatus':status_count,
+                            'unviewed_count':unviewed_count,
+                            'time':final_time,
+                            'id':contact_user_id,
+                        })
 
 
         # This my status uploaded check functionality

@@ -9,6 +9,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True,  blank=True)
     verfy_otp = models.IntegerField(null=True, blank=True)
     profile_image = models.ImageField(upload_to='product_images/',  blank=True, null=True) 
+    google_profile_image = models.URLField(blank=True, null=True)
     contacts = models.JSONField(default=list, blank=True) 
     deleted_contacts = models.JSONField(default=dict, blank=True)
     is_online = models.BooleanField(default=False)
@@ -18,6 +19,30 @@ class User(AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username',)
+
+    def get_profile_image(self):
+
+        if self.profile_image:
+            return self.profile_image.url if self.profile_image else None
+        elif self.google_profile_image:
+            return self.google_profile_image
+        
+        return "/static/default_profile.png"
+
+    def delete(self, *args, **kwargs):
+        
+        from django.contrib.auth import get_user_model
+        UserModel = get_user_model()
+         
+        other_users =  UserModel.objects.exclude(id=self.id)
+        
+        for user in other_users:
+            updated_contacts = [contact for contact in user.contacts if contact.get("user_id") != self.id]
+            if user.contacts != updated_contacts:
+                user.contacts = updated_contacts
+                user.save()
+
+        super().delete(*args, **kwargs) 
 
     def __str__(self) -> str:
         return f'{self.username}'
@@ -60,12 +85,17 @@ class StatusView(models.Model):
             
                 
 class Message(models.Model):
+    STATUS_CHOICES = {
+        ('sent', 'Sent'),
+        ('delivered', 'Delivered'),
+        ('seen', 'Seen'),
+    }
+
     sender   = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
     receiver = models.ForeignKey(User,related_name='received_messages', on_delete=models.CASCADE) 
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False, blank=True, null=True)
-   
+    status_view = models.CharField(max_length=10, choices=STATUS_CHOICES, default='sent')
 
     image = models.ImageField(upload_to='message_images/', blank=True, null=True)
     video = models.FileField(upload_to='message_videos/', blank=True, null=True)

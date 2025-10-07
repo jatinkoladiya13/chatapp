@@ -7,6 +7,7 @@ const chatlist = document.getElementById('chatlist');
 const chatBlocks = chatlist.getElementsByClassName('block');
 const introRight = document.querySelector('.intro-right');
 const rightSide = document.querySelector('.rightside');
+const rightSide_inside = document.querySelector('.rightside .rightchat_inside');
 const createfriend = document.getElementById('createfriend');
 const drawerclose = document.getElementById('drawer-close');
 const leftsideDrawer = document.getElementById('leftsideDrawer');
@@ -18,22 +19,17 @@ const cancelDialog = document.getElementById('cancelDelete');
 const confirmDelete = document.getElementById('confirmDelete');
 const saveButton = document.getElementById('save-btn');
 const draweEmailInput = document.getElementById('drawer-email-input');
+const drawe_CNTName_input = document.getElementById('drawer-CNTname-input');
 const drwerChatlist  = document.querySelector('.drwer-chatlist');
 const drawerSearchInput = document.getElementById('drawer-search-input');
 const drwerSearchClose = document.getElementById('drawer-search-close');
-const plusUpload = document.getElementById('plusUpload');
-const plusUploadClose = document.getElementById('plusUploadClose');
-const plusDropdown = document.getElementById('plus-dropdown-menu');
-const imageViewer = document.getElementById('imageViewer');
-const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-const imagePreviewClose = document.getElementById('imagePreviewClose');
+
 const chat_box          = document.getElementById('chatBox'); 
 const chat_box_input    = document.getElementById('chatbox_input');
 
 // status profile  box change with status line and without status lines 
 const topheader_Profile_Status = document.getElementById('topheader-profile-status');
 const topheaderProfile_Status_Second = document.getElementById('topheader-profile-status-second');
-
 
 // WebSocket  initialization
 const roomName = 'chat_consumer'; 
@@ -72,7 +68,7 @@ searchInput.addEventListener('input', () =>{
         const userName  = userNameElement.textContent || userNameElement.innerText;
         chatBlocks[i].style.display = userName.toLowerCase().includes(filter) ? '' : 'none';   
     }
-    searchClose.style.display = searchInput.value.trim() === '' ? 'none' : 'block';   
+    searchClose.style.display = searchInput.value.trim() === '' ? 'none' : 'flex';   
 });
 
 searchClose.addEventListener('click', () => {
@@ -84,7 +80,7 @@ searchClose.addEventListener('click', () => {
     
    
 window.onload = function(){
-    rightSide.style.display = 'none';
+    rightSide_inside.style.display = 'none';
     introRight.style.display = 'flex';
 }; 
     
@@ -121,18 +117,48 @@ cancelDialog.addEventListener('click',()=>{
     deleteDialog.style.display = 'none';
 });
 
+deleteDialog.addEventListener('click', function(e){
+    if(e.target === deleteDialog){
+        deleteDialog.style.display = 'none';
+    } 
+});
+
 confirmDelete.addEventListener('click',()=>{
     const userId = deleteDialog.getAttribute('data-user-id');
     if(userId){
-        
         deleteContact(userId);
     }   
 });
 
+const delete_model_userCHT = document.getElementById('delete_model_userCHT');
+delete_model_userCHT.addEventListener('click', ()=>{
+    deleteDialog.style.display = 'flex';
+    const chat_USR_model = document.getElementById('chat_USR_model');
+
+    const userId = chat_USR_model.getAttribute('data-user-id');
+    const userName = chat_USR_model.getAttribute('data-user-name');
+    document.getElementById('dialog-heading-ixt').textContent = `Delete chat with ${userName}`;
+     
+    deleteDialog.setAttribute('data-user-id', userId);
+    chat_USR_model.style.display = 'none';
+});
+
+
 saveButton.addEventListener('click',()=>{
-    if(draweEmailInput.value.trim() != ''){
-        
-         saveContactsApi(draweEmailInput.value);
+    const  emailRegex =  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(draweEmailInput.value.trim() == '' || drawe_CNTName_input.value.trim() == ''){
+        common_SHOW_messages('error', "Add all required information......!");
+    }
+    else if(!emailRegex.test(draweEmailInput.value)){
+        common_SHOW_messages('error', "Enter valid email......!");
+    }else{
+
+        if(draweEmailInput.value.trim() != '' && drawe_CNTName_input.value.trim() != ''){
+            
+            saveContactsApi(draweEmailInput.value, drawe_CNTName_input.value);
+        }else{
+            common_SHOW_messages('error', "Add all required information......!");
+        }
     }
 });
 
@@ -146,7 +172,7 @@ drawerSearchInput.addEventListener('input', () =>{
         drwerSearchClose.style.display = 'none';  
     } else {
         getContacts(drawerSearchInput.value);
-        drwerSearchClose.style.display = 'block'; 
+        drwerSearchClose.style.display = 'flex'; 
     } 
 });
 
@@ -156,43 +182,6 @@ drwerSearchClose.addEventListener('click', () => {
     drawerSearchInput.focus();
 }); 
 
-
-plusUpload.addEventListener('click', ()=>{
-    plusUpload.style.display = 'none';
-    plusUploadClose.style.display = 'block';
-    plusDropdown.style.cssText = `
-        display: block;
-        transform: translateY(0);
-        opacity: 1;
-    `;  
-});
-
-plusUploadClose.addEventListener('click', ()=>{
-    plusUpload.style.display = 'block';
-    plusUploadClose.style.display = 'none';
-    plusDropdown.style.cssText = `
-        display: none;
-        transform: translateY(0);
-        opacity: 1;
-    `; 
-});
-
-document.addEventListener('click',function(event){
-    if(!plusDropdown.contains(event.target) && !plusUpload.contains(event.target)){
-        plusDropdown.style.cssText = `
-            display: none;
-            transform: translateY(0);
-            opacity: 1;
-        `;
-        plusUpload.style.display = 'block';
-        plusUploadClose.style.display = 'none';
-
-    } 
-});
-
-imagePreviewClose.addEventListener('click',()=>{
-    clearImages(); 
-});
 
 // side header click functionality 
 
@@ -271,6 +260,9 @@ function status_data_get_On_button(){
             topheaderProfile_Status_Second.style.display = 'flex';
             profile_Status_Second_details.textContent = data.mystatus_data.my_status_upload_time;
             statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.mystatus_data.mystatus_count, data.mystatus_data.mystatus_unviewed_count);
+        }else{
+            topheader_Profile_Status.style.display = 'flex';
+            topheaderProfile_Status_Second.style.display = 'none';
         }
        
         
@@ -465,15 +457,23 @@ logout_button.addEventListener('click', function(){
 const topheaderAddStatus = document.getElementById('topheader-add-status');
 const smallDrawerStatus = document.getElementById('small-drawer-status');
 const scrollableContent = document.getElementById('scrollable-content');
-
+let isDrawerOpen_status = false;
 topheaderAddStatus.addEventListener('click', function(event){
-    topheaderAddStatus.style.background = "rgba(255, 255, 255, .1)";
-    smallDrawerStatus.style.cssText = `transform-origin: right top;
-    right: 74px;
-    top: 56.5px;
-    transform: scale(1);
-    display:flex;`;
-    scrollableContent.style.overflowY = "hidden";
+    isDrawerOpen_status = !isDrawerOpen_status; 
+    if(isDrawerOpen_status){
+        topheaderAddStatus.style.background = "rgba(255, 255, 255, .1)";
+        smallDrawerStatus.style.cssText = `transform-origin: right top;
+        right: 74px;
+        top: 56.5px;
+        transform: scale(1);
+        display:flex;
+        border-radius: 18px;`;
+        scrollableContent.style.overflowY = "hidden";
+    }else{
+        topheaderAddStatus.style.background = "";
+        smallDrawerStatus.style.cssText = "display: none;";
+        scrollableContent.style.overflowY = "auto";
+    }
     event.stopPropagation();
    
 });
@@ -495,403 +495,11 @@ topheader_Profile_Status.addEventListener('click', function(event){
     left: 44px;
     top: 103.5px;
     transform: scale(1);
-    display:flex;`;
+    display:flex;
+    border-radius: 18px;`;
     scrollableContent.style.overflowY = "hidden";
     event.stopPropagation();
 });
-
-// take photo and video for status and viewed 
-const imgPreviewContainers = document.getElementById('imgPreview-containers');
-const closeStausImgandVidPreview = document.getElementById('closeStausImgandVidPreview');
-
-closeStausImgandVidPreview.addEventListener('click', function(){
-    imgPreviewContainers.style.display ="none";
-    statusFileIndexCounter = 0;
-    fileBlobs = [];
-});
-
-let statusFileIndexCounter = 0;
-let fileBlobs = [];
-
-function extractVideoThumbnail(videoFile){
-    return new Promise((resolve, reject) => {
-        const videoElement = document.createElement('video');
-        const canvasElement = document.createElement('canvas');
-        const context = canvasElement.getContext('2d');
-
-        const videoURL = URL.createObjectURL(videoFile);
-        videoElement.src = videoURL;
-
-        videoElement.muted = true;
-        videoElement.playsInline = true;
-        videoElement.autoplay = true;
-
-        videoElement.addEventListener('loadeddata', () => {
-            // Set canvas size to match the video's dimensions
-            canvasElement.width = videoElement.videoWidth;
-            canvasElement.height = videoElement.videoHeight;
-
-            // Draw the current frame of the video onto the canvas
-            context.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
-
-            // Convert the canvas content to a Data URL (base64 string)
-            const thumbnailDataUrl = canvasElement.toDataURL('image/png');
-
-            // Clean up and revoke the blob URL
-            URL.revokeObjectURL(videoURL);
-
-            // Resolve the thumbnail image Data URL
-            resolve(thumbnailDataUrl);
-        });
-
-        videoElement.addEventListener('error', (e) => {
-            reject(new Error('Error loading video file for thumbnail extraction.'));
-        });
-    });
-}
-
-//  this function check video or image
-function isCheckLogic(result, checkIsVideo){
-    const statusTakePrviews = document.querySelector(".status-take-file-previews");
-    let file_tag = ``;
-    statusTakePrviews.innerHTML = "";
-
-    if (checkIsVideo) {
-        file_tag = `
-        <video id="statuspreviewFile" controls>
-            <source src=${result} type="video/mp4">
-        </video>`;
-    } else {
-        file_tag = `<img id="statuspreviewFile" src=${result} alt="Image Preview">`;
-    }
-    statusTakePrviews.insertAdjacentHTML('beforeend', file_tag);
-}
-
-function readFile(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve({ result: e.target.result, file });
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-
-// input tage fille onchange called this function 
-function handlePhotoAndVideoCapture(event){
-    const files = event.target.files;
-    
-    const total_status_limit = my_status_count + files.length;
-    if(total_status_limit > 25){
-        alert(`You can only upload a maximum of 25 statuses. Please reduce your selection.`);
-        return;
-    }
-    
-
-    
-
-    const  statusMutipleFile  = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
-    const statusCaptionInput = document.getElementById("status-caption-input");
-    const statusCaptionClose = document.getElementById("status-caption-close");
-    
-   
-    const isFirstUpload = statusMutipleFile.innerHTML.trim() === '';
-   
-
-    if(isFirstUpload){
-        statusFileIndexCounter = 0;  
-        fileBlobs = [];  
-        statusCaptionInput.value="";
-        statusCaptionInput.setAttribute('data-index', '0');
-    }
-
-    const filePromises  = Array.from(event.target.files).map((file)=>{
-
-        return new Promise((resolve, reject)=>{
-
-            if(file.type.startsWith('video/') && file.size > 10 * 1024 * 1024){
-                alert(`The video file "${file.name}" exceeds the size limit of 10 MB and will be skipped.`);
-                return resolve(null);
-            }
-
-            const isVideo = file.type.startsWith('video/');
-            if(isVideo){
-                const video = document.createElement("video");
-                const videoFileUrl = URL.createObjectURL(file);
-                
-                video.src = videoFileUrl;
-                video.onloadedmetadata = function() {
-
-                    if(video.duration > 30){
-                        alert(`The video file "${file.name}" duration must be less than or equal to 30 seconds.`);
-                        return resolve(null);
-                    }
-
-                    readFile(file).then(resolve).catch(reject);
-                }
-            } else{
-                readFile(file).then(resolve).catch(reject);
-            }
-          
-
-          
-           
-            
-        });
-    }).filter((promise) => promise !== null);
-
-    Promise.all(filePromises).then((fileDataArray)=>{
-        fileDataArray.filter((fileData) => fileData !== null).forEach( ({result, file }) => {
-            const isVideo = file.type.startsWith('video/');
-            let imgTeg;
-            
-            if (isVideo) {
-                extractVideoThumbnail(file).then(thumbnailDataUrl => {
-                    imgTeg = `
-                        <button class="status_Multiple_File_Btn" data-index="${statusFileIndexCounter}" data-caption="" data-src="${result}">
-                            <div class="first">
-                                <ion-icon name="close-outline" id="st-removeFile"></ion-icon>
-                            </div>
-                            <div class="second">
-                                <img alt="Video Thumbnail" class="cover" src="${thumbnailDataUrl}">
-                            </div>
-                        </button>
-                    `;
-
-                    // thumbnailDataurl convert to file
-                    const byteString = atob(thumbnailDataUrl.split(',')[1]);
-                    const arrayBufferr = new ArrayBuffer(byteString.length);
-                    const uint8Array = new Uint8Array(arrayBufferr);
-                    
-                    for(let i=0; i<byteString.length; i++){
-                        uint8Array[i] = byteString.charCodeAt(i);
-                    }
-
-                    const blob = new Blob([uint8Array], {type: 'image/png'});
-                    const background_file = new File([blob], 'thumbnail.png', { type: 'image/png' });
-   
-
-                    statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
-                    fileBlobs.push({
-                        file: file,
-                        background_file:background_file,
-                        index: statusFileIndexCounter,
-                        type: true,
-                    }); 
-    
-                    if (statusFileIndexCounter === 0 && isFirstUpload) {
-                        isCheckLogic(result, true);
-                    }
-
-                    statusFileIndexCounter++;
-                });
-            } else {
-                imgTeg = `
-                    <button class="status_Multiple_File_Btn" data-index="${statusFileIndexCounter}" data-caption="">
-                        <div class="first">
-                            <ion-icon name="close-outline" id="st-removeFile"></ion-icon>
-                        </div>
-                        <div class="second">
-                            <img alt="Preview" class="cover" src="${result}">
-                        </div>
-                    </button>
-                `;
-                statusMutipleFile.insertAdjacentHTML('beforeend', imgTeg);
-                fileBlobs.push({
-                    file: file,
-                    index: statusFileIndexCounter,
-                    type:false,
-                }); 
-
-                if (statusFileIndexCounter === 0 && isFirstUpload) {
-                    isCheckLogic(result, false);
-                } 
-
-                statusFileIndexCounter++;
-            }
-           
-             
-           
-
-        });
-    });
-    imgPreviewContainers.style.display ="flex";
-
-    //  this is bottom click change privewe and remove 
-    const observer = new MutationObserver(()=>{
-        const status_Multiple_File_Btn = document.querySelectorAll('.status_Multiple_File_Btn');
-
-        if(isFirstUpload){
-            status_Multiple_File_Btn[0].classList.add('selected');
-            const caption = status_Multiple_File_Btn[0].getAttribute('data-caption');
-            statusCaptionInput.value = caption || '';
-        
-        }
-
-        const statusMutipleFile = document.querySelector('.status_preview_bottoms .send-images .status-multiple-files');
-        statusMutipleFile.addEventListener('click', function(event){
-            if(event.target.closest('#st-removeFile')){
-                const button = event.target.closest('.status_Multiple_File_Btn');
-                if(button){
-                    const isSelected = button.classList.contains('selected');
-                   
-                    button.remove();
-
-                    const dataIndex = button.getAttribute('data-index');
-                    const indexToRemove = parseInt(dataIndex);
-                    fileBlobs.splice(indexToRemove, 1);
-
-                    const remainingButtons = document.querySelectorAll('.status_Multiple_File_Btn');
-                    if(remainingButtons.length > 0){
-                        if(isSelected){
-                            remainingButtons[0].classList.add('selected');
-                            const imgElement = remainingButtons[0].querySelector('img');
-                            const dataOfSrc = remainingButtons[0].getAttribute('data-src');
-                            if(dataOfSrc){
-                                isCheckLogic(dataOfSrc, true);
-                            }else{
-                                isCheckLogic(imgElement.src, false);
-                            }
-    
-                            const caption  = remainingButtons[0].getAttribute('data-caption');
-                            statusCaptionInput.value = caption || '';
-                            statusCaptionInput.setAttribute('data-index',  remainingButtons[0].getAttribute('data-index'));
-                        }
-
-                    }else{
-                        imgPreviewContainers.style.display ="none";
-                    }
-
-                }
-            }else if(event.target.closest('.status_Multiple_File_Btn')){
-                const clickedButton = event.target.closest('.status_Multiple_File_Btn');
-                const status_Multiple_File_Btn = document.querySelectorAll('.status_Multiple_File_Btn');
-
-                status_Multiple_File_Btn.forEach(item => item.classList.remove('selected'));
-                clickedButton.classList.add('selected');
-
-                const imgElement = clickedButton.querySelector('img');
-                const dataSrc = clickedButton.getAttribute('data-src');
-                if(dataSrc){
-                    isCheckLogic(dataSrc, true);
-                }else{
-                    isCheckLogic(imgElement.src, false);
-                }
-                
-        
-                const caption = clickedButton.getAttribute('data-caption');
-                const statusCaptionInput = document.getElementById("status-caption-input");
-                statusCaptionInput.value = caption || '';
-                statusCaptionInput.setAttribute('data-index', clickedButton.getAttribute('data-index'));
-            }
-        });
-
-    
-
-
-        observer.disconnect();
-    });
-
-    observer.observe(statusMutipleFile, { childList: true });
-    
-    // this is caption input access
-    statusCaptionInput.addEventListener('input', function(){
-        const selectedIndex = this.getAttribute('data-index');
-        const selectedImageButton = document.querySelector(`.status_Multiple_File_Btn[data-index="${selectedIndex}"]`);
-        if(selectedImageButton){
-            selectedImageButton.setAttribute('data-caption', this.value);   
-        }
-    });
-
-    // this is caption close icon click
-    statusCaptionClose.addEventListener('click', function(){
-        
-        const selectedIndex = statusCaptionInput.getAttribute('data-index');
-        const selectedImageButton = document.querySelector(`.status_Multiple_File_Btn[data-index="${selectedIndex}"]`);
-
-        if(selectedImageButton){
-            statusCaptionInput.value = '';
-            selectedImageButton.setAttribute('data-caption', '');
-        }
-    });
-   
-}
-
-//  status upload send button click with called api function
-const statusUploadSend = document.getElementById('status_upload_send');
-const profile_Status_Second_details = document.getElementById('profile_Status_Second_details');
-
-statusUploadSend.addEventListener('click', function(event){
- 
-    if(fileBlobs.length > 0){
-       
-        fileBlobs.forEach( async (status_file, index) => {
-            const formDate = new FormData();
-    
-           
-            if(status_file.type){
-                formDate.append('video', status_file.file);
-                formDate.append('background_img', status_file.background_file);
-            }else{
-                formDate.append('image', status_file.file);
-            }
-
-            const file_catption_get = document.querySelector(`.status_Multiple_File_Btn[data-index="${status_file.index}"]`);
-            const caption =  file_catption_get ? file_catption_get.getAttribute('data-caption') : '';
-            formDate.append('caption', caption);  
-
-            
-          
-            await statusFileSenToApi(formDate, index);
-
-        });
-          
-    }
-});
-
-//  upload api function 
-async function statusFileSenToApi(formatDate, index){
-    try{
-        const response = await fetch('/upload_status/',{
-            method:'POST',
-            header:{
-                'Content-Type':'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: formatDate,
-        });
-        
-    
-        if(response.ok){
-            const data = await response.json();
-            let checking = fileBlobs.length-1;
-            
-            if(checking === index){
-                fileBlobs=[];
-                topheaderProfile_Status_Second.style.display = 'flex';
-                topheader_Profile_Status.style.display = 'none';  
-                document.querySelector('.status_preview_bottoms .send-images .status-multiple-files').innerHTML = '';     
-            }
-
-            profile_Status_Second_details.textContent = data.message['Upload_time']; 
-            my_status_count = data.message.total_count_status;
-            statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.message.total_count_status, data.message.unviewed_count);
-            imgPreviewContainers.style.display ="none";
-
-            chatSocket.send(JSON.stringify({
-                'action':'uploade_status',
-                'uploaded_user_id': data.user_id,
-                'status_id':data.message.id,  
-                'uploaded_users_contacts':data.user_contacts, 
-            }));
-
-        }else{
-            console.error("Failed to update profile. Status:", response.status);
-        }
-    }catch(error){
-        console.error("Error:",error);
-    }
-}
 
 
 // this is common function show lines viewed and unviewed 
@@ -971,6 +579,8 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
     const mystatus_for_dialog = document.querySelector('.dialog');
     const mystatus_pause = document.getElementById('mystatus_pause');
     const mystatus_play =  document.getElementById('mystatus_play');
+    const mystatus_mute = document.getElementById('mystatus_mute');
+    const mystatus_unmute = document.getElementById('mystatus_unmute');
     const mystatus_profile_time = document.getElementById('mystatus_profile_time');
     const mystatus_profile_name = document.getElementById('mystatus_profile_name');
     const mystatus_profile_img = document.getElementById('mystatus_profile_img');
@@ -1028,6 +638,24 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
 
     mystatus_pause.addEventListener('click', function(){        
         handelResume();
+    });
+
+    mystatus_mute.addEventListener('click', function(){
+        console.log("video_is---------------mute");
+        
+        if (statusVideoDisplay.style.display === 'block') {
+            mystatus_mute.style.display = "none";
+            mystatus_unmute.style.display = "block";
+            statusVideoDisplay.muted = !statusVideoDisplay.muted;
+        }
+    });
+
+    mystatus_unmute.addEventListener('click', function(){
+        if (statusVideoDisplay.style.display === 'block') {
+            mystatus_unmute.style.display = "none";
+            mystatus_mute.style.display = "block";
+            statusVideoDisplay.muted = !statusVideoDisplay.muted;
+        }
     });
 
     function handlePause(){
@@ -1345,6 +973,10 @@ function statusCountViewedAndUnviewed_lines(UnviewedId, ViewedId, totalStatus, t
                 mystatus_dialog_django_content.innerHTML = `<span>No Views Yet</span>`;
             }
             
+            // this is some video mute functionality
+            mystatus_unmute.style.display = "none";
+            mystatus_mute.style.display = "block";
+            statusVideoDisplay.muted = !statusVideoDisplay.muted;
       
             await animateLine(statusLines[i],  animationDuration);
         }
@@ -1452,6 +1084,95 @@ function add_Viewed_status(status_id){
 }
 
 
+// file upload 
+const file_preview_container = document.getElementById('file_preview_container');
+const file_preview_Close = document.getElementById('file_preview_Close');
+
+const plus_upload_btn = document.getElementById('plus_upload_btn');
+const plusDropdown = document.getElementById('plus-dropdown-menu');
+
+const textarea = document.getElementById("captinoInput");
+textarea.addEventListener("input", function () {
+  const initialHeight = window.innerWidth <= 500 ? 20 : 24;
+  textarea.style.height = `${initialHeight}px`;
+  textarea.style.height = `${Math.min(textarea.scrollHeight, 100)}px`;
+});
+
+let rotated = false;
+plus_upload_btn.addEventListener('click', ()=>{
+ 
+    plus_upload_btn.style.transition = 'transform 0.1s ease-in-out';
+    rotated = !rotated;
+    if(rotated){
+        plus_upload_btn.style.transform = 'rotate(45deg)';
+        plusDropdown.style.cssText = `
+            display: block;
+            transform: translateY(0);
+            opacity: 1; 
+        `;  
+    }else{
+        plus_upload_btn.style.transform = 'rotate(0deg)';
+        plusDropdown.style.cssText = `
+            display: none;
+            transform: translateY(0);
+            opacity: 1;
+        `; 
+    }
+});
+
+document.addEventListener('click',function(event){
+    if(!plusDropdown.contains(event.target) && !plus_upload_btn.contains(event.target)){
+        plus_upload_btn.style.transform = 'rotate(0deg)';
+        plusDropdown.style.cssText = `
+            display: none;
+            transform: translateY(0);
+            opacity: 1;
+        `; 
+
+    } 
+});
+
+
+file_preview_Close.addEventListener('click',()=>{
+    clearFiles(); 
+});
+
+function readFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve({ result: e.target.result, file });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function clearFiles(){
+    file_preview_container.style.display = 'none';
+    chat_box.style.display = 'block';
+    chat_box_input.style.display = 'flex';
+    
+    const multipleImg = document.querySelector('.preview_bottom .send-images .multiple-image');
+    multipleImg.innerHTML = '';
+    
+    const imagePreview = document.querySelector(".file-preview");
+    imagePreview.innerHTML = '';
+}
+
+function closeDrawandOpenImgView(){
+    if(chat_box){
+        plusDropdown.style.cssText = `
+            display: none;
+            transform: translateY(0);
+            opacity: 1;
+        `; 
+        chat_box.style.display = 'none';
+        chat_box_input.style.display = 'none';
+    }
+    file_preview_container.style.display = 'flex';
+    
+}
+
+// loader
 const multipleItems = document.getElementById('multiple-items');
 const dataLoader = document.getElementById('loader');
 
@@ -1465,475 +1186,389 @@ function stopLoading(){
     dataLoader.style.display  = "none";
 }
 
-function clearImages(){
-    imagePreviewContainer.style.display = 'none';
-    chat_box.style.display = 'block';
-    chat_box_input.style.display = 'flex';
-    
-    const multipleImg = document.querySelector('.preview_bottom .send-images .multiple-image');
-    multipleImg.innerHTML = '';
-    
-    const imagePreview = document.querySelector(".image-preview");
-    imagePreview.innerHTML = '';
+function extractVideoThumbnail(videoFile){
+    return new Promise((resolve, reject) => {
+        const videoElement = document.createElement('video');
+        const canvasElement = document.createElement('canvas');
+        const context = canvasElement.getContext('2d');
 
-    const check_input = document.getElementById('addmoreImg');
-    if(check_input){
-        check_input.remove();
+        const videoURL = URL.createObjectURL(videoFile);
+        videoElement.src = videoURL;
+
+        videoElement.muted = true;
+        videoElement.playsInline = true;
+        videoElement.autoplay = true;
+
+        videoElement.addEventListener('loadeddata', () => {
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+
+           
+            context.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
+            const thumbnailDataUrl = canvasElement.toDataURL('image/png');
+
+            URL.revokeObjectURL(videoURL);
+            resolve(thumbnailDataUrl);
+        });
+
+        videoElement.addEventListener('error', (e) => {
+            reject(new Error('Error loading video file for thumbnail extraction.'));
+        });
+    });
+}
+
+function isCheckLogic(result, checkIsVideo){
+    const fileTakePrviews = document.querySelector(".file-preview");
+    let file_tag = ``;
+    if(fileTakePrviews){
+        fileTakePrviews.innerHTML = "";
     }
+    
+
+    if (checkIsVideo) {
+        file_tag = `
+        <video id="previewVideo" controls>
+            <source src=${result} type="video/mp4">
+        </video>`;
+    } else {
+        file_tag = `<img id="previewImage" src=${result} alt="Image Preview">`;
+    }
+    fileTakePrviews.insertAdjacentHTML('beforeend', file_tag);
 }
 
-function closeDrawandOpenImgView(){
-    plusDropdown.style.cssText = `
-            display: none;
-            transform: translateY(0);
-            opacity: 1;
-        `; 
-        
-    chat_box.style.display = 'none';
-    chat_box_input.style.display = 'none';
-    imagePreviewContainer.style.display = 'flex';
-}
 
-let imageIndexCounter = 0;
-let imageSave = [];
+let fileIndexCounter = 0;
+let fileBlobs = [];
+let file_check = '';
 
-function handlePhotoCapture(event){
-    const files = event.target.files;
+function handle_upload_files(event){
+    const input = event.target;
+    const files = input.files;
+     
+    closeDrawandOpenImgView();
+    startLoading();
+    
+   
+    const  mulitiple_files_view  = document.querySelector('.preview_bottom .send-images .multiple-image');
+    const file_caption_input = document.getElementById("captinoInput");     
+    const file_caption_close = document.getElementById("caption-close"); 
 
-    if(files){
-        startLoading();          
-        closeDrawandOpenImgView();
+    const isFirstUpload = mulitiple_files_view.innerHTML.trim() === '';
 
-        const  mutipleImg  = document.querySelector('.preview_bottom .send-images .multiple-image');
-        const imagePreview = document.querySelector(".image-preview");
-        const button = document.querySelector('.imgAddBtn');
-        const captionInput = document.getElementById('captinoInput');
-        const captionClose = document.getElementById('caption-close');
+    if(isFirstUpload){
 
-        const isFirstUpload = mutipleImg.innerHTML.trim() === '';
-        if(isFirstUpload){
-            imageIndexCounter = 0; 
-            imageSave = [];  
-            imagePreview.insertAdjacentHTML('beforeend',  `<img id="previewImage" src="" alt="Image Preview">`);
-            const fileInput  = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.id = 'addmoreImg';
-            fileInput.accept = 'image/*';
-            fileInput.multiple = true;
-            fileInput.style.display = 'none';
-            fileInput.onchange = handlePhotoCapture;
-            button.appendChild(fileInput); 
-
-            mutipleImg.innerHTML = '';
-            const readerFirst = new FileReader()
-            readerFirst.onload = function(e){
-                const previewImage = document.getElementById('previewImage');
-                previewImage.src = e.target.result;
-            };
-            readerFirst.readAsDataURL(files[0]);
-
-            captionInput.value = '';
-            captionInput.setAttribute('data-index', '0');
+        if(input.id === 'chat-file'){
+            file_preview_container.classList.add('file-preview-common-chat');
+            file_check = 'chat';
+    
+        }else if(input.id === 'status-upload'){
+            file_preview_container.classList.add('file-preview-common-satus');
+            file_check = 'status';
         }
-        
-        
+    
+        fileIndexCounter = 0;  
+        fileBlobs = [];  
+        file_caption_input.value="";
+        file_caption_input.setAttribute('data-index', '0');
+    }
 
-
-        Array.from(files).forEach((file, index)=>{
+    const filePromises = Array.from(event.target.files).map((file)=>{
+        return new Promise((resolve, reject)=>{
             
-          
+            if(file.type.startsWith('video/') && file.size > 10 * 1024 * 1024){
+                alert(`The video file "${file.name}" exceeds the size limit of 10 MB and will be skipped.`);
+                return resolve(null);
+            }
 
-            const readerMultiple = new FileReader();
-            readerMultiple.onload = function(e){
-                imageIndexCounter++;
-                const imgTeg = `
-                    <button class="multipleImgBtn" data-index="${imageIndexCounter}" data-caption="">
+            const isVideo = file.type.startsWith('video/');
+
+            if(isVideo){
+                const video = document.createElement("video");
+                const videoFileUrl = URL.createObjectURL(file);
+
+                video.src = videoFileUrl;
+
+                video.onloadedmetadata = function(){
+                    if(video.duration > 30){
+                        alert(`The video file "${file.name}" duration must be less than or equal to 30 seconds.`);
+                        return resolve(null);
+                    }
+                    
+                    readFile(file).then(resolve).catch(reject);
+                }
+            }else{
+                readFile(file).then(resolve).catch(reject);
+            }
+
+        });
+    }).filter((promise) => promise !== null);
+
+    Promise.all(filePromises).then((fileDataArray)=>{
+        fileDataArray.filter((fileData) => fileData !== null).forEach( ({result, file }) => {
+            const isVideo = file.type.startsWith('video/');
+            let imgTeg;
+            if (isVideo) {
+                extractVideoThumbnail(file).then(thumbnailDataUrl =>{
+                    imgTeg = `
+                        <button class="multipleFileBtn" data-index="${fileIndexCounter}" data-caption="" data-src="${result}">
+                            <div class="first">
+                                <span id="st-removeFile">
+                                    <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>x-alt</title><path fill="currentColor" d="M17.25,7.8L16.2,6.75l-4.2,4.2l-4.2-4.2L6.75,7.8l4.2,4.2l-4.2,4.2l1.05,1.05l4.2-4.2l4.2,4.2l1.05-1.05 l-4.2-4.2L17.25,7.8z"></path></svg>
+                                </span>
+                            </div>
+                            <div class="second">
+                                <div class="inside">
+                                    <img alt="Video Thumbnail" class="cover" src="${thumbnailDataUrl}">
+                                </div>
+                            </div>
+                        </button>
+                    `;
+
+                    const byteString = atob(thumbnailDataUrl.split(',')[1]);
+                    const arrayBufferr = new ArrayBuffer(byteString.length);
+                    const uint8Array = new Uint8Array(arrayBufferr);
+                    
+                    for(let i=0; i<byteString.length; i++){
+                        uint8Array[i] = byteString.charCodeAt(i);
+                    }
+                
+                    const blob = new Blob([uint8Array], {type: 'image/png'});
+                    const background_file = new File([blob], 'thumbnail.png', { type: 'image/png' });
+
+                    mulitiple_files_view.insertAdjacentHTML('beforeend', imgTeg);
+                    fileBlobs.push({
+                        file: file,
+                        background_file:background_file,
+                        index: fileIndexCounter,
+                        type: true,
+                    }); 
+
+                    if (fileIndexCounter === 0 && isFirstUpload) {
+                        isCheckLogic(result, true);
+                    }
+
+                    fileIndexCounter++;
+   
+                });
+
+            }else{
+                imgTeg = `
+                    <button class="multipleFileBtn" data-index="${fileIndexCounter}" data-caption="">
                         <div class="first">
-                            <ion-icon name="close-outline"  id="removeImg"></ion-icon>
+                            <span id="st-removeFile">
+                                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24"><title>x-alt</title><path fill="currentColor" d="M17.25,7.8L16.2,6.75l-4.2,4.2l-4.2-4.2L6.75,7.8l4.2,4.2l-4.2,4.2l1.05,1.05l4.2-4.2l4.2,4.2l1.05-1.05 l-4.2-4.2L17.25,7.8z"></path></svg>
+                            </span>
+            
                         </div>
                         <div class="second">
-                            <img alt="Preview" class="cover" src=${e.target.result}>
+                            <div class="inside">
+                                <img alt="Preview" class="cover" src="${result}">
+                            </div>
                         </div>
                     </button>
                 `;
-                mutipleImg.insertAdjacentHTML('beforeend', imgTeg); 
-                if (index === files.length) {
-                    stopLoading();
-                }
-                imageSave.push({
+                mulitiple_files_view.insertAdjacentHTML('beforeend', imgTeg);
+                fileBlobs.push({
                     file: file,
-                    index: imageIndexCounter,
-                });
-            };  
-            readerMultiple.readAsDataURL(file);
-          
+                    index: fileIndexCounter,
+                    type:false,
+                }); 
+
+                if (fileIndexCounter === 0 && isFirstUpload) {
+                    isCheckLogic(result, false);
+                } 
+
+                fileIndexCounter++;
+            }
+
         });
-          
-        setTimeout(()=>{
-            const multipleImgBtn = document.querySelectorAll('.multipleImgBtn');
-            if(isFirstUpload){
-                multipleImgBtn[0].classList.add('selected');
-                const caption = multipleImgBtn[0].getAttribute('data-caption');
-                captionInput.value = caption || '';
-                captionInput.setAttribute('data-index', 1);
-            }
+    });  
 
-            multipleImgBtn.forEach(element => {
-                element.addEventListener('click',function (){
-                    multipleImgBtn.forEach(item =>{
-                        
-                        item.classList.remove('selected');
-                    });
-
-                   
-                    this.classList.add('selected');
-
-                    const imgElement = this.querySelector('img');
-                    const previewImage = document.getElementById('previewImage');
-                    previewImage.src = imgElement.src;
-
-                    const caption = this.getAttribute('data-caption');
-                    captionInput.value = caption || '';
-                    captionInput.setAttribute('data-index', this.getAttribute('data-index'));
-
-                });
-                const removeImg = element.querySelector('#removeImg');
-                removeImg.addEventListener('click',function(e){
-                   e.stopPropagation();
-                   
-                   const isSelected = element.classList.contains('selected');
-                   
-                   element.remove();
-
-                   const dataIndex = element.getAttribute('data-index');
-                   const indexToRemove = parseInt(dataIndex);
-                   imageSave.splice(indexToRemove, 1);
-
-                   const remainingItems = document.querySelectorAll('.multipleImgBtn');
-                   if(remainingItems.length > 0){
-                      if(isSelected){
-                        remainingItems[0].classList.add('selected');
-                        const imgElement = remainingItems[0].querySelector('img');
-                        const previewImage = document.getElementById('previewImage');
-                        previewImage.src = imgElement.src;
-
-                        const caption  = remainingItems[0].getAttribute('data-caption');
-                        captionInput.value = caption || '';
-                        captionInput.setAttribute('data-index',  remainingItems[0].getAttribute('data-index'));
-                      }
-                   }else{
-                        imagePreviewContainer.style.display = 'none';
-                        chat_box.style.display = 'block';
-                        chat_box_input.style.display = 'flex';
-                        plusUpload.style.display = 'block';
-                        plusUploadClose.style.display = 'none';
-
-                   }
-                });
-            });
-        }, 100);
-
-        commonCaption();
-
-
-        event.target.value = ''; 
-    }
-}
-
-function commonCaption(){
-    captionInput.addEventListener('input', function(){
-        const selectedIndex = this.getAttribute('data-index');
-        const selectedImageButton = document.querySelector(`.multipleImgBtn[data-index="${selectedIndex}"]`);
-        if(selectedImageButton){
-            selectedImageButton.setAttribute('data-caption', this.value);   
-        }
-    });
-
-    captionClose.addEventListener('click', function(){
-        const selectedIndex = captionInput.getAttribute('data-index');
-        const selectedImageButton = document.querySelector(`.multipleImgBtn[data-index="${selectedIndex}"]`);
-
-        if(selectedImageButton){
-            captionInput.value = '';
-            selectedImageButton.setAttribute('data-caption', '');
-        }
-    });
-}
-
-let videoIndexCounter = 0;
-let videoBlobs = []; 
-
-const captionInput = document.getElementById('captinoInput');
-const captionClose = document.getElementById('caption-close');
-
-async function handleVideoCapture(event){
-    const files = event.target.files;
-    const minimumSizeMB = 64;
-    const minimumSizeBytes = minimumSizeMB * 1048576;
-    if(files){
-        
-        for (const file of files) {
-            if (file.size >= minimumSizeBytes) {
-                alert(`Video size must be at least ${minimumSizeMB} MB. The file '${file.name}' is too small.`);
-                return;
-            }
-        }
-        startLoading();  
-        closeDrawandOpenImgView();
-        const  mutipleImg  = document.querySelector('.preview_bottom .send-images .multiple-image');
-        const imagePreview = document.querySelector(".image-preview");
-        const button = document.querySelector('.imgAddBtn');
-        const isFirstUpload = mutipleImg.innerHTML.trim() === '';
-        
+    const observer = new MutationObserver(()=>{
+        const multiple_File_Btn = document.querySelectorAll('.multipleFileBtn');
 
         if(isFirstUpload){
-            videoIndexCounter = 0;
-            videoBlobs = [];
-            const fileInput  = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.id = 'addmoreImg';
-            fileInput.accept = 'video/mp4,video/3gpp,video/quicktime';
-            fileInput.multiple = true;
-            fileInput.style.display = 'none';
-            fileInput.onchange = handleVideoCapture;
-            button.appendChild(fileInput); 
-
-
-            const videoTag = `
-                <video id="previewVideo" controls>
-                    <source src="" type="video/mp4">
-                </video> 
-            `;
-            
-            imagePreview.insertAdjacentHTML('beforeend',  videoTag);
-
-            captionInput.value = '';
-            captionInput.setAttribute('data-index', '0');
+            multiple_File_Btn[0].classList.add('selected');
+            const caption = multiple_File_Btn[0].getAttribute('data-caption');
+            file_caption_input.value = caption || '';
         }
-        
-       
-        for (let index = 0; index < files.length; index++) {
-            
-            await processFile(files[index], index, isFirstUpload);
-            videoIndexCounter++;
-        }
-        
-        stopLoading();  
-        setTimeout(()=> attachThumbnailListeners(),500);
 
-       
-        event.target.value = ''; 
-    }
-}
+        const  mulitiple_files_view  = document.querySelector('.preview_bottom .send-images .multiple-image');
+        mulitiple_files_view.addEventListener('click', function(event){
+            if(event.target.closest('#st-removeFile')){
+                const button = event.target.closest('.multipleFileBtn');
+                if(button){
+                    const isSelected = button.classList.contains('selected');
+                    button.remove();
 
-function processFile(file, index, isFirstUpload) {
-    const  mutipleImg  = document.querySelector('.preview_bottom .send-images .multiple-image');
-    return new Promise((resolve) => {
-        const readerMultiple = new FileReader();
-        readerMultiple.onload = function(e) {
-            const videoBlob = e.target.result;
-            const video = document.createElement('video');
-            video.src = videoBlob;
-            video.muted = true;
-            video.preload = 'metadata';
-            
-            video.addEventListener('loadeddata', () => {
-                if (video.readyState >= 2) {
-                    video.currentTime = 0;
-                    setTimeout(() => {
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
-                        canvas.width = 600; 
-                        canvas.height = 400; 
-                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                        const thumbnailDataUrl = canvas.toDataURL('image/jpeg');
-                        if (thumbnailDataUrl) {
-                            const videoTag = `
-                                <button class="multipleImgBtn" data-src="${videoBlob}" data-file="${file}" data-index="${videoIndexCounter}" data-caption="">
-                                    <div class="first">
-                                        <ion-icon name="close-outline" class="removeImg" id="removeImg"></ion-icon>
-                                    </div>
-                                    <div class="second">
-                                        <img src="${thumbnailDataUrl}" width="100" height="75" alt="Video Thumbnail" />
-                                    </div>
-                                </button>
-                            `;
-                            mutipleImg.insertAdjacentHTML('beforeend', videoTag);
-                            videoBlobs.push({
-                                file: file,
-                                index: videoIndexCounter
-                            });
-                            if (index === 0 && isFirstUpload) {
-                                const multipleImgBtn = document.querySelector('.multipleImgBtn[data-index="0"]');    
-                                multipleImgBtn.classList.add('selected');
-                                const previewVideo = document.getElementById('previewVideo');
-                                previewVideo.src = videoBlob;
-                                previewVideo.load();
+                    const dataIndex = button.getAttribute('data-index');
+                    const indexToRemove = parseInt(dataIndex);
+                    fileBlobs.splice(indexToRemove, 1);
+                    
+                    const remainingButtons = document.querySelectorAll('.multipleFileBtn');
+                    if(remainingButtons.length > 0){
+                        if(isSelected){
+                            
+                            remainingButtons[0].classList.add('selected');
+                            const imgElement = remainingButtons[0].querySelector('img');
+                            const dataOfSrc = remainingButtons[0].getAttribute('data-src');
+                            if(dataOfSrc){
+                                isCheckLogic(dataOfSrc, true);
+                            }else{
+                                isCheckLogic(imgElement.src, false);
                             }
                             
-                        } else {
-                            console.error('Failed to generate thumbnail for video:', file.name);
+                            const caption  = remainingButtons[0].getAttribute('data-caption');
+                            file_caption_input.value = caption || '';
+                            file_caption_input.setAttribute('data-index',  remainingButtons[0].getAttribute('data-index'));                            
+
                         }
-                        resolve();
-                    }, 500);
-                }
-            }, { once: true });
-            video.play().then(() => video.pause());
-        };
-        readerMultiple.readAsDataURL(file);
-    });
-}
-
-
-function attachThumbnailListeners(){
-    const multipleImgBtn = document.querySelectorAll('.multipleImgBtn');
-  
-    if(multipleImgBtn.length > 0){
-        
-        multipleImgBtn.forEach(element => {
-            element.addEventListener('click', function() {
-                multipleImgBtn.forEach(item => {
-                    item.classList.remove('selected');
-                });
-                this.classList.add('selected');
-    
-                const videoSrc = this.getAttribute('data-src');
-                const previewImage = document.getElementById('previewVideo');
-                previewImage.src = videoSrc;
-                previewImage.load();
-
-                const caption = this.getAttribute('data-caption');
-                captionInput.value = caption || '';
-                captionInput.setAttribute('data-index', this.getAttribute('data-index'));
-
-            });
-
-            const removeImg = element.querySelector('#removeImg');
-            removeImg.addEventListener('click',function(e){
-                e.stopPropagation();
-                
-                const isSelected = element.classList.contains('selected');
-                const fileIndex = parseInt(element.getAttribute('data-index'), 10);
-                 
-                // Removed file from videoBlobs
-                if (fileIndex >= 0 && videoBlobs.length > fileIndex) {
-                    videoBlobs.splice(fileIndex, 1);
-                }
-
-
-                element.remove();
-
-                const remainingItems = document.querySelectorAll('.multipleImgBtn');
-                if(remainingItems.length > 0){
-                    if(isSelected){  
-                        remainingItems[0].classList.add('selected');
-                        const videoSrc = remainingItems[0].getAttribute('data-src');
-                        const previewImage = document.getElementById('previewVideo');
-                        previewImage.src = '';
-                        previewImage.src = videoSrc;
-                        previewImage.load();
-
-                        const caption = remainingItems[0].getAttribute('data-caption');
-                        captionInput.value = caption || '';
-                        captionInput.setAttribute('data-index', remainingItems[0].getAttribute('data-index'));
+                    }else{
+                        file_preview_container.style.display = 'none';
                     }
-                }else{
-                    imagePreviewContainer.style.display = 'none';
-                    chat_box.style.display = 'block';
-                    chat_box_input.style.display = 'flex';
-                    plusUpload.style.display = 'block';
-                    plusUploadClose.style.display = 'none';
-
                 }
-            });
+
+            }else if(event.target.closest('.multipleFileBtn')){
+                const clickedButton = event.target.closest('.multipleFileBtn');
+                const multiple_File_Btn = document.querySelectorAll('.multipleFileBtn');
+
+                multiple_File_Btn.forEach(item => item.classList.remove('selected'));
+                clickedButton.classList.add('selected');
+
+                const imgElement = clickedButton.querySelector('img');
+                const dataSrc = clickedButton.getAttribute('data-src');
+                if(dataSrc){
+                    isCheckLogic(dataSrc, true);
+                }else{
+                    isCheckLogic(imgElement.src, false);
+                }
+
+
+                const caption = clickedButton.getAttribute('data-caption');
+                const file_caption_input = document.getElementById("captinoInput");  
+                file_caption_input.value = caption || '';
+                file_caption_input.setAttribute('data-index', clickedButton.getAttribute('data-index'));
+            }
         });
+        observer.disconnect();
+    });
+    
+    observer.observe(mulitiple_files_view, { childList: true });
 
-        commonCaption();
+    file_caption_input.addEventListener('input', function(){
+        const selectedIndex = this.getAttribute('data-index');
+        const file_Button = document.querySelector(`.multipleFileBtn[data-index="${selectedIndex}"]`);
+        if(file_Button){
+            file_Button.setAttribute('data-caption', this.value);   
+        }
+    });
 
-    }
+    file_caption_close.addEventListener('click', function(){
+        const selectedIndex = statusCaptionInput.getAttribute('data-index');
+        const file_Button = document.querySelector(`.multipleFileBtn[data-index="${selectedIndex}"]`);
+
+        if(file_Button){
+            file_caption_input.value = '';
+            file_Button.setAttribute('data-caption', '');
+        }
+    });
+
+    stopLoading();
 }
 
 
 const sendFiles = document.getElementById('sendFiles');
 
-sendFiles.addEventListener('click', async ()=>{
-    if(videoBlobs.length > 0){
-        send_videos();
-    }else{
-        send_images();   
-    }
-    clearImages();
+sendFiles.addEventListener('click', function(){
 
-    
+    if(fileBlobs.length > 0){
+        fileBlobs.forEach(async (file,  index)=>{
+            const formData = new FormData();
+
+            if(file.type){
+                formData.append('video', file.file);
+                formData.append('background_img', file.background_file);
+            }else{
+                formData.append('image', file.file);
+            }
+
+            const file_caption_get = document.querySelector(`.multipleFileBtn[data-index="${file.index}"]`);
+            const caption = file_caption_get ? file_caption_get.getAttribute('data-caption') : '';
+            formData.append('caption', caption);  
+
+            if(file_check == 'chat'){
+                formData.append('receiver_usr',selectedUserId);
+                await fileSendToApi(formData, index, '/upload-video/');
+            }else if(file_check  == 'status'){
+                await fileSendToApi(formData, index, '/upload_status/');
+            }
+
+        });
+        clearFiles();
+    }
+
 });
 
-async function send_videos(){
-   
-    videoBlobs.forEach(async (video, index)  => {
-        const formData = new FormData();
-        formData.append('video', video.file);
-
-        const videoBtn = document.querySelector(`.multipleImgBtn[data-index="${video.index}"]`);
-        const caption = videoBtn ? videoBtn.getAttribute('data-caption') : '';
-        formData.append(`captions`, caption); 
-
-        formData.append('receiver_usr',selectedUserId);
-        await fileSendApi(formData);
-        
-    });
-   
-
-   
-}
-
-function send_images(){
-   
-    imageSave.forEach( async (image, index) => {
-
-        const formData = new FormData();
-        formData.append('image', image.file);
-       
-        const imageBtn = document.querySelector(`.multipleImgBtn[data-index="${image.index}"]`);
-  
-        const caption = imageBtn ? imageBtn.getAttribute('data-caption') : '';
-       
-        formData.append(`captions`, caption); 
-        formData.append('receiver_usr',selectedUserId);
-
-        await fileSendApi(formData);
- 
-
-    });
-}
-
-// send file to api
-async function fileSendApi(formData){
+const profile_Status_Second_details = document.getElementById('profile_Status_Second_details');
+async function fileSendToApi(formatDate, index, api){
     try{
-        const response = await fetch('/upload-video/', {
-            method: 'POST',
+        const response = await fetch(api,{
+            method:'POST',
             header:{
                 'Content-Type':'application/json',
-                'X-CSRFToken':getCookie('csrftoken')
+                'X-CSRFToken': getCookie('csrftoken')
             },
-            body: formData,
+            body:formatDate,
         });
-        
-        const data = await  response.json();
 
-        chatSocket.send(JSON.stringify({
-            'action': 'send_message',
-            'message': '',
-            'receiver_id': selectedUserId,
-            'Send_Data': data.message,
-        })); 
+        if(response.ok){
+            const data = await response.json();
+            let checking = fileBlobs.length - 1;
 
-        videoBlobs = [];
+            if(checking === index){
+
+                fileBlobs=[];
+                if(file_check == 'status'){
+                    topheaderProfile_Status_Second.style.display = 'flex';
+                    topheader_Profile_Status.style.display = 'none';  
+                    document.querySelector('.status_preview_bottoms .send-images .status-multiple-files').innerHTML = '';
+                }
+                 
+            }
+
+            if(file_check == 'chat'){
+
+                chatSocket.send(JSON.stringify({
+                                'action': 'send_message',
+                                'message': '',
+                                'receiver_id': selectedUserId,
+                                'Send_Data': data.message,
+                            })); 
+            
+            }else if(file_check == 'status'){
+                
+                profile_Status_Second_details.textContent = data.message['Upload_time']; 
+                my_status_count = data.message.total_count_status;
+                statusCountViewedAndUnviewed_lines("Unviewed", "Viewed", data.message.total_count_status, data.message.unviewed_count);
+    
+                chatSocket.send(JSON.stringify({
+                    'action':'uploade_status',
+                    'uploaded_user_id': data.user_id,
+                    'status_id':data.message.id,  
+                    'uploaded_users_contacts':data.user_contacts, 
+                }));
+            }
+        }
+
     }catch(error){
         console.error("Error:",error);
     }
-   
+
+
 }
+
+
+
 
 // file view close icon
 const fileViewClose = document.getElementById('file_view_close');
@@ -1945,7 +1580,7 @@ fileViewClose.addEventListener('click',()=>{
    fileDiv.innerHTML = ''; 
 });
 
-// file view in message
+// file view in message click open view image and video
 function playVideo(url, checkings){
     fileView.style.display = 'flex';
     fileDiv.innerHTML = '';
@@ -1969,16 +1604,111 @@ function playVideo(url, checkings){
 }
 
 // Websocket event handlers
+let chat_history_search_MSG;
+
+function adding_update_MSG_array(data){
+    const existingMessageGroup = chat_history_search_MSG.history.find(group => group.date === data.label_time);
+    if(existingMessageGroup){
+        const existingMessage = existingMessageGroup.messages.find(msg => msg.message_id === data.message_id);
+        if(existingMessage){
+            existingMessage.content = data.content;
+            existingMessage.timestamp = data.timestamp;
+        }else{
+            existingMessageGroup.messages.push({
+                content: data.content,
+                sender_id: data.sender_id,
+                receiver_id: data.receiver_id,
+                timestamp: data.timestamp,
+                url: data.url,
+                caption: data.caption,
+                type_content: data.type_content,
+                is_reply_status: data.is_reply_status,
+                reciver_name: data.reciver_name,
+                video_duration: data.video_duration,
+                receiver_message_view: data.receiver_message_view,
+                message_id: data.message_id
+            });
+
+            existingMessageGroup.messages.sort((a,b) => new Date(a.timestamp)- new Date(b.timestamp));
+        }
+    }else{
+        const newDateGroup = {
+            date: data.label_time,
+            messages: [
+                {
+                    content: data.content,
+                    sender_id: data.sender_id,
+                    receiver_id: data.receiver_id,
+                    timestamp: data.timestamp,
+                    url: data.url,
+                    caption: data.caption,
+                    type_content: data.type_content,
+                    is_reply_status: data.is_reply_status,
+                    reciver_name: data.reciver_name,
+                    video_duration: data.video_duration,
+                    receiver_message_view: data.receiver_message_view,
+                    message_id: data.message_id
+                }
+            ]
+        };
+        chat_history_search_MSG.history.push(newDateGroup);
+    }
+}
 
 chatSocket.onmessage = function(e){
         const data = JSON.parse(e.data);
         console.log(data);
         
         if(data.type == 'chat_history'){
-            handleChathistory(data);
+
+            if(selectedUserId === data.receiver_id){
+                chat_history_search_MSG = data;
+                handleChathistory(data);   
+            }
+           
         }else if(data.type == 'chat_message'){
+
+            if(data.check_contact &&  Object.keys(data.check_contact).length > 0 && data.sender_id !== Number(djangoUserId)){
+                
+                const chatlist = document.getElementById('chatlist');
+            
+                const _id = data.check_contact._id;
+                const url = data.check_contact.profile_img ? data.check_contact.profile_img :"/static/images/profile.png";
+                const username = data.check_contact.username;
+
+                chatlist.innerHTML += `
+                <div class="block" >
+                    <div class="inside" data-user-id="${_id}">
+                        <div class="imgbox">
+                            <img src="${url}" class="cover">                    
+                        </div>    
+                        <div class="details">
+                            <div class="listHead">
+                                <h4>${username}</h4>
+                                <p class="time">${data.last_msg_time}</p>
+                            </div>
+                            <div class="message_p">
+                                  <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
+                                
+                                ${data.toggle_count > 0 ?
+                                    `<b class="toggle-count">${data.toggle_count}</b>`
+                                :''}
+                                
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
+                `;
+                clickopenbox();
+            }
+
+            if(chat_history_search_MSG){
+                adding_update_MSG_array(data);
+            }
             handleChatMessage(data);
-        }else if(data.type  == 'user_status' && selectedUserId == data.user_id){
+        
+        }
+        else if(data.type  == 'user_status' && selectedUserId == data.user_id){
             
             is_online = data.is_online
             
@@ -2008,50 +1738,36 @@ chatSocket.onmessage = function(e){
                 }
             }
             
-        }
-
+        }else if(data.type  == 'receiver_message_delivered' && selectedUserId == data.receiver_id){
+            let messageElement = document.querySelector(`[message="message_${data.message_id}"]`);
+            messageElement.innerHTML = '';
+            messageElement.innerHTML = '<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>';
         
-        if(data.type != 'user_status'){
-            let emaplath = ``; 
-            if(djangoUserId == data.sender_id){
-                moveToTop(data.receiver_id);
-                emaplath = `.chatlist .block[data-user-id="${data.receiver_id}"]`
-            }else if(djangoUserId == data.receiver_id){
-                moveToTop(data.sender_id);
-                emaplath = `.chatlist .block[data-user-id="${data.sender_id}"]`
-            }
-            if(emaplath !== ``){
-                const userElements = document.querySelector(emaplath);
-                if(userElements){
-                    const messagePElement = userElements.querySelector('.message_p p');
-                    if (data.type_content == 'Photo' && data.video_duration===''){
-                        messagePElement.textContent = 'Photo';
-                    }else if(data.type_content == 'Video' && data.video_duration===''){
-                        messagePElement.textContent = 'Video';
-                    }else{
-                        
-                        if(data.video_duration  === ''){
-                            messagePElement.textContent = data.message; 
-                        }else{
-                            messagePElement.textContent = data.caption;
-                        }
-                        
-                    }
-                    const times = userElements.querySelector('.listHead p');
-                    times.textContent = data.timestamp;
+        }else if(data.type == 'change_message_status_by_receiver'){
+            if(window.djangoUserId == data.sender_id && selectedUserId == data.receiver_id && data.receiver_message_view == 'seen'){
+                let messageElement = document.querySelector(`.message_${data.message_id}`);
+                   
+                if(messageElement){
+                    messageElement.innerHTML = '';
+                    messageElement.innerHTML = '<svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>';
+                    messageElement.style.color = '#53bdeb'; 
                 }
+            
             }
+
         }
-       
 }
 
 function moveToTop(userId){
     const chatList = document.getElementById('chatlist');
-    const targetBlock = document.querySelector(`.block[data-user-id="${userId}"]`);
+    const targetInside = document.querySelector(`.inside[data-user-id="${userId}"]`);
 
-    if(chatList && targetBlock){
-        chatList.prepend(targetBlock);
-        targetBlock.style.transition = "background-color 0.5s ease"; 
+    if(chatList && targetInside){
+        const block = targetInside.closest('.block');
+        if (block) {
+            chatList.prepend(block);
+        }
+        
         
     }
 }
@@ -2076,7 +1792,7 @@ function handleChathistory(data){
         data.history.forEach((day, index) => {
             lastDate = day.date; 
             const dateLabel = `
-                <div class="date-label">
+                <div class="date-label"  id="${day.date}">
                     <p>${day.date}</p>
                 </div>
             `;
@@ -2087,614 +1803,272 @@ function handleChathistory(data){
             day.messages.forEach((message) => {
                 appendMessage(message);
             });
-           
-            const userElements = document.querySelector(`.chatlist .block[data-user-id="${selectedUserId}"]`);
-            const messagePElement = userElements.querySelector('.message_p');
-            let toggleCountElement = messagePElement.querySelector('.toggle-count');
-            if(toggleCountElement){
-                toggleCountElement.remove();
-            }
+        
+    
             setTimeout(() => {
                 rightChatbox.scrollTop = rightChatbox.scrollHeight;
             }, 100);
-        
         });
     }
  }     
 
  function setDuration(videoElement) {
     var uniqueId = videoElement.getAttribute('data-unique-id');
-    var duration = videoElement.duration;
-    var durationElement = document.getElementById(`videoDuration_${uniqueId}`);
-    if(durationElement){
-        const totalMinutes = Math.floor(duration / 60);
-        const totalSeconds = Math.floor(duration % 60);
-        const formattedTotal = `${totalMinutes}:${totalSeconds < 10 ? '0' : ''}${totalSeconds}`;
-        durationElement.innerHTML = formattedTotal;
-
-    }
+        var duration = videoElement.duration;
+        var durationElement = document.getElementById(`videoDuration_${uniqueId}`);
+        if(durationElement){
+            const totalMinutes = Math.floor(duration / 60);
+            const totalSeconds = Math.floor(duration % 60);
+            const formattedTotal = `${totalMinutes}:${totalSeconds < 10 ? '0' : ''}${totalSeconds}`;
+            durationElement.innerHTML = formattedTotal;
+    
+        }
 }
 
-function appendMessage(message){
-    const chatboxs  = document.querySelector('.rightside .chatBox');
-    if(message.sender == djangoUserId){
-       
-        let messageElement; 
-        if(message.img){
-      
-            messageElement = `
-                <div class="message my_message">
-                    <div class="mainImage end_background">
-                        ${message.is_reply_status ?
-                            `<div class="status_part" style="background-color: #025144;">
-                                <span class="status_part_left-line"></span>
-                                <div class="status_part_conntent">
-                                    <div class="status_part_conntent_wrap">
-                                        <div class="status_part_conntent_title">
-                                            <span>${message.reciver_name} · Status</span>
-                                        </div>
-                                        <div class="status_part_conntent_title_bottom">
-                                            <div class="status_part_conntent_title_bottom_icon">
-                                                <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
-                                            </div>
-                                            <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                                        </div>
-                                    </div>
-                                </div> 
-                                <div class="status_part_img">
-                                    <div class="status_part_img_first">
-                                        <div class="status_part_img_second" >
-                                            <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.img)});"> </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> 
-                            <div class="caption">${message.caption}</div>
-                            <span class="caption_timestamp">${message.timestamp}</span>`
-                        :        
-                        `<div class="first_view" onclick="playVideo('media/${message.img}', '${true}');">
-                                <div class="innerImage">
-                                    <img src="media/${message.img}" class="image" alt="Image">
-                                </div> 
-                                ${message.caption ?'':
-                                    `<div class="videoBottom flex-end">
-                                        <span class="vide_timestamp">${message.timestamp}</span>
-                                    </div>`}
-                            </div> 
-                            ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                            ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}`}
-                    </div> 
-                </div>`
-            ;
-        }else if(message.video){
-            const uniqueId = `video_${message.video.substring(message.video.lastIndexOf('/') + 1)}`;
+function appendMessage(data){
+    const isCheck_user = data.sender_id === Number(djangoUserId);
 
-            messageElement =`
-            <div class="message my_message">
-                <div class="mainImage end_background">
-                    ${message.is_reply_status ?
-                        `<div class="status_part" style="background-color: #025144;">
-                            <span class="status_part_left-line"></span>
+    
+    let messageClass = isCheck_user ? 'sender' : 'receiver';
+    let file_message_class = isCheck_user ? 'end_background' : 'start_background';
+   
+    let status_reply_deeper = isCheck_user? 'status_part_sender': 'status_part_reciver';
+    let status_reply_line_color = isCheck_user ? 'status_part_left-line-sender' : 'status_part_left-line-reciver';
+    let status_reply_text_color = isCheck_user ? 'span-text-sender' : 'span-text-reciver';
+
+    let status_reply_name = isCheck_user ? `${data.reciver_name}` : 'You';
+   
+    const chatBoxs = document.querySelector('.rightside .chatBox');
+    let messageElement = '';
+
+   
+
+    let messageStatusIcon = '';
+    if(data.receiver_message_view == 'sent' && isCheck_user){ 
+        messageStatusIcon =        
+        `<span style="    display: flex;
+                          color: white; 
+                          margin-top: 2px;"class="message_${data.message_id}">
+            <svg   viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-check</title><path d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z" fill="currentcolor"></path></svg>  
+        </span>`
+
+    }else if(data.receiver_message_view == 'delivered' && isCheck_user){
+        messageStatusIcon =
+        `<span style="    display: flex;
+                          color: white; margin-top: 2px;" class="message_${data.message_id}">
+            <svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>
+        </span>`
+    } else if(data.receiver_message_view == 'seen' && isCheck_user){
+       
+        messageStatusIcon =
+        `<span style="    display: flex;
+                          color: #53bdeb; margin-top: 2px;" class="message_${data.message_id}">
+            <svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class="" fill="none"><title>msg-dblcheck</title><path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36523L1.79112 6.09277C1.7488 6.04622 1.69802 6.01025 1.63877 5.98486C1.57953 5.95947 1.51817 5.94678 1.45469 5.94678C1.32351 5.94678 1.20925 5.99544 1.11192 6.09277L0.800883 6.40381C0.707784 6.49268 0.661235 6.60482 0.661235 6.74023C0.661235 6.87565 0.707784 6.98991 0.800883 7.08301L3.79698 10.0791C3.94509 10.2145 4.11224 10.2822 4.29844 10.2822C4.40424 10.2822 4.5058 10.259 4.60313 10.2124C4.70046 10.1659 4.78086 10.1003 4.84434 10.0156L11.4903 1.59863C11.5623 1.5013 11.5982 1.40186 11.5982 1.30029C11.5982 1.14372 11.5348 1.01888 11.4078 0.925781L11.0714 0.652832ZM8.6212 8.32715C8.43077 8.20866 8.2488 8.09017 8.0753 7.97168C7.99489 7.89128 7.8891 7.85107 7.75791 7.85107C7.6098 7.85107 7.4892 7.90397 7.3961 8.00977L7.10411 8.33984C7.01947 8.43717 6.97715 8.54508 6.97715 8.66357C6.97715 8.79476 7.0237 8.90902 7.1168 9.00635L8.1959 10.0791C8.33132 10.2145 8.49636 10.2822 8.69102 10.2822C8.79681 10.2822 8.89838 10.259 8.99571 10.2124C9.09304 10.1659 9.17556 10.1003 9.24327 10.0156L15.8639 1.62402C15.9358 1.53939 15.9718 1.43994 15.9718 1.32568C15.9718 1.1818 15.9125 1.05697 15.794 0.951172L15.4386 0.678223C15.3582 0.610514 15.2587 0.57666 15.1402 0.57666C14.9964 0.57666 14.8715 0.635905 14.7657 0.754395L8.6212 8.32715Z" fill="currentColor"></path></svg>
+        </span>`
+       
+    }
+    
+    if(data.type_content == 'Photo'){
+        
+        let image_url = data.url;  
+
+        messageElement = `<div class="message ${messageClass}" id="${data.message_id}"  receiver_id="${data.receiver_id}" data="${data.receiver_message_view}">
+            <div class="mainImage ${file_message_class}">
+            ${data.is_reply_status ?
+                `<div class="status_part ${status_reply_deeper}">
+                    <span class="status_part_left-line ${status_reply_line_color}"></span>
+                    <div class="status_part_conntent">
+                        <div class="status_part_conntent_wrap">
+                            <div class="status_part_conntent_title">
+                                <span class="${status_reply_text_color}">${status_reply_name} · Status</span>
+                            </div>
+                            <div class="status_part_conntent_title_bottom">
+                                <div class="status_part_conntent_title_bottom_icon">
+                                    <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
+                                </div>
+                                <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status_part_img">
+                        <div class="status_part_img_first">
+                            <div class="status_part_img_second" ><div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(data.url)});"> </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>` 
+                 
+                :`<div class="first_view" onclick="playVideo('${image_url}', '${true}');">
+                    <div class="innerImage">
+                        <img src="${image_url}" class="image" alt="Image">
+                    </div> 
+                    ${!data.caption ?
+                    `<div class="bottomContent">
+                        <span class="vide_timestamp">${data.timestamp}</span>
+                        ${messageStatusIcon}
+                    </div>` : ''}
+                </div>`}
+                 
+                ${data.caption ? 
+                `<div class="caption">${data.caption}</div>  
+                <div class="caption-bottom">
+                            <span class="vide_timestamp">${data.timestamp}</span>
+                            ${messageStatusIcon}
+                </div>`: '' }          
+            </div> 
+        </div>`;
+    }else if(data.type_content == 'Video'){
+        
+        const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
+       
+        messageElement =   
+        `<div class="message ${messageClass}" id="${data.message_id}" receiver_id="${data.receiver_id}" data="${data.receiver_message_view}">
+                    <div class="mainImage ${file_message_class}"">
+                        ${data.is_reply_status ?
+                        `<div class="status_part ${status_reply_deeper}">
+                            <span class="status_part_left-line ${status_reply_line_color}"></span>
                             <div class="status_part_conntent">
                                 <div class="status_part_conntent_wrap">
                                     <div class="status_part_conntent_title">
-                                        <span>${message.reciver_name} · Status</span>
+                                        <span class="${status_reply_text_color}">${status_reply_name} · Status</span>
                                     </div>
                                     <div class="status_part_conntent_title_bottom">
                                         <div class="status_part_conntent_title_bottom_icon">
                                             <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
                                         </div>
-                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${message.replied_video_duration}</span>
+                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:32</span>
                                         <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
                             <div class="status_part_img">
                                 <div class="status_part_img_first">
-                                    <div class="status_part_img_second" >
-                                        <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.video)});"> </div>
+                                    <div class="status_part_img_second" ><div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(data.url)});"> </div>
                                     </div>
                                 </div>
                             </div>
-                        </div> 
-                        <div class="caption">${message.caption}</div>
-                        <span class="caption_timestamp">${message.timestamp}</span>`
-                    :         
-                    `<div class="first_view" onclick="playVideo('${message.video}', '${false}')">
-                        <div class="playButton" id="playButton" >
-                            <!-- Play Icon -->
-                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-                        </div>
-                        <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                            <source id="MyDuration_${uniqueId}" src="${message.video}" type="video/mp4">
-                        </video>  
-                        <div class="media-loader">
-                            <div class="loader"></div>
-                        </div>
-
-                        <div class="videoBottom space-between">
-                            <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                            ${message.caption ?'':`<span class="vide_timestamp">${message.timestamp}</span>`}
-                        </div> 
-
-                    </div>
-                    ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                    ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}
-                    `}
-                </div> 
-                
-            </div>`;
-        }else{
-            messageElement = `
-                <div class="message my_message">
-                    <p>${message.content} <span>${message.timestamp}</span></p>
-                </div>
-            `;
-        }
-       
-        chatboxs.insertAdjacentHTML('beforeend', messageElement);
-          
-    }
-    if(selectedUserId == message.sender && djangoUserId == message.receiver){  
-        if(message.sender != message.receiver){
-           
-            let messageElement;
-            if(message.img){
-                messageElement = `
-                    <div class="message frnd_message">
-                        <div class="mainImage start_background">
-                            ${message.is_reply_status ?
-                                `<div class="status_part" style="background-color: #1d282f;">
-                                    <span class="status_part_left-line"></span>
-                                    <div class="status_part_conntent">
-                                        <div class="status_part_conntent_wrap">
-                                            <div class="status_part_conntent_title">
-                                                <span>You · Status</span>
-                                            </div>
-                                            <div class="status_part_conntent_title_bottom">
-                                                <div class="status_part_conntent_title_bottom_icon">
-                                                    <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
-                                                </div>
-                                                <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                                            </div>
-                                        </div>
-                                    </div> 
-                                    <div class="status_part_img">
-                                        <div class="status_part_img_first">
-                                            <div class="status_part_img_second" >
-                                                <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.img)});"> </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> 
-                                <div class="caption">${message.caption}</div>
-                                <span class="caption_timestamp">${message.timestamp}</span>`
-                              :        
-                               `<div class="first_view" onclick="playVideo('${message.img}', '${true}')">
-                                    <div class="innerImage">
-                                        <img src="media/${message.img}" class="image" alt="Image">
-                                    </div> 
-                                    ${message.caption ?'':
-                                        `<div class="videoBottom flex-end">
-                                            <span class="vide_timestamp">${message.timestamp}</span>
-                                        </div>`}
-                                </div> 
-                                ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                                ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}`}
-                        </div> 
-                    </div>`
-                ;
-                
-            }else if(message.video){
-                const uniqueId = `video_${message.video.substring(message.video.lastIndexOf('/') + 1)}`;
-
-                messageElement =`
-                <div class="message frnd_message">
-                    <div class="mainImage start_background">
-                        ${message.is_reply_status ?
-                            `<div class="status_part" style="background-color: #1d282f;">
-                                <span class="status_part_left-line"></span>
-                                <div class="status_part_conntent">
-                                    <div class="status_part_conntent_wrap">
-                                        <div class="status_part_conntent_title">
-                                            <span>You · Status</span>
-                                        </div>
-                                        <div class="status_part_conntent_title_bottom">
-                                            <div class="status_part_conntent_title_bottom_icon">
-                                                <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
-                                            </div>
-                                            <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${message.replied_video_duration}</span>
-                                            <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
-                                        </div>
-                                    </div>
-                                </div> 
-                                <div class="status_part_img">
-                                    <div class="status_part_img_first">
-                                        <div class="status_part_img_second" >
-                                            <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(message.video)});"> </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> 
-                            <div class="caption">${message.caption}</div>
-                            <span class="caption_timestamp">${message.timestamp}</span>`
-                        :   
-                        `<div class="first_view" onclick="playVideo('${message.video}', '${false}')">
-                            <div class="playButton" id="playButton">
+                        </div>` 
+                        :`<div class="first_view" onclick="playVideo('${data.url}', '${false}')">
+                            <div class="playButton" id="playButton" >
                                 <!-- Play Icon -->
                                 <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
                             </div>
                             <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                                <source id="MyDuration_${uniqueId}" src="${message.video}" type="video/mp4">
+                                <source id="MyDuration_${uniqueId}" src="${data.url}" type="video/mp4">
                             </video>  
                             <div class="media-loader">
                                 <div class="loader"></div>
                             </div>
-    
-                           <div class="videoBottom space-between">
-                                <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                                ${message.caption ?'':`<span class="vide_timestamp">${message.timestamp}</span>`}
-                            </div> 
-    
-                        </div>
-                        ${message.caption ? `<div class="caption">${message.caption}</div>` : ''}
-                        ${message.caption ? `<span class="caption_timestamp">${message.timestamp}</span>` : ''}
-                        `}
-                    </div> 
+                            <div class="videoBottom space-between">
+                            <span id="videoDuration_${uniqueId}" class="video-duration"></span>
+                                ${!data.caption ?
+                                    `<div  class="last-time">
+                                        <span class="vide_timestamp">${data.timestamp}</span>
+                                        ${messageStatusIcon}   
+                                    </div>`:''}   
+                            </div>
                     
-                </div>`;
-            }else{
-                messageElement = `
-                    <div class="message frnd_message">
-                        <p>${message.content} <span>${message.timestamp}</span></p>
+                        </div>`}
+
+                        ${data.caption ?
+                        `<div class="caption">${data.caption}</div> 
+                        <div class="caption-bottom">
+                            <span class="vide_timestamp">${data.timestamp}</span>
+                            ${messageStatusIcon}
+                        </div>` : ''}
                     </div>
-                `;
-            }
-            if(message.content){
-                
-            }else{
-                
-            }
-            
-            chatboxs.insertAdjacentHTML('beforeend', messageElement);
-           
-        }
-    }
+                </div>`;
+
+    }else{
+        messageElement = 
+        `<div class="message ${messageClass}"  id="${data.message_id}" receiver_id="${data.receiver_id}" data="${data.receiver_message_view}">
+            <div class="message_back">
+                <div class="top-content">
+                    <span>${data.content}</span>
+                </div>
+                <div class="bottom-content">
+                    <span class="time">${data.timestamp}</span>
+                    ${messageStatusIcon}
+                </div>
+            </div>
+        </div>`;
+    }    
+
+
+    chatBoxs.insertAdjacentHTML('beforeend', messageElement); 
 } 
 
 function handleChatMessage(data){
-    const currentDate = data.label_time;
     const chatBoxs = document.querySelector('.rightside .chatBox');
+    const currentDate = data.label_time;
+    const isCheck_user = data.sender_id === Number(djangoUserId);
+
+       
     
-    if(lastDate == ''){
-        const dateLabel = `
-        <div class="date-label">
-            <p>${currentDate}</p>
-        </div>
-       `;
-       chatBoxs.insertAdjacentHTML('beforeend', dateLabel);
-        lastDate = currentDate; 
-    }
-    if(lastDate !== currentDate){
-        const dateLabel = `
-            <div class="date-label">
-                <p>${currentDate}</p>
-            </div>
-        `;
-        chatBoxs.insertAdjacentHTML('beforeend', dateLabel);
-        lastDate = currentDate;  // Update thelastDate to the current date
-    } 
-    
-    if(data.sender_id == djangoUserId){
-        if (data.type_content == 'Photo'){
-           
-            const messageElement = `
-                <div class="message my_message">
-                    <div class="mainImage end_background">
-                        ${ data.is_reply_status ?
-                        `<div class="status_part" style="background-color: #025144;">
-                            <span class="status_part_left-line"></span>
-                            <div class="status_part_conntent">
-                                <div class="status_part_conntent_wrap">
-                                    <div class="status_part_conntent_title">
-                                        <span>${data.reciver_name} · Status</span>
-                                    </div>
-                                    
-                                    <div class="status_part_conntent_title_bottom">
-                                        <div class="status_part_conntent_title_bottom_icon">
-                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
-                                        </div>
-                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                                    </div>
-                                </div>
-                            </div> 
-                            <div class="status_part_img">
-                                <div class="status_part_img_first">
-                                    <div class="status_part_img_second" >
-                                        <div class="status_part_imgview" style="background-image: url(${data.url});"> </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
-                       <div class="caption">${data.caption}</div>
-                       <span class="caption_timestamp">${data.timestamp}</span> `:
-                       `<div class="first_view" onclick="playVideo('${data.url}', '${true}')">
-                            <div class="innerImage">
-                                <img src="${data.url}" class="image" alt="Image">
-                            </div> 
-                            ${data.caption ?'':
-                                `<div class="videoBottom flex-end">
-                                    <span class="vide_timestamp">${data.timestamp}</span>
-                                </div>`}
-                        </div> 
-                        ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
-                        ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}` 
-                    }
-                    
-                    </div> 
-                </div>`;
 
-            chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-        
-        }else if(data.type_content == 'Video'){
-            
-            const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
-
-            const messageElement =`
-            <div class="message my_message">
-                <div class="mainImage end_background">
-                    ${data.is_reply_status ?
-                        `<div class="status_part" style="background-color: #025144;">
-                            <span class="status_part_left-line"></span>
-                            <div class="status_part_conntent">
-                                <div class="status_part_conntent_wrap">
-                                    <div class="status_part_conntent_title">
-                                        <span>${data.reciver_name} · Status</span>
-                                    </div>
-                                    <div class="status_part_conntent_title_bottom">
-                                        <div class="status_part_conntent_title_bottom_icon">
-                                            <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>     
-                                        </div>
-                                        <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${data.video_duration}</span>
-                                        <span dir="auto" style="min-height: 0px; line-height: 23px;">Video</span>
-                                    </div>
-                                </div>
-                            </div> 
-                            <div class="status_part_img">
-                                <div class="status_part_img_first">
-                                    <div class="status_part_img_second" >
-                                        <div class="status_part_imgview" style="background-image: url(${ensureMediaPrefix(data.url)});"> </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
-                        <div class="caption">${data.caption}</div>
-                        <span class="caption_timestamp">${data.timestamp}</span>`
-                    :        
-                    `<div class="first_view" onclick="playVideo('${data.url}', '${false}')">
-                        <div class="playButton" id="playButton" >
-                            <!-- Play Icon -->
-                            <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-                        </div>
-                        <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                            <source id="MyDuration_${uniqueId}" src="${data.url}" type="video/mp4">
-                        </video>  
-                        <div class="media-loader">
-                            <div class="loader"></div>
-                        </div>
-
-                        <div class="videoBottom space-between">
-                            <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                            ${data.caption ?'':`<span class="vide_timestamp">${data.timestamp}</span>`}
-                        </div> 
-
-                    </div>
-                    ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
-                    ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
-                    `}
-                </div> 
-                
-            </div>`;
-            chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-            chatBoxs.scrollTop = chatBoxs.scrollHeight;
-
-        }else{
-            const messageElement = `
-                <div class="message my_message">
-                    <p>${data.message} <span>${data.timestamp}</span></p>
+    if(selectedUserId === data.receiver_id || selectedUserId == data.sender_id){
+        if (lastDate !== currentDate) {
+            chatBoxs.insertAdjacentHTML('beforeend', `
+                <div class="date-label" id="${currentDate}">
+                    <p>${currentDate}</p>
                 </div>
-            `;
-            chatBoxs.insertAdjacentHTML('beforeend', messageElement);
+            `);
+            lastDate = currentDate;  
         }
-        
-    
-      
+        appendMessage(data);    
+    }
+
+    let emaplath = ''; 
+    if(isCheck_user){
+        moveToTop(data.receiver_id);
+        emaplath = `.chatlist .block .inside[data-user-id="${data.receiver_id}"]`
     }else{
-        if(data.check_contacts == false && djangoUserId == data.receiver_id){
-            
-            const userlist =  document.querySelector('.chatlist')
-            const userBlock = document.createElement('div');
-            userBlock.className = 'block';
-            userBlock.setAttribute('data-user-id', data.sender_id);
-            userBlock.innerHTML = `
-                <div class="imgbox">
-                   <img src="${data.img != null ? data.img : '/static/images/profile.png'}" class="cover"> 
-                </div>
-                <div class="details">
-                    <div class="listHead">
-                        <h4>${data.sender}</h4>
-                       <p class="time">${data.last_msg_time}</p>
-                    </div>
-                    <div class="message_p">
-                        <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>
-                        <b class="toggle-count">0</b>
-                    </div>
-                </div>
-            `;
-            
-            userlist.appendChild(userBlock);
-            clickopenbox();
-        }
-        if(selectedUserId == data.sender_id && djangoUserId == data.receiver_id){  
-            
-            if(data.sender_id != data.receiver_id){
-                if (data.type_content == 'Photo'){
+        moveToTop(data.sender_id);
+        emaplath = `.chatlist .block .inside[data-user-id="${data.sender_id}"]`
+    }
 
-                    const messageElement = `
-                        <div class="message frnd_message">
-                            <div class="mainImage start_background">
-                                ${data.is_reply_status ?
-                                  `<div class="status_part" style="background-color: #1d282f;">
-                                        <span class="status_part_left-line"></span>
-                                        <div class="status_part_conntent">
-                                            <div class="status_part_conntent_wrap">
-                                                <div class="status_part_conntent_title">
-                                                    <span>You · Status</span>
-                                                </div>
-                                                
-                                                <div class="status_part_conntent_title_bottom">
-                                                    <div class="status_part_conntent_title_bottom_icon">
-                                                        <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-image</title><path fill="currentColor" d="M13.822,4.668H7.14l-1.068-1.09C5.922,3.425,5.624,3.3,5.409,3.3H3.531 c-0.214,0-0.51,0.128-0.656,0.285L1.276,5.296C1.13,5.453,1.01,5.756,1.01,5.971v1.06c0,0.001-0.001,0.002-0.001,0.003v6.983 c0,0.646,0.524,1.17,1.17,1.17h11.643c0.646,0,1.17-0.524,1.17-1.17v-8.18C14.992,5.191,14.468,4.668,13.822,4.668z M7.84,13.298 c-1.875,0-3.395-1.52-3.395-3.396c0-1.875,1.52-3.395,3.395-3.395s3.396,1.52,3.396,3.395C11.236,11.778,9.716,13.298,7.84,13.298z  M7.84,7.511c-1.321,0-2.392,1.071-2.392,2.392s1.071,2.392,2.392,2.392s2.392-1.071,2.392-2.392S9.161,7.511,7.84,7.511z"></path></svg>
-                                                    </div>
-                                                    <span dir="auto" style="min-height: 0px; line-height: 23px;">Photo</span>
-                                                </div>
-                                            </div>
-                                        </div> 
-                                        <div class="status_part_img">
-                                            <div class="status_part_img_first">
-                                                <div class="status_part_img_second" >
-                                                    <div class="status_part_imgview" style="background-image: url(${data.url});"> </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> 
-                                <div class="caption">${data.caption}</div>
-                                <span class="caption_timestamp">${data.timestamp}</span>`
-
-                                :`<div class="first_view" onclick="playVideo('${data.url}', '${true}')">
-                                    <div class="innerImage">
-                                        <img src="${data.url}" class="image" alt="Image">
-                                    </div> 
-                                    ${data.caption ?'':
-                                        `<div class="videoBottom flex-end">
-                                            <span class="vide_timestamp">${data.timestamp}</span>
-                                        </div>`}
-                                </div> 
-                                ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
-                                ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}`}
-                            </div> 
-                        </div>`;
-
-                    chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-                        
-                }else if(data.type_content == 'Video'){
-                    
-                    const uniqueId = `video_${data.url.substring(data.url.lastIndexOf('/') + 1)}`;
-
-                    const messageElement =`
-                        <div class="message frnd_message">
-                            <div class="mainImage start_background">
-                                ${data.is_reply_status ?
-                                    `<div class="status_part" style="background-color: #1d282f;">
-                                        <span class="status_part_left-line"></span>
-                                        <div class="status_part_conntent">
-                                            <div class="status_part_conntent_wrap">
-                                                <div class="status_part_conntent_title">
-                                                    <span>You · Status</span>
-                                                </div>
-                                                
-                                                <div class="status_part_conntent_title_bottom">
-                                                    <div class="status_part_conntent_title_bottom_icon">
-                                                        <svg viewBox="0 0 16 20" height="20" width="16" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 16 20"><title>status-video</title><path fill="currentColor" d="M15.243,5.868l-3.48,3.091v-2.27c0-0.657-0.532-1.189-1.189-1.189H1.945 c-0.657,0-1.189,0.532-1.189,1.189v7.138c0,0.657,0.532,1.189,1.189,1.189h8.629c0.657,0,1.189-0.532,1.189-1.189v-2.299l3.48,3.09 V5.868z"></path></svg>
-                                                    </div>
-                                                    <span dir="auto" style="min-height: 0px;line-height: 23px;margin-right: 3px;">00:${data.video_duration}</span>
-                                                    <span dir="auto" style="min-height: 0px; line-height: 23px;">video</span>
-                                                </div>
-                                            </div>
-                                        </div> 
-                                        <div class="status_part_img">
-                                            <div class="status_part_img_first">
-                                                <div class="status_part_img_second" >
-                                                    <div class="status_part_imgview" style="background-image: url(${data.url});"> </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> 
-                                <div class="caption">${data.caption}</div>
-                                <span class="caption_timestamp">${data.timestamp}</span>`
-
-                              : 
-                                `<div class="first_view">
-                                    <div class="playButton" id="playButton" onclick="playVideo('${data.url}', '${false}')">
-                                        <!-- Play Icon -->
-                                        <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" version="1.1"><title>media-play</title><path d="M19.5,10.9 L6.5,3.4 C5.2,2.7 4.1,3.3 4.1,4.8 L4.1,19.8 C4.1,21.3 5.2,21.9 6.5,21.2 L19.5,13.7 C20.8,12.8 20.8,11.6 19.5,10.9 Z" fill="currentColor"></path></svg>
-                                    </div>
-                                    <video id="previewVideo_message" data-unique-id="${uniqueId}" muted onloadedmetadata="setDuration(this)">
-                                        <source id="MyDuration_${uniqueId}" src="${data.url}" type="video/mp4">
-                                    </video>  
-                                    <div class="media-loader">
-                                        <div class="loader"></div>
-                                    </div>
-            
-                                    <div class="videoBottom flex-end">
-                                        <span id="videoDuration_${uniqueId}" class="video-duration"></span>
-                                        ${data.caption ?'':`<span class="vide_timestamp">${data.timestamp}</span>`}
-                                    </div> 
-            
-                                </div>
-                                ${data.caption ? `<div class="caption">${data.caption}</div>` : ''}
-                                ${data.caption ? `<span class="caption_timestamp">${data.timestamp}</span>` : ''}
-                                `}
-                            </div> 
-                            
-                        </div>`;
-                    chatBoxs.insertAdjacentHTML('beforeend', messageElement);
-                    chatBoxs.scrollTop = chatBoxs.scrollHeight;
+    if(emaplath !== ''){
+        const userElements = document.querySelector(emaplath);
+        if(userElements){
+            const messagePElement = userElements.querySelector('.message_p p');
+            if (data.type_content == 'Photo' && data.video_duration===''){
+                messagePElement.textContent = 'Photo';
+            }else if(data.type_content == 'Video' && data.video_duration===''){
+                messagePElement.textContent = 'Video';
+            }else{
+                
+                if(data.video_duration  === ''){
+                    messagePElement.textContent = data.content; 
                 }else{
-                    const messageElement = `
-                        <div class="message frnd_message">
-                            <p>${data.message} <span>${data.timestamp}</span></p>
-                        </div>
-                    `;
-                    chatBoxs.insertAdjacentHTML('beforeend', messageElement);
+                    messagePElement.textContent = data.caption;
                 }
-                
-                
-                
-                chatBoxs.scrollTop = chatBoxs.scrollHeight;
-                
-                chatSocket.send(JSON.stringify({
-                    'action':'send_message_toggle_true',
-                    'receiver_id': data.receiver_id,
-                    'sender_id':data.sender_id,
-                }));
-               
-            }
-                
-        }else{
-            if(djangoUserId == data.receiver_id){
-                const userElements = document.querySelector(`.chatlist .block[data-user-id="${data.sender_id}"]`);
-                if(userElements){
-                    const messagePElement = userElements.querySelector('.message_p');
-                    let toggleCountElement = messagePElement.querySelector('.toggle-count');
-
-                    if(toggleCountElement){
-                        toggleCountElement.textContent = data.toggle_count;
-                    }else{
-                        messagePElement.innerHTML += `<b class="toggle-count">${data.toggle_count}</b>`;
-                    }
-
-                    
-                }
-            }
+            } 
+            const times = userElements.querySelector('.listHead p');
+            times.textContent = data.timestamp;   
         }
     }
-    
+
+    if(!isCheck_user && Number(selectedUserId) !== data.sender_id){
+        const userElements = document.querySelector(`.chatlist .block .inside[data-user-id="${data.sender_id}"]`);   
+        if(userElements){
+            const messagePElement = userElements.querySelector('.message_p');
+            let toggleCountElement = messagePElement.querySelector('.toggle-count');
+            
+            if(toggleCountElement){
+                toggleCountElement.textContent = data.toggle_count;
+            }else{
+                messagePElement.innerHTML += `<b class="toggle-count">${data.toggle_count}</b>`;
+            }
+
+        }
+    }
+
     setTimeout(() => {
         chatBoxs.scrollTop = chatBoxs.scrollHeight;
-    }, 100);   
+    }, 100); 
+ 
 }
-    
+  
 function commenInput(){
     const message = messageInput.value;
 
@@ -2706,7 +2080,74 @@ function commenInput(){
 
     messageInput.value = '';
     toggleSendIcon();
-}
+}   
+
+// bluse tick 
+const seenMessageIds  = new Set();
+const observerReceiveMessage  = new IntersectionObserver((enteries) => {
+    enteries.forEach(entry=>{
+        if(entry.isIntersecting){
+            const messageElement = entry.target;
+            const data  = messageElement.getAttribute('data');
+            const message_id = messageElement.getAttribute('id');
+            if(data === 'delivered' && !seenMessageIds.has(message_id)){
+                messageElement.setAttribute('data', 'seen');
+                seenMessageIds.add(message_id);
+                chatSocket.send(JSON.stringify({
+                    'action': 'change_message_status_by_receiver',
+                    'message_id':message_id,
+                    'receiver_id': window.djangoUserId,
+                }));
+
+
+                const userElements = document.querySelector(`.chatlist .block .inside[data-user-id="${selectedUserId}"]`);   
+                if(userElements){
+                    const messagePElement = userElements.querySelector('.message_p');
+                    let toggleCountElement = messagePElement.querySelector('.toggle-count');
+                    
+                    if(toggleCountElement){
+                        toggleCountElement.textContent = toggleCountElement.textContent - 1;
+                        if(toggleCountElement.textContent == 0){
+                            toggleCountElement.style.display = 'none';
+                        }
+                    }
+        
+                }
+
+                console.log("✅ Blue ticked for sender", messageElement.getAttribute('data'));
+                observerReceiveMessage.unobserve(messageElement);
+            }
+        }
+    });
+}, {
+    threshold:0.8,
+});
+
+
+
+const chatBox = document.getElementById('chatBox');
+
+const mutationObserver = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+            if(node.nodeType === 1 && node.classList.contains('message') && node.classList.contains('receiver')){
+                const data = node.getAttribute('data');
+                const message_id = node.getAttribute('id');
+                const  receiver_id= node.getAttribute('receiver_id');
+                if(data === 'delivered' && !seenMessageIds.has(message_id) && receiver_id == window.djangoUserId){
+                    observerReceiveMessage.observe(node);
+                    console.log("🆕 New message added. Observing now...",data);
+                }
+                                           
+            }
+        });
+    });
+});
+
+mutationObserver.observe(chatBox, {
+    childList: true,
+    subtree: true
+});
 
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -2743,24 +2184,26 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function saveContactsApi(email){
+function saveContactsApi(email, contact_name){
     fetch('/create_contacts/',{
         method:'POST',
         header:{
             'Content-Type':'application/json',
             'X-CSRFToken':getCookie('csrftoken')
         },
-        body:JSON.stringify({contact_email:email})
+        body:JSON.stringify({contact_email:email, contact_name:contact_name})
     }).then(response => response.json()).then(data=>{
         if(data.status == 200){
             draweEmailInput.value = '';
             adduserDrawer.classList.remove('open');
             getContacts('');
+            common_SHOW_messages('success', `Contact save successfully......!`);
         }else{
-            console.error('Error:',data);    
+            common_SHOW_messages('error', `${data.error}`);
+    
         }
     }).catch(error => {
-        console.error('Error:',error);
+        common_SHOW_messages('error', `${error}`);
     });
 }
 
@@ -2781,24 +2224,93 @@ function getContacts(query){
             userBlock.className = 'drawer-block';
             userBlock.setAttribute('data-user-id', user.id);
             userBlock.innerHTML = `
-                <div class="imgbox">
-                   <img src="${user.profile_image != null ? user.profile_image : '/static/images/profile.png'}" class="cover"> 
-                </div>
-                <div class="details">
-                    <div class="listHead">
-                        <h4>${user.username}</h4>
-                        <ion-icon name="trash-outline" class="deleteButton" id="deleteButton"></ion-icon>
+                <div class="inside">
+                    <div class="imgbox">
+                        <img src="${user.profile_image != null ? user.profile_image : '/static/images/profile.png'}" class="cover"> 
+                    </div>
+                    <div class="details">
+                        <div class="listHead">
+                            <h4>${user.username}</h4>                        
+                        </div>
                     </div>
                 </div>
             `;
             
             drwerChatlist.appendChild(userBlock);
 
-            const deleteButton = userBlock.querySelector('.deleteButton');
-            if(deleteButton){
-                deleteButton.addEventListener('click',()=>{
-                    deleteDialog.style.display = 'flex';
-                    deleteDialog.setAttribute('data-user-id', user.id);
+            const drawer_block = userBlock.querySelector('.drawer-block .inside');
+            if(drawer_block){
+                drawer_block.addEventListener('click',()=>{
+                    leftsideDrawer.classList.remove('open');
+                    const user_Block = document.querySelector(`.block .inside[data-user-id="${user.id}"]`);
+                    
+                    if(user_Block !== null){
+                        if(!user_Block.classList.contains('active')){
+                            document.querySelectorAll('.chatlist .block .inside').forEach(b => b.classList.remove('active'));
+                            user_Block.classList.add('active');
+        
+                            if(selectedUserId == null){
+                                rightSide_inside.style.display = 'contents';
+                                introRight.style.display = 'none';
+                            }
+                            selectedUserId = user.id;
+                
+        
+                            document.querySelector('.rightside .chatBox').innerHTML = '';
+                            close_search_msg();
+        
+                            chatSocket.send(JSON.stringify({
+                                'action': 'send_history',
+                                'receiver_id': selectedUserId,
+                            }));
+                
+                            document.querySelector('.rightside .userimg img').src = user.profile_image ? user.profile_image: '/static/images/profile.png';
+                            document.querySelector('.rightside h4').innerHTML = `${user.username}<br><span id="statusText">online</span>`;
+        
+                        }
+                    }else{
+                        
+                        const chatlist = document.getElementById('chatlist');
+                       
+                        const _id = user.id;
+                        const url = user.profile_image ?user.profile_image: '/static/images/profile.png';
+                        const username = user.username;
+
+                        document.querySelectorAll('.chatlist .block .inside').forEach(b => b.classList.remove('active')); 
+                        chatlist.innerHTML += `
+                        <div class="block" >
+                            <div class="inside active" data-user-id="${_id}">
+                                <div class="imgbox">
+                                    <img src="${url}" class="cover">                    
+                                </div>    
+                                <div class="details">
+                                    <div class="listHead">
+                                        <h4>${username}</h4>
+                                        <p class="time"></p>
+                                    </div>
+                                    <div class="message_p">
+                                            <p>"Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Click to learn more"</p>    
+                                    </div>
+                                </div>                        
+                            </div>
+                        </div>
+                        `;
+
+                        rightSide_inside.style.display = 'contents';
+                        introRight.style.display = 'none';
+                        selectedUserId = user.id;
+
+                        console.log("i data got here", selectedUserId);
+                        document.querySelector('.rightside .chatBox').innerHTML = '';
+                        close_search_msg();
+            
+                        document.querySelector('.rightside .userimg img').src = user.profile_image ? user.profile_image: '/static/images/profile.png';
+                        document.querySelector('.rightside h4').innerHTML = `${user.username}<br><span id="statusText">online</span>`;
+                        
+                        clickopenbox();
+                        
+                    }
+                   
                 });    
             }
             
@@ -2822,9 +2334,19 @@ function deleteContact(id){
         if(data.status == 200){
             
             deleteDialog.style.display = 'none';
-            const userBlockToRemove = document.querySelector(`.drwer-chatlist .drawer-block[data-user-id="${id}"]`);
-            if(userBlockToRemove){
-                userBlockToRemove.remove();
+            const target_inside_block = document.querySelector(`.block .inside[data-user-id="${id}"]`);
+            if(target_inside_block){
+                target_inside_block.remove();
+
+                rightSide_inside.style.display = 'none';
+                introRight.style.display = 'flex';
+                selectedUserId = null;
+                lastDate = null;
+    
+                // document.querySelector('.rightside .chatBox').innerHTML = '';
+
+                // document.querySelector('.rightside .userimg img').src = profileImage;
+                // document.querySelector('.rightside h4').innerHTML = `${userName}<br><span id="statusText">online</span>`;
             }
         }
     }).catch(error => {
@@ -2834,36 +2356,55 @@ function deleteContact(id){
 
 
 function clickopenbox(){
-    const chatBlocksClick = document.querySelectorAll('.block');
-    chatBlocksClick.forEach(block=>{
-        block.addEventListener('click', function(){
-        
-            clearImages();   
-            document.querySelectorAll('.chatlist .block').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-
-            if(selectedUserId == null){
-                rightSide.style.display = 'inline';
-                introRight.style.display = 'none';
-            }
-            selectedUserId = this.getAttribute('data-user-id');
-
-            document.querySelector('.rightside .chatBox').innerHTML = '';
-            chatSocket.send(JSON.stringify({
-                'action': 'send_history',
-                'receiver_id': selectedUserId,
-            })); 
-
-            const userId = this.getAttribute('data-user-id');
-            const userName = this.querySelector('.listHead h4').textContent;
-            const profileImage = this.querySelector('.imgbox img').src;
-            const lastMessageTime = this.querySelector('.time').textContent;
-
-            document.querySelector('.rightside .userimg img').src = profileImage;
-            document.querySelector('.rightside h4').innerHTML = `${userName}<br><span id="statusText">online</span>`;
-        });
-    });
+    const chatBlocksClick = document.querySelectorAll('.block .inside');
+    chatBlocksClick.forEach(block=>attachChatBlockEvents(block));
    
+}
+
+function attachChatBlockEvents(block){
+    block.addEventListener('contextmenu', function(e){
+        e.preventDefault();
+
+        const chat_USR_model = document.getElementById('chat_USR_model');
+        chat_USR_model.style.left = `${e.pageX}px`;
+        chat_USR_model.style.top = `${e.pageY}px`;
+        chat_USR_model.style.display = 'block';
+
+        const userId =  this.getAttribute('data-user-id');
+        const userName = this.querySelector('.listHead h4').textContent;
+
+        chat_USR_model.setAttribute('data-user-id', userId);
+        chat_USR_model.setAttribute('data-user-name', userName);
+               
+    });
+
+    block.addEventListener('click', function(){
+    
+        clearFiles();   
+        document.querySelectorAll('.chatlist .block .inside').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+       
+        if(selectedUserId == null){
+            rightSide_inside.style.display = 'contents';
+            introRight.style.display = 'none';
+        }
+        selectedUserId = this.getAttribute('data-user-id');
+
+        document.querySelector('.rightside .chatBox').innerHTML = '';
+        close_search_msg();
+        
+        chatSocket.send(JSON.stringify({
+            'action': 'send_history',
+            'receiver_id': selectedUserId,
+        })); 
+
+        const userId = this.getAttribute('data-user-id');
+        const userName = this.querySelector('.listHead h4').textContent;
+        const profileImage = this.querySelector('.imgbox img').src;
+
+        document.querySelector('.rightside .userimg img').src = profileImage;
+        document.querySelector('.rightside h4').innerHTML = `${userName}<br><span id="statusText">online</span>`;
+    });
 }
 
 // status 24 hours  status delete functionality 
@@ -2953,3 +2494,285 @@ function  removeStatusById(statusId){
         close_status_view();
     }
 }
+
+const search_messages = document.getElementById('search_messages');
+const message_search_side = document.getElementById('message_search_side');
+const message_side_close = document.getElementById('message_side_close');
+
+const message_search_icon = document.getElementById('message_search_icon');
+const message_search_right_arrow = document.getElementById('message_search_right_arrow');
+const message_search_input = document.getElementById('message_search_input');
+const message_search_close = document.getElementById('message_search_close');
+
+const search_data = document.getElementById('search_data');
+const suggestion_text_show = document.getElementById('suggestion_text_show');
+const noResultsMessage = document.getElementById('noResultsMessage');
+
+
+search_messages.addEventListener('click', function(){
+    message_search_side.style.display = 'block';
+    message_search_icon.style.display = 'none';
+    if(message_search_input){
+        message_search_input.focus();
+    }
+    message_search_close.style.display = 'none';
+    
+});
+
+message_side_close.addEventListener('click', function(){
+    close_search_msg();
+});
+
+function close_search_msg(){
+    message_search_side.style.display = 'none';
+    message_search_input.value = '';
+    search_data.innerHTML = '';
+    suggestion_text_show.style.display = 'flex';
+    noResultsMessage.textContent  =  "Search for messages with Shraddha Mami.";
+}
+
+message_search_input.addEventListener('input', function(){
+    
+    message_search_close.style.display = '';
+    message_search_right_arrow.style.display = '';
+    message_search_icon.style.display =  'none';
+    if(message_search_input.value.trim() === ''){
+        message_search_close.style.display = 'none';
+    }
+
+    const filter = message_search_input.value.toLowerCase();
+    search_data.innerHTML = '';
+
+   
+    if(message_search_input.value.trim() !== ''){
+
+        suggestion_text_show.style.display = 'none';
+
+        chat_history_search_MSG['history'].slice().reverse().forEach(chat=>{
+            chat.messages.slice().reverse().forEach(message => {                
+                const date = chat.date;
+                const content = message.content ? message.content.toLowerCase() : "";
+                const caption = message.caption ? message.caption.toLowerCase() : "";
+                
+                if (content.includes(filter) || caption.includes(filter)) {
+
+                    const highlightedContent = message.content 
+                    ? message.content.replace(new RegExp(filter, 'gi'), match => `<span class="content_span_highlight">${match}</span>`) 
+                    : "";
+                    const highlightedCaption = message.caption 
+                        ? message.caption.replace(new RegExp(filter, 'gi'), match => `<span class="content_span_highlight">${match}</span>`) 
+                        : "";
+
+                    search_data.innerHTML += `
+                    <div class="blocks">
+                       <div class="block_inside" data-message-id="${message.message_id}">
+                            <div class="date">
+                                <span>${date}</span>
+                            </div>
+                            <div class="content">
+                            ${highlightedContent !== "" ? highlightedContent :highlightedCaption}
+                            </div>
+                        </div>
+                        
+                    </div>`;
+
+            
+                }
+
+            });
+        });
+        
+        if (search_data.innerHTML.trim() === '' && message_search_input.value.trim() !== '') {
+            suggestion_text_show.style.display = 'flex';
+            noResultsMessage.textContent  =  "No messages found";
+        } else {
+            suggestion_text_show.style.display = 'none';
+        }
+        
+       
+    }else{
+        suggestion_text_show.style.display = 'flex';
+        noResultsMessage.textContent  =  "Search for messages with Shraddha Mami.";
+    }
+   
+
+
+});
+
+search_data.addEventListener('click', function(event) {
+    const block = event.target.closest('.block_inside');
+    if(block){
+        const messageId = block.getAttribute('data-message-id');
+        const messageElement = document.getElementById(messageId);
+        if (messageElement) {
+            messageElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    }
+});
+
+message_search_input.addEventListener('focus', function(){
+    message_search_right_arrow.style.display = '';
+    message_search_icon.style.display =  'none';
+    
+});
+
+message_search_input.addEventListener('focusout',function(){
+    if(message_search_input.value.trim() === ''){
+        message_search_close.style.display = 'none';
+        message_search_right_arrow.style.display = 'none';
+        message_search_icon.style.display =  '';
+    }
+});
+
+message_search_close.addEventListener('click', function(){    
+    message_search_input.value = '';
+    message_search_close.style.display = 'none';
+    if(message_search_input){
+        message_search_input.focus();
+    }
+});
+
+
+let calender = document.getElementById("calender");
+let toggle_Calendar = document.getElementById("toggle_Calendar");
+
+toggle_Calendar.addEventListener("click", function(event){
+    if(calender.classList.contains("show")){
+        calender.classList.remove("show");  
+    }else{
+        calender.classList.add("show");
+    }
+    event.stopPropagation();
+});
+
+document.addEventListener("click", function (event) {
+    if (!calender.contains(event.target) && event.target !== toggle_Calendar) {
+        calender.classList.remove("show");
+    }
+    const msG = document.getElementById('chat_USR_model');
+    if(msG){
+        msG.style.display = 'none';
+    }
+    
+    
+});
+
+
+function common_SHOW_messages(status, text){
+    const messageBox = document.querySelector('.messages');
+    const messageText = document.querySelector('.messages .discou');
+
+    messageBox.style.animation = 'none';
+    void messageBox.offsetWidth;
+    messageBox.classList.remove('success', 'error');
+    
+    messageBox.classList.add(status);
+    messageText.textContent = text;
+
+    messageBox.style.display = 'block'
+
+    setTimeout(()=>{
+        messageBox.style.animation = 'fadeOut 0.5s ease-in-out forwards';
+        setTimeout(()=>{
+            messageBox.style.display = 'none';
+        }, 500);
+    }, 5000);
+}
+
+// video call 
+// const localVideo = document.getElementById("localVideo");
+// const remoteVideo = document.getElementById("remoteVideo");
+
+// const peer = new RTCPeerConnection();
+
+// function sendWhenSocketReady(data) {
+//     if (chatSocket.readyState === WebSocket.OPEN) {
+//         chatSocket.send(JSON.stringify(data));
+//     } else {
+//         chatSocket.addEventListener("open", () => {
+//             chatSocket.send(JSON.stringify(data));
+//         }, { once: true });
+//     }
+// }
+
+// navigator.mediaDevices.getUserMedia({
+//     video: true,
+//     audio: { 
+//         echoCancellation: true,
+//         noiseSuppression: true,
+//         autoGainControl: true,
+//         channelCount: 1,
+//         sampleRate: 48000, 
+//         sampleSize: 16
+//     }
+// }).then(stream => {
+//     localVideo.srcObject = stream;
+//     stream.getTracks().forEach(track => peer.addTrack(track, stream));
+// });
+
+// peer.ontrack = (event) => {
+   
+//     if (event.track.kind === "video") {
+//         remoteVideo.srcObject = event.streams[0];
+//     } else if (event.track.kind === "audio") {
+//         document.getElementById("remoteAudio").srcObject = event.streams[0];
+//     }
+// };
+
+// peer.onicecandidate = event => {
+//     sendWhenSocketReady({
+//         action: "new_ice_candidate",
+//         receiver_id: 43,
+//         candidate: event.candidate
+//     });
+// };
+
+
+// chatSocket.addEventListener("open", () => {
+//     peer.createOffer().then(offer => {
+//         peer.setLocalDescription(offer);
+//         if (window.djangoUserId !== '43') {
+//             chatSocket.send(JSON.stringify({
+//                 action: "video_offer",
+//                 receiver_id: 43,
+//                 offer: offer
+//             }));
+//         }
+//     });
+// });
+
+// chatSocket.onmessage = async ({ data }) => {
+//     const msg = JSON.parse(data);
+//     console.log("msg===============",msg);
+//     switch (msg.type){
+
+//         case "video_offer":
+//             await peer.setRemoteDescription(new RTCSessionDescription(msg.offer));
+//             const answer = await peer.createAnswer();
+//             await peer.setLocalDescription(answer);
+//             sendWhenSocketReady({
+//                 action: "video_answer",
+//                 receiver_id: msg.sender_id,   
+//                 answer: answer
+//             });
+//             break;
+
+//         case "video_answer":
+//             await peer.setRemoteDescription(new RTCSessionDescription(msg.answer));
+//             break;
+
+//         case "new_ice_candidate":
+//             try {
+//                 await peer.addIceCandidate(new RTCIceCandidate(msg.candidate));
+//             } catch (e) {
+//                 console.error("Error adding received ice candidate", e);
+//             }
+//             break;    
+
+              
+//     }
+
+// }

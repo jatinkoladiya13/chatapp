@@ -15,7 +15,7 @@ import uuid
 
 @database_sync_to_async
 def get_message_receiver_count(sender_id, receiver_id):
-    return Message.objects.filter(sender_id=sender_id, receiver_id=receiver_id, is_read=False).count()
+    return Message.objects.filter(sender_id=sender_id, receiver_id=receiver_id, status_view='delivered').count() 
 
 @sync_to_async
 def get_chat_history(sender_id, receiver_id, deletetion_time_str=None):
@@ -29,15 +29,28 @@ def get_chat_history(sender_id, receiver_id, deletetion_time_str=None):
                     (Q(sender_id=sender_id) & Q(receiver_id=receiver_id)) |
                     (Q(sender_id=receiver_id) & Q(receiver_id=sender_id))).order_by('timestamp')) 
 
-@sync_to_async
-def mark_messages_as_read(sender_id, receiver_id):
-    return Message.objects.filter(sender_id=receiver_id, receiver_id=sender_id).update(is_read=True)
-
-@sync_to_async
-def mark_messages_bothsame_read(sender_id, receiver_id):
-    return Message.objects.filter(sender_id=sender_id, receiver_id=receiver_id).update(is_read=True)
 
 
+
+# Mark all 'sent' messages to this user as 'delivered'
+
+async def mark_change_delivere(user):
+
+    messages = await sync_to_async(list)(Message.objects.filter(receiver=user, status_view='sent'))
+    await sync_to_async(Message.objects.filter(receiver=user, status_view='sent').update)(status_view='delivered')
+
+    for message in messages:
+        if message.sender_id in user_connections:
+            for connection in user_connections[message.sender_id]:
+                await connection.send(text_data=json.dumps({
+                    'type': 'receiver_message_delivered',
+                    'receiver_id':message.receiver_id,
+                    'sender_id':message.sender_id,
+                    'message_id':message.id, 
+                }))
+    
+    
+    return  messages
 
 @database_sync_to_async
 def get_reciver_name(message):
@@ -58,9 +71,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             user_connections[id] = []
         user_connections[id].append(self)
 
+
+        # marke histroy change function call
+        await  mark_change_delivere(self.scope['user'])
         
-        
-       
         # join group 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -78,8 +92,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             user_connections[id].remove(self)
             if not user_connections[id]:
                 del user_connections[id]  
-
-       
         
         await self.channel_layer.group_discard(
             self.room_group_name,
@@ -146,13 +158,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
             receiver_id = text_data_json['receiver_id']
             await self.send_chat_history(sender_id, receiver_id)
 
-        if action == 'send_message_toggle_true':
+        if action == 'change_message_status_by_receiver':
             receiver_id = text_data_json['receiver_id']
-            sender_id = text_data_json['sender_id']
-            await mark_messages_bothsame_read(sender_id, receiver_id)
+            message_id = text_data_json['message_id']
+
+            await sync_to_async(Message.objects.filter(id=message_id,receiver_id=receiver_id).update)(status_view='seen')
+            messages_qs = await sync_to_async(list)(
+                Message.objects.filter(id=message_id,receiver_id=receiver_id)
+            )
+            
+            for message in messages_qs:
+
+                if message.sender_id in user_connections:
+                    for conn in user_connections[int(message.sender_id)]:
+                        filter_message_data = {
+                            'type':'change_message_status_by_receiver',
+                            'receiver_id':receiver_id,
+                            'sender_id':message.sender_id,
+                            'message_id':message.id,
+                            'receiver_message_view':message.status_view,
+                        }
+                        await conn.send(text_data=json.dumps(filter_message_data))
+            pass    
 
         if action == 'send_message':
-            message = text_data_json['message']
+            content_message = text_data_json['message']
             receiver_id = text_data_json['receiver_id']
             status_id = text_data_json.get('status_id', '')
 
@@ -160,17 +190,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
             receiver = await database_sync_to_async(User.objects.get)(id=receiver_id)
             
           
-            check = True
-            img = ''
+            check_contact = {}
+            sender_profile_image = ''
             if  sender.id not in [contact["user_id"] for contact in receiver.contacts]:
                 receiver.contacts.append({
-                    'user_id':sender.id,
-                    'delete_status':False,})
+                    "user_id":sender.id,
+                    "delete_status":False,
+                    "contact_name":sender.username})
+                print("this is working for me....")
                 await database_sync_to_async(receiver.save)()
-                check = False
-                img = sender.profile_image.url if sender.profile_image else None
+                check_contact = {"_id":sender.id, "username":sender.username, "profile_img":sender.profile_image.url if sender.profile_image else None,}
+                sender_profile_image = sender.profile_image.url if sender.profile_image else None
 
-
+            for contact in sender.contacts:
+                if contact["user_id"] == receiver.id:
+                    if contact["delete_status"]:
+                        contact["delete_status"] = False
+                        await database_sync_to_async(sender.save)()
+                        break 
+                      
              
             type_content = ''
             url = ''
@@ -178,7 +216,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             is_reply_status = False
             video_duration = ''
 
-            if not message:
+            if not content_message:
                 
                 send_data = text_data_json.get('Send_Data', '')
                 if send_data != '': 
@@ -218,18 +256,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                       
 
             else:    
-                msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=message)
-                   
-
-
+                msg_instance = await database_sync_to_async(Message.objects.create)(sender=sender, receiver=receiver, content=content_message)
+            
             if sender_id == int(receiver_id):
-                msg_instance.is_read = True
+                msg_instance.is_read_toggle = True
                 await database_sync_to_async(msg_instance.save)()
-
 
             message_reciver_count = await get_message_receiver_count(sender_id=sender_id,receiver_id=receiver_id,)
             
-
             local_timestamps = localtime(msg_instance.timestamp)  
             formate_msg_time = format_date(local_timestamps)
 
@@ -239,73 +273,81 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 last_msg_time = local_timestamps.strftime('%H:%M')
             else:
                 last_msg_time = formate_msg_time
-            
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                { 
+
+            receiver_message_view = 'sent'
+            if int(receiver_id) in user_connections:
+                msg_instance.status_view = 'delivered'
+                await database_sync_to_async(msg_instance.save)()
+                receiver_message_view = 'delivered'
+           
+            message_data  = { 
                 'type':'chat_message',
-                'message':message,
+                'content':content_message,
                 'sender':sender.username,
                 'timestamp':local_timestamps.strftime('%H:%M'),
                 'receiver_id':receiver_id,
                 'sender_id':sender_id,
-                'is_read':False,
-                'toggle_count':message_reciver_count,
+                'toggle_count':message_reciver_count +1,
                 'last_msg_time':last_msg_time,
                 'label_time':formate_msg_time,
-                'check_contacts':check,
-                'img':img,
+                'check_contact':check_contact,
+                'sender_profile_image':sender_profile_image,
                 'url':url,
                 'caption':caption,
                 'type_content':type_content,
                 'is_reply_status':is_reply_status ,
                 'reciver_name':receiver.username,
                 'video_duration':video_duration,
-                }
-            )
+                'receiver_message_view':receiver_message_view,
+                'message_id':msg_instance.id,
+            }
+
+            if int(sender_id) in user_connections:
+                for conn in user_connections[int(sender_id)]:
+                    await conn.send(text_data=json.dumps(message_data))
+            
+            if int(receiver_id) in user_connections:
+                for conn in user_connections[int(receiver_id)]:
+                    await conn.send(text_data=json.dumps(message_data))
+
             video_duration = ''
             is_reply_status = False
+        
+        # if action == "video_offer":
+        #     receiver_id = text_data_json["receiver_id"]
+        #     offer = text_data_json["offer"]
 
-    async def chat_message(self, event):
-        message = event['message']
-        sender = event['sender']
-        timestamp = event['timestamp']
-        receiver_id = event['receiver_id']
-        sender_id = event['sender_id']
-        is_read = event['is_read'] 
-        toggle_count = event['toggle_count']
-        last_msg_time = event['last_msg_time']
-        type = event['type']
-        label_time = event['label_time']
-        check_contacts = event['check_contacts']
-        img = event['img']
-        url = event['url']
-        caption = event['caption']
-        type_content = event['type_content'] 
-        is_reply_status = event['is_reply_status']
-        reciver_name = event['reciver_name']
-        video_duration = event['video_duration']
+        #     if int(receiver_id) in user_connections:
+        #         for conn in user_connections[int(receiver_id)]:
+        #             await conn.send(text_data=json.dumps({
+        #                 "type": "video_offer",
+        #                 "offer": offer,
+        #                 "sender_id": sender_id
+        #             }))
 
-        await self.send(text_data=json.dumps({
-            'message':message,
-            'sender':sender,
-            'timestamp': timestamp,
-            'receiver_id':receiver_id,
-            'sender_id':sender_id,
-            'is_read':is_read,
-            'toggle_count':toggle_count,
-            'last_msg_time':last_msg_time,
-            'type':type,
-            'label_time':label_time,
-            'check_contacts':check_contacts,
-            'img':img,
-            'url':url,
-            'caption':caption,
-            'type_content':type_content,
-            'is_reply_status':is_reply_status,
-            'reciver_name':reciver_name,
-            'video_duration':video_duration,
-        }))
+        # if action == "video_answer":
+        #     receiver_id = text_data_json["receiver_id"]
+        #     answer = text_data_json["answer"]
+
+        #     if int(receiver_id) in user_connections:
+        #         for conn in user_connections[int(receiver_id)]:
+        #             await conn.send(text_data=json.dumps({
+        #                 "type": "video_answer",
+        #                 "answer": answer,
+        #                 "sender_id": sender_id
+        #             })) 
+
+        # if action == "new_ice_candidate":
+        #     receiver_id = text_data_json["receiver_id"]
+        #     candidate = text_data_json["candidate"]
+
+        #     if int(receiver_id) in user_connections:
+        #         for conn in user_connections[int(receiver_id)]:
+        #             await conn.send(text_data=json.dumps({
+        #                 "type": "new_ice_candidate",
+        #                 "candidate": candidate,
+        #                 "sender_id": sender_id
+        #             }))                       
 
 
     async def send_chat_history(self, sender_id, receiver_id):
@@ -318,7 +360,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         messages =  await get_chat_history(sender_id=sender_id,receiver_id=receiver_id, deletetion_time_str=deletetion_time_str)
         
-        await mark_messages_as_read(sender_id, receiver_id)
+        # await toggle_messages_as_read(sender_id, receiver_id) 
+
         is_reply_status = False
         grouped_messages = {}
         for message in messages:
@@ -333,52 +376,55 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'messages':[]
                 }
 
-            
-
             replied_video_duration = message.video_duration
-            if replied_video_duration is not None:
-                is_reply_status = True
-                img_url = message.image.url if message.image and message.image.name else None
-                if replied_video_duration == 0:
-                    image = str(img_url) 
-                else:
-                    video_url = str(img_url)    
-            else:
-                video_url = str(message.video.url) if message.video and message.video.name else None
-                image =str(message.image)
+            is_reply_status = replied_video_duration is not None
+            
+            img_url = message.image.url if message.image and message.image.name else None
+            video_url = message.video.url if message.video and message.video.name else None
+              
+            url = ''
+            type_content =''
+            if img_url:
+                url = img_url
+                type_content = 'Photo'
+            elif video_url:
+                url = video_url
+                type_content = 'Video'
 
             
-              
-           
            
             reciver_username = await get_reciver_name(message)
-
         
             grouped_messages[date_key]['messages'].append({
                 'content':message.content,
-                'sender':message.sender_id,
-                'receiver': message.receiver_id,
+                'sender_id':message.sender_id,
+                'receiver_id': message.receiver_id,
                 'timestamp':formatted_timestamp,
-                'img':image,
-                'video':video_url,
+                'url':url,
                 'caption':message.caption,
+                'type_content':type_content,
                 'is_reply_status':is_reply_status,
                 'reciver_name':reciver_username,
-                'replied_video_duration':replied_video_duration,
+                'video_duration':replied_video_duration,
+                'receiver_message_view':message.status_view,
+                'message_id':message.id,
             })
              
-            image  = ''
-            video_url = '' 
+            url  = '' 
+            type_content =''
             is_reply_status = False
             
 
         response_data = list(grouped_messages.values())
+        message_reciver_count = await get_message_receiver_count(sender_id=sender_id,receiver_id=receiver_id,)
 
         await self.send(text_data=json.dumps({
             'type': 'chat_history',
             'history': response_data,
             'sender_id':sender_id,
+            'receiver_id':receiver_id,
             'status':reciver.is_online,
+            'toggle_count':message_reciver_count,
         }))
 
     async def status_update(self, event):
