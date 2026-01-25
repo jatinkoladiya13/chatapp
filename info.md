@@ -175,6 +175,42 @@ await channel_layer.group_send(
 
 ---
 
+### 6. Redis Pub/Sub (Core Concept — Explained Clearly)
+
+Redis Pub/Sub = message goes in, Redis sends it to everyone listening
+
+**Pub/Sub = Publish / Subscribe**
+
+- **Publisher** → sends a message  
+- **Subscriber** → receives a message  
+- **Redis** → middleman (broadcaster)
+
+---
+
+#### Key Truths (Very Important)
+
+- Redis does **NOT store** Pub/Sub messages  
+- Redis does **NOT decide** business logic  
+- Redis does **NOT know** users or sockets  
+- Redis **only broadcasts instantly** to active subscribers  
+
+> If no one is listening, the message is **lost**.
+
+---
+
+#### Redis Pub/Sub Flow in Django Channels
+```
+Sender WebSocket
+  ↓
+Django Channels Worker (Publisher)
+  ↓
+Redis Pub/Sub
+  ↓
+Django Channels Workers (Subscribers)
+  ↓
+Receiver WebSockets
+```
+
 ## 8. Message Flow (Important)
 
 ### Key Truth
