@@ -2685,7 +2685,7 @@ function common_SHOW_messages(status, text){
 // video call 
 // const localVideo = document.getElementById("localVideo");
 // const remoteVideo = document.getElementById("remoteVideo");
-
+// const remoteAudio = document.getElementById("remoteAudio");
 // const peer = new RTCPeerConnection();
 
 // function sendWhenSocketReady(data) {
@@ -2701,12 +2701,12 @@ function common_SHOW_messages(status, text){
 // navigator.mediaDevices.getUserMedia({
 //     video: true,
 //     audio: { 
-//         echoCancellation: true,
-//         noiseSuppression: true,
-//         autoGainControl: true,
+//         deviceId: "3ffd188b74b831cd50eaffa67b0589138bf6fda3af0b1b10f2a84d824f0550a3",
+//         echoCancellation: { ideal: true },
+//         noiseSuppression: { ideal: true },
+//         autoGainControl: { ideal: true },
+//         sampleRate: 48000,
 //         channelCount: 1,
-//         sampleRate: 48000, 
-//         sampleSize: 16
 //     }
 // }).then(stream => {
 //     localVideo.srcObject = stream;
@@ -2718,9 +2718,29 @@ function common_SHOW_messages(status, text){
 //     if (event.track.kind === "video") {
 //         remoteVideo.srcObject = event.streams[0];
 //     } else if (event.track.kind === "audio") {
-//         document.getElementById("remoteAudio").srcObject = event.streams[0];
+//         remoteAudio.srcObject = event.streams[0];
+//         remoteAudio.volume = 1.0;
+//         const audioContext = new AudioContext();
+//         const source = audioContext.createMediaStreamSource(event.streams[0]);
+//         const gainNode = audioContext.createGain();
+//         gainNode.gain.value = 1.2; // boost volume slightly
+//         source.connect(gainNode).connect(audioContext.destination);
+//         remoteAudio.play().catch(err => console.error("Audio play error:", err));
 //     }
+    
+//     //  if (!remoteVideo.srcObject) remoteVideo.srcObject = event.streams[0];
+//     // if (!remoteAudio.srcObject) remoteAudio.srcObject = event.streams[0];
+//     // remoteAudio.volume = 1.0;
+     
 // };
+
+// navigator.mediaDevices.enumerateDevices().then(devices => {
+//     devices.forEach(device => {
+//         if (device.kind === "audioinput") {
+//             console.log(`Mic: ${device.label} | ID: ${device.deviceId}`);
+//         }
+//     });
+// })
 
 // peer.onicecandidate = event => {
 //     sendWhenSocketReady({
@@ -2730,9 +2750,12 @@ function common_SHOW_messages(status, text){
 //     });
 // };
 
-
+// function preferOpusForVoice(sdp) {
+//     return sdp.replace("useinbandfec=1", "stereo=0; maxaveragebitrate=20000; useinbandfec=1; cbr=1");
+// }
 // chatSocket.addEventListener("open", () => {
 //     peer.createOffer().then(offer => {
+//         offer.sdp = preferOpusForVoice(offer.sdp);
 //         peer.setLocalDescription(offer);
 //         if (window.djangoUserId !== '43') {
 //             chatSocket.send(JSON.stringify({
@@ -2776,3 +2799,4 @@ function common_SHOW_messages(status, text){
 //     }
 
 // }
+
